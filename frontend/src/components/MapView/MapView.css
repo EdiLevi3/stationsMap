@@ -1,0 +1,130 @@
+/* ── Map container wrapper ── */
+
+.map-wrapper {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Map loading & error states ── */
+
+.map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: #475569;
+  font-size: 1rem;
+}
+
+.map-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: #475569;
+  text-align: center;
+  padding: 24px;
+}
+
+.map-error__icon {
+  font-size: 2.5rem;
+}
+
+.map-error__message {
+  font-size: 1rem;
+  color: #64748b;
+  max-width: 360px;
+}
+
+.map-error__retry {
+  padding: 10px 24px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.map-error__retry:hover {
+  background: #2563eb;
+}
+
+.map-error__retry:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* ── Station count badge ── */
+
+.station-count {
+  position: absolute;
+  top: 12px;
+  left: 310px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #334155;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* ── Leaflet layer control overrides ── */
+
+.leaflet-control-layers {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 8px 12px !important;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+/* ── Center button ── */
+
+.center-button {
+  position: absolute;
+  top: 90px;
+  left: 10px;
+  z-index: 1000;
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-size: 1.2rem;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+  color: #333;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.center-button:hover {
+  background: #f4f4f4;
+}
+
+.center-button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}

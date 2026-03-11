@@ -1,0 +1,35 @@
+/* ── Date selector ── */
+
+.date-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-selector__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.date-selector__select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.date-selector__select:hover {
+  border-color: #94a3b8;
+}
+
+.date-selector__select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}

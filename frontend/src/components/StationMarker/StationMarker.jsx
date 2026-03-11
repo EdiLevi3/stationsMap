@@ -1,0 +1,39 @@
+// Renders a single station as a Leaflet marker with a tooltip (hover)
+// and a popup (click) that shows station details and download options.
+
+import { memo, useRef } from 'react';
+import { Marker, Tooltip, Popup, useMap } from 'react-leaflet';
+import StationPopup from '../StationPopup/StationPopup';
+
+const StationMarker = memo(({ station, markerRef }) => {
+    const { _id, stationName, approxLocation, city, country, countrycode } = station;
+    const position = [approxLocation.lat, approxLocation.lon];
+    const tooltipText = city ? `${stationName} — ${city}` : stationName;
+    const popupRef = useRef(null);
+    const map = useMap();
+
+    const handleClick = () => {
+        map.flyTo(position, 14);
+    };
+
+    return (
+        <Marker position={position} ref={markerRef} eventHandlers={{ click: handleClick }}>
+            <Tooltip>{tooltipText}</Tooltip>
+            <Popup ref={popupRef} minWidth={250} maxWidth={350} autoPanPaddingTopLeft={[10, 80]} autoPanPaddingBottomRight={[10, 10]}>
+                <StationPopup
+                    stationId={_id}
+                    stationName={stationName}
+                    approxLocation={approxLocation}
+                    city={city}
+                    country={country}
+                    countrycode={countrycode}
+                    popupRef={popupRef}
+                />
+            </Popup>
+        </Marker>
+    );
+});
+
+StationMarker.displayName = 'StationMarker';
+
+export default StationMarker;

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-03-02T21:30:00.000Z" agent="DrawIO Architect Skill" version="22.0.0" type="device">
+  <diagram name="ARI Architecture" id="ari-arch">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- User -->
+        <mxCell id="user"
+          value="User"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.compute_engine"
+          vertex="1" parent="1">
+          <mxGeometry x="50" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend: Nginx + React -->
+        <mxCell id="frontend"
+          value="Frontend&#xa;Nginx + React"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.cloud_cdn"
+          vertex="1" parent="1">
+          <mxGeometry x="250" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Backend: Express API -->
+        <mxCell id="backend"
+          value="Backend&#xa;Express API"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.cloud_run"
+          vertex="1" parent="1">
+          <mxGeometry x="500" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- MongoDB -->
+        <mxCell id="mongodb"
+          value="MongoDB"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.cloud_sql"
+          vertex="1" parent="1">
+          <mxGeometry x="750" y="180" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- AWS S3 -->
+        <mxCell id="s3"
+          value="AWS S3&#xa;(RINEX Files)"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.cloud_storage"
+          vertex="1" parent="1">
+          <mxGeometry x="750" y="380" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- External: Map Tiles + Geocoding -->
+        <mxCell id="external"
+          value="External APIs&#xa;OSM / Nominatim / Esri"
+          style="sketch=0;html=1;fillColor=#4285F4;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=12;fontStyle=0;fontColor=#424242;shape=mxgraph.gcp2.cloud_dns"
+          vertex="1" parent="1">
+          <mxGeometry x="250" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- CONNECTIONS -->
+
+        <!-- User -> Frontend -->
+        <mxCell id="c1"
+          value=":3000"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="user" target="frontend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend -> Backend -->
+        <mxCell id="c2"
+          value="/api/*"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="frontend" target="backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend -> MongoDB -->
+        <mxCell id="c3"
+          value="Mongoose"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="backend" target="mongodb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend -> S3 -->
+        <mxCell id="c4"
+          value="presigned URL"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="backend" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User -> S3 (direct download) -->
+        <mxCell id="c5"
+          value="download"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FBBC04;strokeWidth=1;dashed=1;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="user" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend -> External APIs -->
+        <mxCell id="c6"
+          value="tiles + geocoding"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;strokeWidth=1;dashed=1;endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontSize=10;fontColor=#333333;"
+          edge="1" parent="1" source="frontend" target="external">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

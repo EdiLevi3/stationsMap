@@ -1,0 +1,47 @@
+# Docker Compose for the Station Map application.
+# Services: MongoDB, Express backend, and Nginx+React frontend.
+# Env vars (PORT, S3_BUCKET_NAME, AWS_*) are read from .env file.
+
+services:
+  # MongoDB database — data persisted in a named volume
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # Node.js/Express API — waits for MongoDB, checked via /health endpoint
+  backend:
+    build: ./backend
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URL: mongodb://mongo:27017/stations-map
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      PORT: ${PORT}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      NODE_ENV: production
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT}/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Nginx serves the React build and proxies /api/* to the backend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mongo-data:
