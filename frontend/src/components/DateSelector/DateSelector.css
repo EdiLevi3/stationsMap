@@ -4,6 +4,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+}
+
+.date-selector__popper-container {
+  position: relative;
 }
 
 .date-selector__label {
@@ -12,7 +17,9 @@
   color: #475569;
 }
 
-.date-selector__select {
+/* ── Trigger input ── */
+
+.date-selector__input {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid #cbd5e1;
@@ -21,15 +28,152 @@
   color: #1e293b;
   background: #fff;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
-.date-selector__select:hover {
+.date-selector__input:hover {
   border-color: #94a3b8;
 }
 
-.date-selector__select:focus {
+.date-selector__input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ── Calendar dropdown overrides ── */
+
+.date-selector__calendar.react-datepicker {
+  font-family: inherit;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* Header (month/year + nav arrows) */
+.date-selector__calendar .react-datepicker__header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 8px 8px;
+  border-radius: 0;
+}
+
+.date-selector__calendar .react-datepicker__current-month {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.date-selector__calendar .react-datepicker__day-names {
+  display: flex;
+  justify-content: space-around;
+}
+
+.date-selector__calendar .react-datepicker__day-name {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  width: 32px;
+  line-height: 32px;
+  margin: 0;
+}
+
+/* Navigation arrows */
+.date-selector__calendar .react-datepicker__navigation {
+  top: 10px;
+}
+
+.date-selector__calendar .react-datepicker__navigation-icon::before {
+  border-color: #64748b;
+  border-width: 2px 2px 0 0;
+  height: 7px;
+  width: 7px;
+}
+
+.date-selector__calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #1e293b;
+}
+
+/* Day cells */
+.date-selector__calendar .react-datepicker__month {
+  margin: 6px 8px 10px;
+}
+
+.date-selector__calendar .react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.date-selector__calendar .react-datepicker__day {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  margin: 1px 0;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #1e293b;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+
+/* Available (included) days */
+.date-selector__calendar .react-datepicker__day:not(.react-datepicker__day--disabled):not(.react-datepicker__day--outside-month):hover {
+  background: #eff6ff;
+  color: #2563eb;
+  transform: scale(1.1);
+}
+
+/* Selected day */
+.date-selector__calendar .react-datepicker__day--selected,
+.date-selector__calendar .react-datepicker__day--selected:hover {
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  transform: scale(1.1);
+}
+
+/* Disabled / unavailable days */
+.date-selector__calendar .react-datepicker__day--disabled {
+  color: #e2e8f0;
+  cursor: default;
+}
+
+/* Outside-month days */
+.date-selector__calendar .react-datepicker__day--outside-month {
+  color: #cbd5e1;
+}
+
+/* Keyboard-selected day */
+.date-selector__calendar .react-datepicker__day--keyboard-selected {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* Today indicator */
+.date-selector__calendar .react-datepicker__day--today:not(.react-datepicker__day--selected) {
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* ── Available dates highlight (dot indicator) ── */
+.date-selector__calendar .react-datepicker__day--highlighted:not(.react-datepicker__day--selected) {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+  position: relative;
+}
+
+.date-selector__calendar .react-datepicker__day--highlighted:not(.react-datepicker__day--selected)::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #3b82f6;
 }
