@@ -8,7 +8,6 @@ import StationPopup from '../StationPopup/StationPopup';
 const StationMarker = memo(({ station, markerRef }) => {
     const { _id, stationName, approxLocation, city, country, countrycode } = station;
     const position = [approxLocation.lat, approxLocation.lon];
-    const tooltipText = city ? `${stationName} — ${city}` : stationName;
     const popupRef = useRef(null);
     const map = useMap();
 
@@ -18,7 +17,9 @@ const StationMarker = memo(({ station, markerRef }) => {
 
     return (
         <Marker position={position} ref={markerRef} eventHandlers={{ click: handleClick }}>
-            <Tooltip>{tooltipText}</Tooltip>
+            <Tooltip direction="bottom" offset={[0, 20]} permanent className="station-name-label">
+                {stationName}
+            </Tooltip>
             <Popup ref={popupRef} minWidth={250} maxWidth={350} autoPanPaddingTopLeft={[10, 80]} autoPanPaddingBottomRight={[10, 10]}>
                 <StationPopup
                     stationId={_id}

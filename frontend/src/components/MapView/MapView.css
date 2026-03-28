@@ -128,3 +128,21 @@
   outline: 3px solid #93c5fd;
   outline-offset: 2px;
 }
+
+/* ── Station name labels below markers ── */
+
+.station-name-label {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 !important;
+}
+
+.station-name-label::before {
+  display: none !important;
+}

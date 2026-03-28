@@ -11,6 +11,7 @@ const connectMongoDB = require('./mongoDb/connection');
 const logger = require('./logger');
 const stationsRouter = require('./routes/stations');
 const downloadRouter = require('./routes/download');
+const geocodeRouter = require('./routes/geocode');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/stations', stationsRouter);
 app.use('/api/download', downloadRouter);
+app.use('/api/geocode', geocodeRouter);
 
 let server;
 

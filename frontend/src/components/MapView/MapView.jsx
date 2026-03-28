@@ -172,7 +172,7 @@ const MapView = () => {
                 <FitBounds stations={stations} />
                 <CenterButton stations={stations} />
                 {stations.length > 0 && (
-                    <StationSearch stations={stations} markerRefs={markerRefs} />
+                    <StationSearch markerRefs={markerRefs} />
                 )}
                 {stations.map((station) => (
                     <StationMarker

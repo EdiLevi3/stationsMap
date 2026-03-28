@@ -27,4 +27,5 @@ module.exports = {
     AWS_REGION: process.env.AWS_REGION,
     PORT: parseInt(process.env.PORT, 10) || 5004, // defaults to 5004
     S3_URL_EXPIRY: parseInt(process.env.S3_URL_EXPIRY, 10) || 900, // seconds, defaults to 15 min
+    DISABLE_NOMINATIM: process.env.DISABLE_NOMINATIM === 'true', // defaults to false
 };

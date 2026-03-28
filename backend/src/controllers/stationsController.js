@@ -1,14 +1,38 @@
-// Handles requests for station data (list all / get by ID)
+// Handles requests for station data (list all / get by ID / search)
 
 const mongoose = require('mongoose');
+const Fuse = require('fuse.js');
 const Station = require('../models/Station');
 const Record = require('../models/Record');
 const logger = require('../logger');
 
+const STATION_SUMMARY_FIELDS = '_id stationName approxLocation city country countrycode';
+const FUSE_INDEX_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_FUZZY_SEARCH_RESULTS = 500;
+const MIN_SEARCH_QUERY_LENGTH = 2;
+
+let fuseIndex = null;
+let fuseIndexBuiltAt = 0;
+
+const buildFuseIndex = async () => {
+    const now = Date.now();
+    if (fuseIndex && now - fuseIndexBuiltAt < FUSE_INDEX_TTL_MS) return fuseIndex;
+
+    const stations = await Station.find({}, STATION_SUMMARY_FIELDS).lean();
+    fuseIndex = new Fuse(stations, {
+        keys: ['stationName'],
+        threshold: 0.4,
+        includeScore: true,
+        includeMatches: true,
+    });
+    fuseIndexBuiltAt = now;
+    return fuseIndex;
+};
+
 // GET /api/stations — returns all stations with summary fields only (no records)
 const getAllStations = async (req, res) => {
     try {
-        const stations = await Station.find({}, '_id stationName approxLocation city country countrycode').lean();
+        const stations = await Station.find({}, STATION_SUMMARY_FIELDS).lean();
         return res.status(200).json(stations);
     } catch (err) {
         logger.error({ err }, 'Error fetching stations');
@@ -40,4 +64,20 @@ const getStationById = async (req, res) => {
     }
 };
 
-module.exports = { getAllStations, getStationById };
+// GET /api/stations/search?q=... — fuzzy search stations by name
+const searchStations = async (req, res) => {
+    try {
+        const searchQuery = (req.query.q || '').trim();
+        if (searchQuery.length < MIN_SEARCH_QUERY_LENGTH) {
+            return res.status(200).json([]);
+        }
+        const searcher = await buildFuseIndex();
+        const matchedStations = searcher.search(searchQuery, { limit: MAX_FUZZY_SEARCH_RESULTS });
+        return res.status(200).json(matchedStations);
+    } catch (err) {
+        logger.error({ err }, 'Error searching stations');
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+module.exports = { getAllStations, getStationById, searchStations };
