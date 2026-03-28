@@ -1,9 +1,8 @@
 // Fetches a single station's full details (including records) by ID.
-// Uses a cancelled flag to prevent state updates if the component unmounts.
+// Uses AbortController to cancel the request on unmount or ID change.
 
 import { useState, useEffect } from 'react';
-
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5004';
+import { API_BASE_URL } from '../config';
 
 export const useStationById = (stationId) => {
     const [station, setStation] = useState(null);
@@ -11,18 +10,30 @@ export const useStationById = (stationId) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        let cancelled = false;
+        const abortController = new AbortController();
         setLoading(true);
         setError(null);
-        fetch(`${baseURL}/api/stations/${stationId}`)
-            .then((res) => {
+
+        const fetchStation = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/stations/${stationId}`, {
+                    signal: abortController.signal,
+                });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then((stationData) => { if (!cancelled) setStation(stationData); })
-            .catch((err) => { if (!cancelled) setError(err.message || 'Failed to load station'); })
-            .finally(() => { if (!cancelled) setLoading(false); });
-        return () => { cancelled = true; };
+                const stationData = await res.json();
+                setStation(stationData);
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                setError(err.message || 'Failed to load station');
+            } finally {
+                if (!abortController.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchStation();
+        return () => abortController.abort();
     }, [stationId]);
 
     return { station, loading, error };
