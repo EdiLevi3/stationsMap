@@ -1,7 +1,8 @@
 // Handles RINEX file download requests.
-// Looks up the station record by date and returns a temporary S3 presigned URL.
+// Looks up the record by station + date and returns a temporary S3 presigned URL.
 
 const Station = require('../models/Station');
+const Record = require('../models/Record');
 const { generatePresignedUrl } = require('../services/s3');
 const logger = require('../logger');
 
@@ -10,14 +11,13 @@ const getDownloadUrl = async (req, res) => {
     try {
         const { station: stationId, date } = req.query;
 
-        const station = await Station.findById(stationId).lean();
+        const station = await Station.findById(stationId, 'stationName').lean();
 
         if (!station) {
             return res.status(404).json({ error: 'Station not found' });
         }
 
-        // Find the record matching the requested date
-        const record = station.records.find((stationRecord) => stationRecord.date === date);
+        const record = await Record.findOne({ stationName: station.stationName, date }).lean();
 
         if (!record) {
             return res.status(404).json({ error: 'No file found for the given station and date' });

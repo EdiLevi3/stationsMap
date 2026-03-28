@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const Station = require('../models/Station');
+const Record = require('../models/Record');
 const logger = require('../logger');
 
 // GET /api/stations — returns all stations with summary fields only (no records)
@@ -30,7 +31,9 @@ const getStationById = async (req, res) => {
             return res.status(404).json({ error: 'Station not found' });
         }
 
-        return res.status(200).json(station);
+        const records = await Record.find({ stationName: station.stationName }, '-_id -stationName').lean();
+
+        return res.status(200).json({ ...station, records });
     } catch (err) {
         logger.error({ err }, 'Error fetching station by ID');
         return res.status(500).json({ error: 'Internal server error' });
