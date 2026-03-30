@@ -80,4 +80,44 @@ const searchStations = async (req, res) => {
     }
 };
 
-module.exports = { getAllStations, getStationById, searchStations };
+// GET /api/stations/nearby?lat=...&lon=...&maxDistanceMeters=90000 — find stations within radius
+// Uses $geoNear aggregation to include distanceMeters for each station (sorted closest-first)
+const getNearbyStations = async (req, res) => {
+    try {
+        const lat = parseFloat(req.query.lat);
+        const lon = parseFloat(req.query.lon);
+        const maxDistanceMeters = parseInt(req.query.maxDistanceMeters, 10) || 90000;
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+            return res.status(400).json({ error: 'Invalid lat/lon parameters' });
+        }
+
+        const stations = await Station.aggregate([
+            {
+                $geoNear: {
+                    near: { type: 'Point', coordinates: [lon, lat] },
+                    distanceField: 'distanceMeters',
+                    maxDistance: maxDistanceMeters,
+                    spherical: true,
+                },
+            },
+            {
+                $project: {
+                    stationName: 1,
+                    approxLocation: 1,
+                    city: 1,
+                    country: 1,
+                    countrycode: 1,
+                    distanceMeters: { $round: ['$distanceMeters', -1] },
+                },
+            },
+        ]);
+
+        return res.status(200).json(stations);
+    } catch (err) {
+        logger.error({ err }, 'Error fetching nearby stations');
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+module.exports = { getAllStations, getStationById, searchStations, getNearbyStations };

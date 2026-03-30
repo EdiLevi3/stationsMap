@@ -31,6 +31,9 @@ const StationSearch = ({ markerRefs }) => {
         hasRadiusCircles,
         radiusCircleVisibility,
         toggleRadiusCircle,
+        nearbyStations,
+        distanceLineVisibility,
+        toggleDistanceLine,
     } = useSearchMarker();
 
     // Stop Leaflet event propagation on the container
@@ -189,6 +192,24 @@ const StationSearch = ({ markerRefs }) => {
                             />
                             <span className="radius-layers__color" style={{ background: color }} />
                             {label}
+                        </label>
+                    ))}
+                </div>
+            )}
+            {nearbyStations.length > 0 && (
+                <div className="distance-layers">
+                    <div className="distance-layers__title">Distances</div>
+                    {nearbyStations.map((station) => (
+                        <label key={station._id} className="distance-layers__item">
+                            <input
+                                type="checkbox"
+                                checked={!!distanceLineVisibility[station._id]}
+                                onChange={() => toggleDistanceLine(station._id)}
+                            />
+                            <span className="distance-layers__name">{station.stationName}</span>
+                            <span className="distance-layers__distance">
+                                {(station.distanceMeters / 1000).toFixed(2)} km
+                            </span>
                         </label>
                     ))}
                 </div>
