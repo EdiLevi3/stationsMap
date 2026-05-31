@@ -25,7 +25,7 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       PORT: ${PORT}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3008}
       DISABLE_NOMINATIM: ${DISABLE_NOMINATIM:-false}
       NODE_ENV: production
     healthcheck:
@@ -39,7 +39,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "3008:80"
     depends_on:
       backend:
         condition: service_healthy
