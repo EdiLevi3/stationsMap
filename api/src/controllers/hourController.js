@@ -14,7 +14,10 @@ const getHourData = async (req, res) => {
 
 const getHourDataByDate = async (req, res) => {
   try {
-    const hourData = await Hour.findOne({ hour: req.params.hour, date: req.params.date });
+    const hourData = await Hour.findOne({
+      hour: req.params.hour,
+      date: req.params.date,
+    });
     if (!hourData) {
       return res.status(404).json({ error: "Hour data not found" });
     }
@@ -39,9 +42,24 @@ const upsertrecord = async (req, res) => {
     const recordData = req.body;
 
     const hourData = await Hour.findOneAndUpdate(
-      { hour: hour, "dateEntries.date": date, "dateEntries.stations.stationId": stationId },
-      { $set: { "dateEntries.$[dateEntry].stations.$[station].records": recordData } },
-        { new: true, upsert: true, arrayFilters: [{ "dateEntry.date": date }, { "station.stationId": stationId }] }
+      {
+        hour: hour,
+        "dateEntries.date": date,
+        "dateEntries.stations.stationId": stationId,
+      },
+      {
+        $set: {
+          "dateEntries.$[dateEntry].stations.$[station].records": recordData,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        arrayFilters: [
+          { "dateEntry.date": date },
+          { "station.stationId": stationId },
+        ],
+      },
     );
 
     res.status(200).json(hourData);
@@ -56,8 +74,12 @@ const deleteRecord = async (req, res) => {
 
     const hourData = await Hour.findOneAndUpdate(
       { hour: hour },
-      { $pull: { "dateEntries.$[dateEntry].stations": { stationId: stationId } } },
-      { new: true, arrayFilters: [{ "dateEntry.date": date }] }
+      {
+        $pull: {
+          "dateEntries.$[dateEntry].stations": { stationId: stationId },
+        },
+      },
+      { new: true, arrayFilters: [{ "dateEntry.date": date }] },
     );
 
     res.status(200).json(hourData);
@@ -76,28 +98,35 @@ const createRecord = async (req, res) => {
     // If the date doesn't exist in 'dateEntries', we push a new empty date entry.
     await Hour.findOneAndUpdate(
       { hour: hour, "dateEntries.date": { $ne: date } },
-      { 
-        $push: { dateEntries: { date: date, stations: [] } } 
+      {
+        $push: { dateEntries: { date: date, stations: [] } },
       },
-      { upsert: true }
+      { upsert: true },
     );
 
     // Step 2: Now that we are certain the date exists, push the station record.
     // We use '$push' and check if stationId already exists to prevent duplicates.
     const hourData = await Hour.findOneAndUpdate(
-      { 
-        hour: hour, 
+      {
+        hour: hour,
         "dateEntries.date": date,
-        "dateEntries.stations.stationId": { $ne: stationId }
+        "dateEntries.stations.stationId": { $ne: stationId },
       },
-      { 
-        $push: { "dateEntries.$.stations": { stationId: stationId, records: recordData } } 
+      {
+        $push: {
+          "dateEntries.$.stations": {
+            stationId: stationId,
+            records: recordData,
+          },
+        },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!hourData) {
-      return res.status(409).json({ error: "Record for this station and date already exists." });
+      return res
+        .status(409)
+        .json({ error: "Record for this station and date already exists." });
     }
 
     res.status(201).json(hourData);
