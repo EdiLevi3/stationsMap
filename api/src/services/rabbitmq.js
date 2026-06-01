@@ -38,4 +38,30 @@ const publishToConvertQueue = async (taskName, args = []) => {
   return taskId;
 };
 
-export { publishToConvertQueue };
+const startRecordConsumer = async (onMessage) => {
+  const channel = await connectRabbitMQ();
+  const queue = "saveRecordData";
+
+  await channel.assertQueue(queue, { durable: true });
+  console.log(`[*] Waiting for messages in ${queue}. To exit press CTRL+C`);
+
+  channel.consume(
+    queue,
+    async (msg) => {
+      if (msg !== null) {
+        try {
+          const content = JSON.parse(msg.content.toString());
+          // Celery messages typically have args in the 'args' field
+          await onMessage(content);
+          channel.ack(msg);
+        } catch (error) {
+          console.error("Error processing message:", error);
+          channel.nack(msg, false, false);
+        }
+      }
+    },
+    { noAck: false }
+  );
+};
+
+export { publishToConvertQueue, startRecordConsumer };
