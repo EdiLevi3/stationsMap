@@ -1,43 +1,29 @@
 import mongoose from "mongoose";
 
-const recordSchema = new mongoose.Schema(
-  {
-    valid: { type: Boolean, required: true },
-    satelliteConstellation: { type: Number, required: true },
-    recordPrecent: { type: Map, of: Number, required: true },
-    longestSequence: { type: Number, required: true },
-  },
-  { _id: false },
-);
-
-const stationEntrySchema = new mongoose.Schema(
+const stationRecordSchema = new mongoose.Schema(
   {
     stationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Station",
       required: true,
     },
-    records: recordSchema,
+    valid: { type: Boolean, required: true },
+    satelliteConstellation: { type: Map, of: Number, required: true },
+    recordPrecent: { type: Number, required: true },
+    longestSequence: { type: Number, required: true },
   },
   { _id: false },
 );
 
-const dateEntrySchema = new mongoose.Schema(
+const recordsSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
-    stations: [stationEntrySchema],
-  },
-  { _id: false },
-);
-
-const hourSchema = new mongoose.Schema(
-  {
     hour: { type: Number, required: true, min: 0, max: 23, unique: true },
-    dateEntries: [dateEntrySchema],
+    stations: [stationRecordSchema],
   },
   { timestamps: true },
 );
 
-const Hour = mongoose.model("Hour", hourSchema);
+const Record = mongoose.model("Record", recordsSchema);
 
-export default Hour;
+export default Record;

@@ -6,7 +6,7 @@ import {
   replaceRecord,
   updateRecord,
   deleteRecord,
-} from "../controllers/hourController.js";
+} from "../controllers/recordController.js";
 
 const recordRouter = express.Router();
 

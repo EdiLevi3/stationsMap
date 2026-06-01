@@ -1,5 +1,6 @@
 import amqp from "amqplib";
 import dotenv from "dotenv";
+import { saveRecordInMongo } from "../controllers/recordController.js";
 dotenv.config();
 
 let channel;
@@ -38,12 +39,12 @@ const publishToConvertQueue = async (taskName, args = []) => {
   return taskId;
 };
 
-const startRecordConsumer = async (onMessage) => {
+const startRecordConsumer = async () => {
   const channel = await connectRabbitMQ();
   const queue = "saveRecordData";
 
   await channel.assertQueue(queue, { durable: true });
-  console.log(`[*] Waiting for messages in ${queue}. To exit press CTRL+C`);
+  console.log(`[*] Waiting for messages in ${queue}. `);
 
   channel.consume(
     queue,
@@ -51,8 +52,7 @@ const startRecordConsumer = async (onMessage) => {
       if (msg !== null) {
         try {
           const content = JSON.parse(msg.content.toString());
-          // Celery messages typically have args in the 'args' field
-          await onMessage(content);
+          await saveRecordInMongo(content);
           channel.ack(msg);
         } catch (error) {
           console.error("Error processing message:", error);
@@ -60,7 +60,7 @@ const startRecordConsumer = async (onMessage) => {
         }
       }
     },
-    { noAck: false }
+    { noAck: false },
   );
 };
 
