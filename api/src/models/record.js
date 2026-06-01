@@ -4,7 +4,7 @@ const recordSchema = new mongoose.Schema(
   {
     valid: { type: Boolean, required: true },
     satelliteConstellation: { type: Number, required: true },
-    recordPrecent: { type: Number, required: true },
+    recordPrecent: { type: Map, of: Number, required: true },
     longestSequence: { type: Number, required: true },
   },
   { _id: false },
