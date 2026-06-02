@@ -6,7 +6,8 @@ import { Marker, Tooltip, Popup, useMap } from 'react-leaflet';
 import StationPopup from '../StationPopup/StationPopup';
 
 const StationMarker = memo(({ station, markerRef }) => {
-    const { _id, stationName, location } = station;
+    const { _id, name, location } = station;
+    console.log("Rendering StationMarker for", name);
     const position = [location[1], location[0]];
     const popupRef = useRef(null);
     const map = useMap();
@@ -18,12 +19,12 @@ const StationMarker = memo(({ station, markerRef }) => {
     return (
         <Marker position={position} ref={markerRef} eventHandlers={{ click: handleClick }}>
             <Tooltip direction="bottom" offset={[0, 20]} permanent className="station-name-label">
-                {stationName}
+                {name}
             </Tooltip>
             <Popup ref={popupRef} minWidth={250} maxWidth={350} autoPanPaddingTopLeft={[10, 80]} autoPanPaddingBottomRight={[10, 10]}>
                 <StationPopup
                     stationId={_id}
-                    stationName={stationName}
+                    stationName={name}
                     approxLocation={location}
                     popupRef={popupRef}
                 />
