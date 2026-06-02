@@ -8,7 +8,7 @@ import { useStationById } from '../../hooks/useStationById';
 import DateSelector from '../DateSelector/DateSelector';
 import DownloadButton from '../DownloadButton/DownloadButton';
 
-const StationPopup = ({ stationId, stationName, approxLocation, city, country, countrycode, popupRef }) => {
+const StationPopup = ({ stationId, stationName, approxLocation, popupRef }) => {
     const { station, loading, error } = useStationById(stationId);
     const [selectedDate, setSelectedDate] = useState('');
     const [downloadError, setDownloadError] = useState(null);
@@ -21,10 +21,12 @@ const StationPopup = ({ stationId, stationName, approxLocation, city, country, c
         });
     }, [station, popupRef]);
 
-    const locationParts = [city, country].filter(Boolean);
-    const locationStr = locationParts.length
-        ? locationParts.join(', ')
-        : null;
+    // const locationParts = [city, country].filter(Boolean);
+    // const locationStr = locationParts.length
+    //     ? locationParts.join(', ')
+    //     : null;
+
+    const locationStr = "hi"
 
     return (
         <div className="popup" aria-label="Station details" role="dialog">
@@ -35,15 +37,15 @@ const StationPopup = ({ stationId, stationName, approxLocation, city, country, c
                     {locationStr && (
                         <div className="popup__location">
                             {locationStr}
-                            {countrycode && <span className="popup__countrycode"> ({countrycode})</span>}
+                            {/* {countrycode && <span className="popup__countrycode"> ({countrycode})</span>} */}
                         </div>
                     )}
                 </div>
             </div>
 
             <div className="popup__coords">
-                <span><span className="popup__coord-label">Lat: </span>{approxLocation.lat.toFixed(4)}°</span>
-                <span><span className="popup__coord-label">Lon: </span>{approxLocation.lon.toFixed(4)}°</span>
+                <span><span className="popup__coord-label">Lat: </span>{approxLocation[1]}°</span>
+                <span><span className="popup__coord-label">Lon: </span>{approxLocation[0]}°</span>
             </div>
 
             {loading && (

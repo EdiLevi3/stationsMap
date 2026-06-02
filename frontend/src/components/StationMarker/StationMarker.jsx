@@ -6,8 +6,8 @@ import { Marker, Tooltip, Popup, useMap } from 'react-leaflet';
 import StationPopup from '../StationPopup/StationPopup';
 
 const StationMarker = memo(({ station, markerRef }) => {
-    const { _id, stationName, approxLocation, city, country, countrycode } = station;
-    const position = [approxLocation.lat, approxLocation.lon];
+    const { _id, stationName, location } = station;
+    const position = [location[1], location[0]];
     const popupRef = useRef(null);
     const map = useMap();
 
@@ -24,10 +24,7 @@ const StationMarker = memo(({ station, markerRef }) => {
                 <StationPopup
                     stationId={_id}
                     stationName={stationName}
-                    approxLocation={approxLocation}
-                    city={city}
-                    country={country}
-                    countrycode={countrycode}
+                    approxLocation={location}
                     popupRef={popupRef}
                 />
             </Popup>

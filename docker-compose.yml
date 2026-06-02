@@ -1,48 +1,43 @@
-# Docker Compose for the Station Map application.
-# Services: MongoDB, Express backend, and Nginx+React frontend.
-# Env vars (PORT, S3_BUCKET_NAME, AWS_*) are read from .env file.
-
 services:
-  # MongoDB database — data persisted in a named volume
-  mongo:
-    image: mongo:7
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  # Node.js/Express API — waits for MongoDB, checked via /health endpoint
   backend:
-    build: ./backend
+    build: ./api
     ports:
-      - "${PORT}:${PORT}"
-    depends_on:
-      - mongo
+      - "5004:5004"
     environment:
-      MONGODB_URL: mongodb://mongo:27017/stations-map
-      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
-      AWS_REGION: ${AWS_REGION}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      PORT: ${PORT}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3008}
-      DISABLE_NOMINATIM: ${DISABLE_NOMINATIM:-false}
-      NODE_ENV: production
+      - MONGODB_URI=${MONGODB_URI}
+      - RABBITMQ_URL=amqp://rabbitmq
+      - PORT=${PORT}
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT}/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
+    depends_on:
+      - mongodb
 
-  # Nginx serves the React build and proxies /api/* to the backend
   frontend:
+    container_name: frontend
     build: ./frontend
     ports:
-      - "3008:80"
+      - "80:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5004
     depends_on:
       backend:
         condition: service_healthy
+    
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - mongo-data:/data/db
 
 volumes:
   mongo-data:

@@ -1,9 +1,9 @@
-const mongoose = import("mongoose");
+import mongoose from "mongoose";
 
 const stationSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    location: { type: [number], required: true },
+    location: { type: [Number], required: true },
   }, // [longitude, latitude]
   { timestamps: true },
 );
