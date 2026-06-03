@@ -26,10 +26,10 @@ const StationPopup = ({ stationId, stationName, approxLocation, popupRef }) => {
   //     ? locationParts.join(', ')
   //     : null;
   const locationParts = [stationName, stationName].filter(Boolean);
-  
+
   const locationStr = locationParts.length ? locationParts.join(", ") : null;
 
-//   const locationStr = stationName;
+  //   const locationStr = stationName;
   const countrycode = "123";
 
   return (
@@ -52,11 +52,11 @@ const StationPopup = ({ stationId, stationName, approxLocation, popupRef }) => {
       <div className="popup__coords">
         <span>
           <span className="popup__coord-label">Lat: </span>
-          {approxLocation[1]}°
+          {approxLocation.coordinates[1]}°
         </span>
         <span>
           <span className="popup__coord-label">Lon: </span>
-          {approxLocation[0]}°
+          {approxLocation.coordinates[0]}°
         </span>
       </div>
 

@@ -26,7 +26,10 @@ app.get("/health", (req, res) => {
 
 // const station = new Station({
 //   name: "Eilat",
-//   location: [ 34.9519250, 29.5576690], 
+//   location: {
+//     type: "Point",
+//     coordinates: [34.9519250, 29.5576690], // [longitude, latitude]
+//   },
 // });
 
 // await station.save();
@@ -35,7 +38,7 @@ app.get("/health", (req, res) => {
 //   await saveRecordInMongo({
 //     date: "2026-01-01",
 //     hour: 12,
-//     stationName: "Jerusalem",
+//     stationName: "Eilat",
 //     valid: true,
 //     satelliteConstellation: { GPS: 5, GALILEO: 3 },
 //     recordPrecent: 100,

@@ -35,8 +35,8 @@ const FALLBACK_ZOOM = 8;
 // Calculate the bounding box that contains all stations
 const getBounds = (stations) => {
   if (!stations || stations.length === 0) return null;
-  const lats = stations.map((station) => station.location[1]);
-  const lons = stations.map((station) => station.location[0]);
+  const lats = stations.map((station) => station.location.coordinates[1]);
+  const lons = stations.map((station) => station.location.coordinates[0]);
   return [
     [Math.min(...lats), Math.min(...lons)],
     [Math.max(...lats), Math.max(...lons)],

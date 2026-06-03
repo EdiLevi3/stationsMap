@@ -1,7 +1,5 @@
 // Search bar overlay on the map. Supports:
 // - Fuzzy station name search (via backend API)
-// - Coordinate input: lat/lon pairs or UTM strings (e.g. "36 north 667000 3552000")
-// - Place/address geocoding (via backend geocode API)
 // - Keyboard navigation (arrows, enter, escape)
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -12,13 +10,11 @@ import { highlightMatch } from "../../utils/highlightMatch";
 import { RADIUS_CIRCLE_CONFIGS } from "../../config";
 import useGeoSearch from "../../hooks/useGeoSearch";
 import useSearchMarker from "../../controllers/useSearchMarker";
-import CoordinateInput from "../CoordinateInput/CoordinateInput";
 
 const StationSearch = ({ markerRefs }) => {
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
-  const [showCoordInput, setShowCoordInput] = useState(false);
 
   const map = useMap();
   const containerRef = useRef(null);
@@ -26,13 +22,9 @@ const StationSearch = ({ markerRefs }) => {
 
   const {
     allResults,
-    stationItems,
-    geoItems,
     clearResults,
-    geocodeCoordinates,
   } = useGeoSearch(query);
   const {
-    flyToGeoLocation,
     removeSearchMarker,
     hasRadiusCircles,
     radiusCircleVisibility,
@@ -64,38 +56,21 @@ const StationSearch = ({ markerRefs }) => {
 
   const handleSelect = useCallback(
     (item) => {
-      if (item.isGeo) {
-        flyToGeoLocation(item.lat, item.lon, item.displayName);
-      } else {
-        removeSearchMarker();
-        const { lat, lon } = item.approxLocation;
-        map.flyTo([lat, lon], 14);
-        const marker = markerRefs.current?.get(item._id);
-        if (marker) {
-          setTimeout(() => marker.openPopup(), 300);
-        }
+      removeSearchMarker();
+      console.log(item.fuseResult);
+      const  lat = item.fuseResult.location.coordinates[1];
+      const  lon = item.fuseResult.location.coordinates[0];
+      map.flyTo([lat, lon], 14);
+      const marker = markerRefs.current?.get(item._id);
+      if (marker) {
+        setTimeout(() => marker.openPopup(), 300);
       }
       setQuery("");
       setIsOpen(false);
       setHighlightedIndex(-1);
       clearResults();
     },
-    [map, markerRefs, flyToGeoLocation, removeSearchMarker, clearResults],
-  );
-
-  const handleGoToLocation = useCallback(
-    async (coordString) => {
-      try {
-        const place = await geocodeCoordinates(coordString);
-        if (place) {
-          flyToGeoLocation(place.lat, place.lon, place.displayName);
-          setShowCoordInput(false);
-        }
-      } catch {
-        // silently ignore
-      }
-    },
-    [flyToGeoLocation, geocodeCoordinates],
+    [map, markerRefs, removeSearchMarker, clearResults],
   );
 
   const handleKeyDown = useCallback(
@@ -158,7 +133,6 @@ const StationSearch = ({ markerRefs }) => {
   const showList = isOpen && allResults.length > 0;
   const showNoResults =
     isOpen && query.trim() !== "" && allResults.length === 0;
-  const geoStartIndex = stationItems.length;
 
   return (
     <div className="station-search" ref={containerRef}>
@@ -167,7 +141,7 @@ const StationSearch = ({ markerRefs }) => {
           ref={inputRef}
           className="station-search__input"
           type="text"
-          placeholder="Search stations, places, or coordinates..."
+          placeholder="Search stations..."
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -181,30 +155,9 @@ const StationSearch = ({ markerRefs }) => {
               : undefined
           }
           aria-autocomplete="list"
-          aria-label="Search stations, places, or coordinates"
+          aria-label="Search stations"
         />
-        <button
-          type="button"
-          className={`station-search__coord-toggle${showCoordInput ? " station-search__coord-toggle--active" : ""}`}
-          onClick={() => setShowCoordInput((prev) => !prev)}
-          title="Enter coordinates"
-          aria-label="Toggle coordinate input"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 512 512"
-            fill="currentColor"
-          >
-            <path d="M256 0C167.6 0 96 71.6 96 160c0 124.8 160 352 160 352s160-227.2 160-352C416 71.6 344.4 0 256 0zm0 240c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z" />
-            <ellipse cx="256" cy="472" rx="96" ry="40" fillOpacity="0.3" />
-          </svg>
-        </button>
       </div>
-      {showCoordInput && (
-        <CoordinateInput onGoToLocation={handleGoToLocation} />
-      )}
       {hasRadiusCircles && (
         <div className="radius-layers">
           {RADIUS_CIRCLE_CONFIGS.map(({ key, label, color }) => (
@@ -258,23 +211,12 @@ const StationSearch = ({ markerRefs }) => {
                 index === highlightedIndex
                   ? " station-search__item--highlighted"
                   : ""
-              }${item.isGeo ? " station-search__item--geo" : ""}`}
+              }`}
               tabIndex={-1}
               onClick={() => handleSelect(item)}
               onMouseEnter={() => setHighlightedIndex(index)}
             >
-              {index === geoStartIndex &&
-                geoStartIndex > 0 &&
-                geoItems.length > 0 && (
-                  <div className="station-search__divider">Places</div>
-                )}
-              {item.isGeo ? (
-                <span className="station-search__geo-label">
-                  {item.displayName}
-                </span>
-              ) : (
-                highlightMatch(item.stationName, query)
-              )}
+              {highlightMatch(item.stationName, query)}
             </li>
           ))}
         </ul>

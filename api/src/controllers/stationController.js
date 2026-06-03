@@ -37,7 +37,7 @@ const updateStation = async (req, res) => {
     const station = await Station.findByIdAndUpdate(
       req.params.id,
       { name, location },
-      { new: true }
+      { new: true },
     );
     if (!station) {
       return res.status(404).json({ error: "Station not found" });
@@ -60,4 +60,54 @@ const deleteStation = async (req, res) => {
   }
 };
 
-export { createStation, getAllStations, getStationById, updateStation, deleteStation }; 
+const searchStations = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return res.status(400).json({
+        error: "Query parameter 'q' is required",
+      });
+    }
+
+    // 1. Detect coordinates: "lon,lat" or "lat,lon"
+    const coordMatch = q.match(/^\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*$/);
+
+    if (coordMatch) {
+      const lon = parseFloat(coordMatch[1]);
+      const lat = parseFloat(coordMatch[2]);
+
+      // Mongo geospatial search (requires 2dsphere index)
+      const stations = await Station.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [lon, lat],
+            },
+            $maxDistance: 5000, // 5km radius (adjust as needed)
+          },
+        },
+      });
+
+      return res.status(200).json(stations);
+    }
+
+    // 2. Name search
+    const stations = await Station.find({
+      name: { $regex: q, $options: "i" },
+    });
+
+    return res.status(200).json(stations);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+export {
+  createStation,
+  getAllStations,
+  getStationById,
+  updateStation,
+  deleteStation,
+  searchStations,
+};

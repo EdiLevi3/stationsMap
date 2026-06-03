@@ -93,9 +93,7 @@ const saveRecordInMongo = async (recordData) => {
     );
 
     if (!stationId) {
-      return res
-        .status(404)
-        .json({ error: `Station with name ${stationName} not found.` });
+      return res.status(404).json({ error: `Station with name ${stationName} not found.` });
     }
 
     await Record.findOneAndUpdate(
