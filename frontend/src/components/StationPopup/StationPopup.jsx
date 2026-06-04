@@ -21,31 +21,12 @@ const StationPopup = ({ stationId, stationName, approxLocation, popupRef }) => {
     });
   }, [station, popupRef]);
 
-  // const locationParts = ["jerusalem", "israel"].filter(Boolean);
-  // const locationStr = locationParts.length
-  //     ? locationParts.join(', ')
-  //     : null;
-  const locationParts = [stationName, stationName].filter(Boolean);
-
-  const locationStr = locationParts.length ? locationParts.join(", ") : null;
-
-  //   const locationStr = stationName;
-  const countrycode = "123";
-
   return (
     <div className="popup" aria-label="Station details" role="dialog">
       <div className="popup__header">
         <span className="popup__icon">📡</span>
         <div>
           <h3 className="popup__name">{stationName}</h3>
-          {locationStr && (
-            <div className="popup__location">
-              {locationStr}
-              {countrycode && (
-                <span className="popup__countrycode"> ({countrycode})</span>
-              )}
-            </div>
-          )}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 // Main map component. Fetches stations, renders the Leaflet map with markers,
 // search bar, layer switcher (Streets/Hybrid), and a home button.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -13,6 +13,7 @@ import {
 import { useStations } from "../../hooks/useStations";
 import StationMarker from "../StationMarker/StationMarker";
 import StationSearch from "../StationSearch/StationSearch";
+import StationDetails from "../StationDetails/StationDetails";
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
 
@@ -34,9 +35,12 @@ const FALLBACK_ZOOM = 8;
 
 // Calculate the bounding box that contains all stations
 const getBounds = (stations) => {
+  console.log("hi! stations:", stations);
   if (!stations || stations.length === 0) return null;
   const lats = stations.map((station) => station.location.coordinates[1]);
   const lons = stations.map((station) => station.location.coordinates[0]);
+  console.log("lats:", lats);
+  console.log("lons:", lons);
   return [
     [Math.min(...lats), Math.min(...lons)],
     [Math.max(...lats), Math.max(...lons)],
@@ -125,6 +129,7 @@ const LayerChangeHandler = () => {
 const MapView = () => {
   const { stations, loading, error, retry: loadStations } = useStations();
   const markerRefs = useRef(new Map());
+  const [selectedStation, setSelectedStation] = useState(null);
 
   if (loading) {
     return (
@@ -144,6 +149,15 @@ const MapView = () => {
           Retry
         </button>
       </div>
+    );
+  }
+
+  if (selectedStation) {
+    return (
+      <StationDetails
+        station={selectedStation}
+        onClose={() => setSelectedStation(null)}
+      />
     );
   }
 
@@ -184,11 +198,15 @@ const MapView = () => {
         <LayerChangeHandler />
         <FitBounds stations={stations} />
         <CenterButton stations={stations} />
-        {stations.length > 0 && <StationSearch markerRefs={markerRefs} />}
+        {stations.length > 0 && (
+          <StationSearch markerRefs={markerRefs} />
+        )}
+
         {stations.map((station) => (
           <StationMarker
             key={station._id}
             station={station}
+            onSelect={() => setSelectedStation(station)}
             markerRef={(marker) => {
               if (marker) {
                 markerRefs.current.set(station._id, marker);

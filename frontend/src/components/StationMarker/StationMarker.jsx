@@ -1,24 +1,25 @@
 // Renders a single station as a Leaflet marker with a tooltip (hover)
-// and a popup (click) that shows station details and download options.
+// and triggers a selection callback on click.
 
-import { memo, useRef } from "react";
-import { Marker, Tooltip, Popup, useMap } from "react-leaflet";
-import StationPopup from "../StationPopup/StationPopup";
+import { memo } from "react";
+import { Marker, Tooltip, useMap } from "react-leaflet";
 
-const StationMarker = memo(({ station, markerRef }) => {
-    console.log("Rendering StationMarker for station:", station);
-  const { _id, name, location } = station;
-
+const StationMarker = memo(({ station, markerRef, onSelect }) => {
+  console.log("here")
+  const { name, location } = station;
+console.log("opo station:", station);
   const position = [
     location.coordinates[1], // lat
     location.coordinates[0], // lon
   ];
-  console.log("Station position:", position);
-  const popupRef = useRef(null);
+  console.log("Rendering marker for station:", name, "at position:", position);
   const map = useMap();
 
   const handleClick = () => {
     map.flyTo(position, 14);
+    if (onSelect) {
+      onSelect(station);
+    }
   };
 
   return (
@@ -35,20 +36,6 @@ const StationMarker = memo(({ station, markerRef }) => {
       >
         {name}
       </Tooltip>
-      <Popup
-        ref={popupRef}
-        minWidth={250}
-        maxWidth={350}
-        autoPanPaddingTopLeft={[10, 80]}
-        autoPanPaddingBottomRight={[10, 10]}
-      >
-        <StationPopup
-          stationId={_id}
-          stationName={name}
-          approxLocation={location}
-          popupRef={popupRef}
-        />
-      </Popup>
     </Marker>
   );
 });

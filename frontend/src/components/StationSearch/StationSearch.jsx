@@ -11,7 +11,7 @@ import { RADIUS_CIRCLE_CONFIGS } from "../../config";
 import useGeoSearch from "../../hooks/useGeoSearch";
 import useSearchMarker from "../../controllers/useSearchMarker";
 
-const StationSearch = ({ markerRefs }) => {
+const StationSearch = ({ markerRefs, onSelect }) => {
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
@@ -57,20 +57,15 @@ const StationSearch = ({ markerRefs }) => {
   const handleSelect = useCallback(
     (item) => {
       removeSearchMarker();
-      console.log(item.fuseResult);
-      const  lat = item.fuseResult.location.coordinates[1];
-      const  lon = item.fuseResult.location.coordinates[0];
+      const [lon, lat] = item.location.coordinates;
       map.flyTo([lat, lon], 14);
-      const marker = markerRefs.current?.get(item._id);
-      if (marker) {
-        setTimeout(() => marker.openPopup(), 300);
-      }
+      
       setQuery("");
       setIsOpen(false);
       setHighlightedIndex(-1);
       clearResults();
     },
-    [map, markerRefs, removeSearchMarker, clearResults],
+    [map, removeSearchMarker, clearResults],
   );
 
   const handleKeyDown = useCallback(

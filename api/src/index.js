@@ -25,10 +25,10 @@ app.get("/health", (req, res) => {
 
 
 // const station = new Station({
-//   name: "Eilat",
+//   name: "Jerusalem",
 //   location: {
 //     type: "Point",
-//     coordinates: [34.9519250, 29.5576690], // [longitude, latitude]
+//     coordinates: [35.2224346, 31.7768831], // [longitude, latitude]
 //   },
 // });
 

@@ -45,22 +45,19 @@ const useGeoSearch = (query) => {
         };
     }, [query]);
 
-    const stationItems = useMemo(() =>
-        stationResults.map((result) => ({
-            ...result.item,
-            isGeo: false,
-            fuseResult: result,
+    const allResults = useMemo(() =>
+        stationResults.map((station) => ({
+            ...station,
+            stationName: station.name, // Support both name and stationName for compatibility
         })),
         [stationResults]
     );
-
-    const allResults = stationItems;
 
     const clearResults = useCallback(() => {
         setStationResults([]);
     }, []);
 
-    return { allResults, stationItems, geoItems: [], clearResults };
+    return { allResults, stationItems: allResults, geoItems: [], clearResults };
 };
 
 export default useGeoSearch;

@@ -21,7 +21,6 @@ export const useStationById = (stationId) => {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const stationData = await res.json();
-        console.log(stationData);
         setStation(stationData);
       } catch (err) {
         if (err.name === "AbortError") return;

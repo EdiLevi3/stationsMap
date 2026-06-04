@@ -1,0 +1,132 @@
+.station-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f8f9fa;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.station-page__header {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.station-page__back {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.station-page__back:hover {
+  background-color: #f0f0f0;
+  color: #000;
+  border-color: #ccc;
+}
+
+.station-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.station-page__content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+.station-info-card {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.station-info-card__header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 2rem;
+}
+
+.station-info-card__icon {
+  font-size: 4rem;
+}
+
+.station-info-card__name {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #333;
+}
+
+.station-info-card__location {
+  color: #666;
+  font-size: 1.4rem;
+  margin-top: 0.5rem;
+}
+
+.station-info-card__countrycode {
+  font-weight: bold;
+}
+
+.station-info-card__coords {
+  display: flex;
+  gap: 4rem;
+  margin-bottom: 2rem;
+}
+
+.station-info-card__coord {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.station-info-card__coord-label {
+  font-size: 1rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.station-info-card__coord-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.station-info-card__status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.station-info-card__status.error {
+  color: #d32f2f;
+  background-color: #fdecea;
+  padding: 1rem;
+  border-radius: 6px;
+}
