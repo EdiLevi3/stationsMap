@@ -30,6 +30,8 @@ app.get("/health", (req, res) => {
 //     type: "Point",
 //     coordinates: [35.2224346, 31.7768831], // [longitude, latitude]
 //   },
+//   frequenthy: 1,
+//   anthena: "abc"
 // });
 
 // await station.save();
@@ -53,6 +55,8 @@ app.get("/health", (req, res) => {
 //     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
 //     recordPrecent: 80,
 //     longestSequence: 900,
+//     spoofPrecents: 0,
+//     GemPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {

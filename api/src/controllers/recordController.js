@@ -1,5 +1,6 @@
 import Record from "../models/record.js";
 import Station from "../models/station.js";
+import mongoose from "mongoose";
 
 const createRecord = async (req, res) => {
   try {
@@ -76,41 +77,24 @@ const deleteRecord = async (req, res) => {
   }
 };
 
-// // const getLastUpdateRecordOfStation = async (req, res) => {
-//   try {
-//     const { stationName } = req.params;
+const getRecordsByStationAndDateRange = async (req, res) => {
+  try {
+    const { stationId } = req.params;
+    const { startDate, endDate } = req.query;
 
-//     const station = await Station.findOne({
-//       name: stationName,
-//     }).select("_id");
+    const records = await Record.find({
+      "stations.stationId": new mongoose.Types.ObjectId(stationId),
+      date: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      },
+    }).sort({ date: 1, hour: 1 });
 
-//     if (!station) {
-//       return res.status(404).json({
-//         message: `Station '${stationName}' not found`,
-//       });
-//     }
-
-//     const latestRecord = await Record.findOne({
-//       "stations.stationId": station._id,
-//     })
-//       .sort({ updatedAt: -1 })
-//       .select("updatedAt");
-
-//     if (!latestRecord) {
-//       return res.status(404).json({
-//         message: "No records found for this station",
-//       });
-//     }
-
-//     return res.json({
-//       updatedAt: latestRecord.updatedAt,
-//     });
-//   } catch (err) {
-//     return res.status(500).json({
-//       error: err.message,
-//     });
-//   }
-// // };
+    res.status(200).json(records);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const saveRecordInMongo = async (recordData) => {
   const {
@@ -226,7 +210,7 @@ export {
   replaceRecord,
   updateRecord,
   deleteRecord,
-  // getLastUpdateRecordOfStation,
+  getRecordsByStationAndDateRange,
   saveRecordInMongo,
   
 };

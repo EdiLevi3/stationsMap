@@ -130,3 +130,14 @@
   padding: 1rem;
   border-radius: 6px;
 }
+.station-date-range {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selected-range {
+  font-size: 0.9rem;
+  color: #666666;
+}

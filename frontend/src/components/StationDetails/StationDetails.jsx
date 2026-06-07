@@ -1,21 +1,58 @@
+import { useState, useEffect } from "react";
 import "./StationDetails.css";
 import { useStationById } from "../../hooks/useStationById";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { API_BASE_URL } from '../../config';
 
 const StationDetails = ({ station, onClose }) => {
   const { _id } = station;
 
-  // Fetch the full station from the API
   const {
     station: chosenStation,
     loading,
     error,
   } = useStationById(_id);
 
-  // Use fetched station when available, otherwise fallback to prop
   const displayStation = chosenStation || station;
 
   const { name, location, lastUpdate } = displayStation;
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      return;
+    }
+
+    const fetchRecords = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/records/station/${_id}` +
+          `?startDate=${startDate.toISOString()}` +
+          `&endDate=${endDate.toISOString()}`
+        );
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        console.log("Records for selected range:", data);
+
+        setRecords(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRecords();
+  }, [_id, startDate, endDate]);
+
+  
   return (
     <div className="station-page">
       <header className="station-page__header">
@@ -80,6 +117,31 @@ const StationDetails = ({ station, onClose }) => {
             </div>
           </div>
 
+          <div className="station-date-range">
+            <label>Date Range</label>
+
+            <DatePicker
+              selectsRange
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(dates) => {
+                const [start, end] = dates;
+                setStartDate(start);
+                setEndDate(end);
+              }}
+              isClearable
+              dateFormat="yyyy-MM-dd"
+              placeholderText="Select date range"
+            />
+
+            {startDate && endDate && (
+              <div className="selected-range">
+                {startDate.toLocaleDateString()} -{" "}
+                {endDate.toLocaleDateString()}
+              </div>
+            )}
+          </div>
+
           {loading && (
             <div className="station-info-card__status">
               <div className="spinner spinner--small" />
@@ -100,4 +162,5 @@ const StationDetails = ({ station, onClose }) => {
     </div>
   );
 };
+
 export default StationDetails;
