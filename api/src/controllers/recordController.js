@@ -77,17 +77,12 @@ const deleteRecord = async (req, res) => {
   }
 };
 
-const getRecordsByStationAndDateRange = async (req, res) => {
+const getAllRecordsByStation = async (req, res) => {
   try {
     const { stationId } = req.params;
-    const { startDate, endDate } = req.query;
 
     const records = await Record.find({
-      "stations.stationId": new mongoose.Types.ObjectId(stationId),
-      date: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      },
+      "stations.stationId": stationId,
     }).sort({ date: 1, hour: 1 });
 
     res.status(200).json(records);
@@ -210,7 +205,7 @@ export {
   replaceRecord,
   updateRecord,
   deleteRecord,
-  getRecordsByStationAndDateRange,
+  getAllRecordsByStation,
   saveRecordInMongo,
   
 };

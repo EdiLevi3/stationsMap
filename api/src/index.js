@@ -30,8 +30,8 @@ app.get("/health", (req, res) => {
 //     type: "Point",
 //     coordinates: [35.2224346, 31.7768831], // [longitude, latitude]
 //   },
-//   frequenthy: 1,
-//   anthena: "abc"
+//   // frequenthy: 1,
+//   // anthena: "abc"
 // });
 
 // await station.save();

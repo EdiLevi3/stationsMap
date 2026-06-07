@@ -1,48 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./StationDetails.css";
 import { useStationById } from "../../hooks/useStationById";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { API_BASE_URL } from '../../config';
+import { API_BASE_URL } from "../../config";
 
 const StationDetails = ({ station, onClose }) => {
   const { _id } = station;
 
-  const {
-    station: chosenStation,
-    loading,
-    error,
-  } = useStationById(_id);
+  const { station: chosenStation, loading, error } =
+    useStationById(_id);
 
   const displayStation = chosenStation || station;
+  const { name, location } = displayStation;
 
-  const { name, location, lastUpdate } = displayStation;
-
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [records, setRecords] = useState([]);
+  const [metric, setMetric] = useState("recordPrecent");
 
+  // ======================
+  // FETCH RECORDS
+  // ======================
   useEffect(() => {
-    if (!startDate || !endDate) {
-      return;
-    }
-
     const fetchRecords = async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/api/records/station/${_id}` +
-          `?startDate=${startDate.toISOString()}` +
-          `&endDate=${endDate.toISOString()}`
+          `${API_BASE_URL}/api/records/station/${_id}`
         );
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
         const data = await res.json();
-
-        console.log("Records for selected range:", data);
-
         setRecords(data);
       } catch (err) {
         console.error(err);
@@ -50,114 +33,182 @@ const StationDetails = ({ station, onClose }) => {
     };
 
     fetchRecords();
-  }, [_id, startDate, endDate]);
+  }, [_id]);
 
-  
+  // ======================
+  // VALUE EXTRACTION MAP
+  // ======================
+  const valueMap = useMemo(() => {
+    const map = {};
+
+    records.forEach((r) => {
+      const day = new Date(r.date).toISOString().split("T")[0];
+
+      const stationData = r.stations?.find(
+        (s) => String(s.stationId) === String(_id)
+      );
+
+      if (!stationData) return;
+
+      const value = stationData?.[metric];
+
+      if (value === undefined || value === null) return;
+
+      if (!map[day]) {
+        map[day] = { sum: 0, count: 0 };
+      }
+
+      map[day].sum += value;
+      map[day].count += 1;
+    });
+
+    Object.keys(map).forEach((d) => {
+      map[d] = map[d].sum / map[d].count;
+    });
+
+    return map;
+  }, [records, metric, _id]);
+
+  // ======================
+  // BUILD REAL MONTH RANGE
+  // ======================
+  const calendarDays = useMemo(() => {
+    if (!records.length) return [];
+
+    const dates = records.map((r) => new Date(r.date));
+
+    const min = new Date(Math.min(...dates));
+
+    const start = new Date(min.getFullYear(), min.getMonth(), 1);
+    const end = new Date(min.getFullYear(), min.getMonth() + 1, 0);
+
+    const days = [];
+    const current = new Date(start);
+
+    while (current <= end) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return days;
+  }, [records]);
+
+  // ======================
+  // ADD WEEKDAY PADDING
+  // ======================
+  const calendarGrid = useMemo(() => {
+    if (!calendarDays.length) return [];
+
+    const firstWeekday = calendarDays[0].getDay();
+
+    const padded = [];
+
+    // empty slots before month start
+    for (let i = 0; i < firstWeekday; i++) {
+      padded.push(null);
+    }
+
+    // actual days
+    calendarDays.forEach((d) => padded.push(d));
+
+    return padded;
+  }, [calendarDays]);
+
+  // ======================
+  // COLORS
+  // ======================
+  const getColor = (value) => {
+    if (value === undefined || value === null) {
+      return "#9E9E9E";
+    }
+
+    if (metric === "recordPrecent") {
+      if (value >= 100) return "#4CAF50";
+      if (value >= 60) return "#FFC107";
+      return "#F44336";
+    }
+
+    if (metric === "spoofPrecents") {
+      if (value <= 5) return "#4CAF50";
+      if (value <= 20) return "#FFC107";
+      return "#F44336";
+    }
+
+    if (metric === "longestSequence") {
+      if (value >= 900) return "#4CAF50";
+      if (value >= 500) return "#FFC107";
+      return "#F44336";
+    }
+
+    if (metric === "GemPrecents") {
+      if (value >= 70) return "#4CAF50";
+      if (value >= 40) return "#FFC107";
+      return "#F44336";
+    }
+
+    return "#999";
+  };
+
   return (
     <div className="station-page">
       <header className="station-page__header">
-        <button
-          className="station-page__back"
-          onClick={onClose}
-          aria-label="Back to map"
-        >
-          ← Back to Map
-        </button>
-
-        <h1 className="station-page__title">
-          Station Details
-        </h1>
+        <button onClick={onClose}>← Back</button>
+        <h1>{name}</h1>
       </header>
 
-      <main className="station-page__content">
-        <div className="station-info-card">
-          <div className="station-info-card__header">
-            <span className="station-info-card__icon">📡</span>
+      <main className="station-info-card">
 
-            <div>
-              <h2 className="station-info-card__name">
-                {name}
-              </h2>
-            </div>
-          </div>
+        {/* METRIC SELECTOR */}
+        <div className="station-metric-selector">
+          <label>Metric</label>
 
-          <div className="station-info-card__coords">
-            <div className="station-info-card__coord">
-              <span className="station-info-card__coord-label">
-                Latitude
-              </span>
-
-              <span className="station-info-card__coord-value">
-                {location.coordinates[1]}°
-              </span>
-            </div>
-
-            <div className="station-info-card__coord">
-              <span className="station-info-card__coord-label">
-                Longitude
-              </span>
-
-              <span className="station-info-card__coord-value">
-                {location.coordinates[0]}°
-              </span>
-            </div>
-
-            <div className="station-info-card__coord">
-              <span className="station-info-card__coord-label">
-                Last Record
-              </span>
-
-              <span className="station-info-card__coord-value">
-                {lastUpdate
-                  ? new Date(lastUpdate).toLocaleString()
-                  : loading
-                  ? "Loading..."
-                  : "No data"}
-              </span>
-            </div>
-          </div>
-
-          <div className="station-date-range">
-            <label>Date Range</label>
-
-            <DatePicker
-              selectsRange
-              startDate={startDate}
-              endDate={endDate}
-              onChange={(dates) => {
-                const [start, end] = dates;
-                setStartDate(start);
-                setEndDate(end);
-              }}
-              isClearable
-              dateFormat="yyyy-MM-dd"
-              placeholderText="Select date range"
-            />
-
-            {startDate && endDate && (
-              <div className="selected-range">
-                {startDate.toLocaleDateString()} -{" "}
-                {endDate.toLocaleDateString()}
-              </div>
-            )}
-          </div>
-
-          {loading && (
-            <div className="station-info-card__status">
-              <div className="spinner spinner--small" />
-              <span>Loading additional details...</span>
-            </div>
-          )}
-
-          {error && (
-            <div
-              className="station-info-card__status error"
-              role="alert"
-            >
-              {error}
-            </div>
-          )}
+          <select
+            value={metric}
+            onChange={(e) => setMetric(e.target.value)}
+          >
+            <option value="recordPrecent">Record %</option>
+            <option value="longestSequence">Longest Sequence</option>
+            <option value="spoofPrecents">Spoof %</option>
+            <option value="GemPrecents">GEM %</option>
+          </select>
         </div>
+
+        {/* CALENDAR GRID */}
+        <div className="calendar-grid">
+          {calendarGrid.map((date, idx) => {
+            if (!date) {
+              return (
+                <div key={idx} className="calendar-empty" />
+              );
+            }
+
+            const key = date.toISOString().split("T")[0];
+            const value = valueMap[key];
+
+            return (
+              <div
+                key={key}
+                className="calendar-day"
+                style={{ backgroundColor: getColor(value) }}
+              >
+                <div className="day">
+                  {date.getDate()}
+                </div>
+
+                <div className="value">
+                  {value !== undefined && value !== null
+                    ? value.toFixed(1)
+                    : "—"}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* STATUS */}
+        {loading && <div>Loading...</div>}
+        {error && <div>{error}</div>}
+
       </main>
     </div>
   );

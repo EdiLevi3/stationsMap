@@ -130,14 +130,59 @@
   padding: 1rem;
   border-radius: 6px;
 }
-.station-date-range {
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
   margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 10px;
 }
 
-.selected-range {
-  font-size: 0.9rem;
-  color: #666666;
+.calendar-day {
+  height: 70px;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.calendar-day:hover {
+  transform: scale(1.05);
+}
+
+.day {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.value {
+  font-size: 14px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.calendar-day {
+  height: 70px;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+.calendar-empty {
+  height: 70px;
+  background: transparent;
 }
