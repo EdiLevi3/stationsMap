@@ -76,6 +76,42 @@ const deleteRecord = async (req, res) => {
   }
 };
 
+// // const getLastUpdateRecordOfStation = async (req, res) => {
+//   try {
+//     const { stationName } = req.params;
+
+//     const station = await Station.findOne({
+//       name: stationName,
+//     }).select("_id");
+
+//     if (!station) {
+//       return res.status(404).json({
+//         message: `Station '${stationName}' not found`,
+//       });
+//     }
+
+//     const latestRecord = await Record.findOne({
+//       "stations.stationId": station._id,
+//     })
+//       .sort({ updatedAt: -1 })
+//       .select("updatedAt");
+
+//     if (!latestRecord) {
+//       return res.status(404).json({
+//         message: "No records found for this station",
+//       });
+//     }
+
+//     return res.json({
+//       updatedAt: latestRecord.updatedAt,
+//     });
+//   } catch (err) {
+//     return res.status(500).json({
+//       error: err.message,
+//     });
+//   }
+// // };
+
 const saveRecordInMongo = async (recordData) => {
   const {
     date,
@@ -190,5 +226,7 @@ export {
   replaceRecord,
   updateRecord,
   deleteRecord,
+  // getLastUpdateRecordOfStation,
   saveRecordInMongo,
+  
 };

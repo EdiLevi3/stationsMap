@@ -19,8 +19,10 @@ export const useStationById = (stationId) => {
         const res = await fetch(`${API_BASE_URL}/api/stations/${stationId}`, {
           signal: abortController.signal,
         });
+        console.log(res)
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const stationData = await res.json();
+        console.log(stationData)
         setStation(stationData);
       } catch (err) {
         if (err.name === "AbortError") return;

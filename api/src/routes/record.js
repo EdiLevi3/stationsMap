@@ -16,5 +16,7 @@ recordRouter.get("/:id", getRecordById);
 recordRouter.put("/:id", replaceRecord);
 recordRouter.patch("/:id", updateRecord);
 recordRouter.delete("/:id", deleteRecord);
+// recordRouter.get("/last-update/:stationName", getLastUpdateRecordOfStation);
+
 
 export default recordRouter;

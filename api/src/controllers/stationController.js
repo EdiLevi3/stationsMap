@@ -1,4 +1,7 @@
 import Station from "../models/station.js";
+import Record from "../models/record.js"
+import mongoose from "mongoose";
+
 
 const createStation = async (req, res) => {
   try {
@@ -21,11 +24,23 @@ const getAllStations = async (req, res) => {
 
 const getStationById = async (req, res) => {
   try {
+    
     const station = await Station.findById(req.params.id);
+
     if (!station) {
       return res.status(404).json({ error: "Station not found" });
     }
-    res.status(200).json(station);
+
+    const latestRecord = await Record.findOne({
+      "stations.stationId": new mongoose.Types.ObjectId(req.params.id),
+    }).sort({ updatedAt: -1 });
+
+    console.log(latestRecord)
+
+    res.status(200).json({
+      ...station.toObject(),
+      lastUpdate: latestRecord?.updatedAt || null,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
