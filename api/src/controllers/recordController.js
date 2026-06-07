@@ -77,53 +77,110 @@ const deleteRecord = async (req, res) => {
 };
 
 const saveRecordInMongo = async (recordData) => {
-  try {
-    const {
-      date,
+  const {
+    date,
+    hour,
+    stationName,
+    valid,
+    satelliteConstellation,
+    recordPrecent,
+    longestSequence,
+  } = recordData;
+
+  const station = await Station.findOne({
+    name: stationName,
+  }).select("_id");
+
+  if (!station) {
+    throw new Error(
+      `Station with name ${stationName} not found`
+    );
+  }
+
+  const recordDate = new Date(date);
+
+  let record = await Record.findOne({
+    date: recordDate,
+    hour,
+  });
+
+  // Create date/hour document if it doesn't exist
+  if (!record) {
+    return await Record.create({
+      date: recordDate,
       hour,
-      stationName,
+      stations: [
+        {
+          stationId: station._id,
+          valid,
+          satelliteConstellation,
+          recordPrecent,
+          longestSequence,
+        },
+      ],
+    });
+  }
+
+  const existingStation = record.stations.find(
+    (s) => s.stationId.toString() === station._id.toString()
+  );
+
+  // Add station if it doesn't exist
+  if (!existingStation) {
+    record.stations.push({
+      stationId: station._id,
       valid,
       satelliteConstellation,
       recordPrecent,
       longestSequence,
-    } = recordData;
+    });
 
-    const stationId = await Station.findOne({ name: stationName }).select(
-      "_id",
-    );
+    await record.save();
+    return record;
+  }
 
-    if (!stationId) {
-      return res.status(404).json({ error: `Station with name ${stationName} not found.` });
+  // Update existing station
+  existingStation.valid = valid;
+
+  existingStation.recordPrecent += recordPrecent;
+
+  existingStation.longestSequence = Math.max(
+    existingStation.longestSequence,
+    longestSequence
+  );
+
+  // Merge satellite constellations
+  const existingConstellation =
+    existingStation.satelliteConstellation || {};
+
+  for (const [system, satellites] of Object.entries(
+    satelliteConstellation || {}
+  )) {
+    if (!existingConstellation[system]) {
+      existingConstellation[system] = {};
     }
 
-    await Record.findOneAndUpdate(
-      {
-        date: new Date(date),
-        hour,
-      },
-      {
-        $push: {
-          stations: {
-            stationId: stationId,
-            valid,
-            satelliteConstellation,
-            recordPrecent,
-            longestSequence,
-          },
-        },
-        $setOnInsert: {
-          date: new Date(date),
-          hour,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      },
-    );
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    for (const [satellite, value] of Object.entries(
+      satellites
+    )) {
+      if (
+        existingConstellation[system][satellite] === undefined
+      ) {
+        existingConstellation[system][satellite] = value;
+      }
+    }
   }
+
+  existingStation.satelliteConstellation =
+    existingConstellation;
+
+  // Required because Mixed type changes may not be detected
+  existingStation.markModified?.("satelliteConstellation");
+  record.markModified("stations");
+
+  await record.save();
+
+  return record;
 };
 
 export {
