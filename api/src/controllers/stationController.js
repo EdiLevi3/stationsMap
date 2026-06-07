@@ -24,18 +24,17 @@ const getAllStations = async (req, res) => {
 
 const getStationById = async (req, res) => {
   try {
-    
     const station = await Station.findById(req.params.id);
 
     if (!station) {
       return res.status(404).json({ error: "Station not found" });
     }
-
+    console.log("station._id =", station._id);
     const latestRecord = await Record.findOne({
-      "stations.stationId": new mongoose.Types.ObjectId(req.params.id),
+      "stations.stationId": station._id,   // ✅ IMPORTANT FIX
     }).sort({ updatedAt: -1 });
 
-    console.log(latestRecord)
+    console.log("latestRecord:", latestRecord);
 
     res.status(200).json({
       ...station.toObject(),

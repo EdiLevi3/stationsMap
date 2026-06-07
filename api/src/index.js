@@ -50,9 +50,9 @@ app.get("/health", (req, res) => {
 //     hour: 12,
 //     stationName: "Eilat",
 //     valid: true,
-//     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
-//     recordPrecent: 10,
-//     longestSequence: 800,
+//     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
+//     recordPrecent: 80,
+//     longestSequence: 900,
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
