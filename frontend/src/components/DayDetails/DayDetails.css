@@ -1,0 +1,59 @@
+.day-details-page {
+  padding: 20px;
+  font-family: Arial;
+}
+
+/* HEADER */
+.day-details-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.day-details-header button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* LAYOUT */
+.day-layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* LEFT STATS PANEL */
+.day-stats {
+  width: 250px;
+  padding: 15px;
+  background: #111;
+  color: white;
+  border-radius: 10px;
+}
+
+/* HOURS GRID */
+.hours-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+/* HOUR BOX */
+.hour-cell {
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+.hour-label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.hour-value {
+  font-size: 16px;
+  font-weight: bold;
+}

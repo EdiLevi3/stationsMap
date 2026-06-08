@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import "./StationDetails.css";
 import { useStationById } from "../../hooks/useStationById";
 import { API_BASE_URL } from "../../config";
+import DayDetails from "../DayDetails/DayDetails";
 
 const StationDetails = ({ station, onClose }) => {
   const { _id } = station;
@@ -15,6 +16,11 @@ const StationDetails = ({ station, onClose }) => {
   const [records, setRecords] = useState([]);
   const [filter, setFilter] = useState("recordPrecent");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const handleDayClick = (date) => {
+    setSelectedDate(date);
+  };
 
   // ======================
   // FETCH RECORDS
@@ -136,6 +142,17 @@ const StationDetails = ({ station, onClose }) => {
     return "#999";
   };
 
+    if (selectedDate) {
+    return (
+      <DayDetails
+        stationId={_id}
+        date={selectedDate}
+        filter={filter}
+        onBack={() => setSelectedDate(null)}
+      />
+    );
+  }
+
   return (
     <div className="station-page">
     <header className="station-page__header">
@@ -231,13 +248,14 @@ const StationDetails = ({ station, onClose }) => {
             `${String(date.getDate()).padStart(2, "0")}`;          const value = valueMap[key];
 
           return (
-            <div
-              key={key}
-              className="calendar-day"
-              style={{
-                backgroundColor: getColor(value),
-              }}
-            >
+<div
+                key={key}
+                className="calendar-day"
+                style={{
+                  backgroundColor: getColor(value),
+                }}
+                onClick={() => handleDayClick(key)}
+              >
               <div className="day">
                 {date.getDate()}
               </div>

@@ -6,7 +6,8 @@ import {
   replaceRecord,
   updateRecord,
   deleteRecord,
-  getAllRecordsByStation
+  getAllRecordsByStation,
+  getStationDayRecords
 } from "../controllers/recordController.js";
 
 const recordRouter = express.Router();
@@ -17,12 +18,11 @@ recordRouter.get(
   "/station/:stationId",
   getAllRecordsByStation
 );
+recordRouter.get("/station/:stationId/day/:date", getStationDayRecords);
 recordRouter.get("/:id", getRecordById);
 recordRouter.put("/:id", replaceRecord);
 recordRouter.patch("/:id", updateRecord);
 recordRouter.delete("/:id", deleteRecord);
-
-// recordRouter.get("/last-update/:stationName", getLastUpdateRecordOfStation);
 
 
 export default recordRouter;

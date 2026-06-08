@@ -201,6 +201,31 @@ const saveRecordInMongo = async (recordData) => {
   return record;
 };
 
+const getStationDayRecords = async (req, res) => {
+  try {
+    const { stationId, date } = req.params;
+
+    const start = new Date(date);
+    const end = new Date(date);
+
+    // move to next day (for full 24h range)
+    end.setDate(end.getDate() + 1);
+
+    const records = await Record.find({
+      date: {
+        $gte: start,
+        $lt: end,
+      },
+      "stations.stationId": stationId,
+    }).sort({ hour: 1 });
+
+    res.json(records);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 export {
   createRecord,
   getAllRecords,
@@ -210,5 +235,6 @@ export {
   deleteRecord,
   getAllRecordsByStation,
   saveRecordInMongo,
+  getStationDayRecords
   
 };
