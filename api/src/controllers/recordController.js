@@ -228,6 +228,24 @@ const getStationDayRecords = async (req, res) => {
   }
 };
 
+
+const getStationHourRecords = async (req, res) => {
+  try {
+    const { stationId, date, hour } = req.params;
+
+    const recordDoc = await Record.findOne({ date: new Date(date), hour: Number(hour) });
+    if (!recordDoc) return res.status(404).json({ message: "Record not found" });
+
+    const stationData = recordDoc.stations.find(s => s.stationId.toString() === stationId);
+    if (!stationData) return res.status(404).json({ message: "Station not found" });
+
+    return res.status(200).json(stationData);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
 export {
   createRecord,
   getAllRecords,
@@ -237,6 +255,7 @@ export {
   deleteRecord,
   getAllRecordsByStation,
   saveRecordInMongo,
-  getStationDayRecords
+  getStationDayRecords,
+  getStationHourRecords
   
 };

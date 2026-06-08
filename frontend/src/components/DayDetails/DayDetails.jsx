@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { API_BASE_URL } from "../../config";
+import HourDetails from "../HourDetails/HourDetails"; 
+
 import "./DayDetails.css";
 
 const getColor = (value, type) => {
@@ -26,14 +28,13 @@ const metrics = [
   { key: "recordPrecent", label: "Record %",       colorType: "record"   },
 ];
 
-// --- New Native SVG Trend Graph Component ---
+// --- Native SVG Trend Graph Component ---
 const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
   const height = 100;
-  const width = 800; // ViewBox width
+  const width = 800;
 
-  // Map 24 hours to X and Y coordinates
   const points = HOURS.map((hour, i) => {
-    const val = valuesByHour[hour]?.[activeMetric] ?? 0; // Default to 0 if missing for the line flow
+    const val = valuesByHour[hour]?.[activeMetric] ?? 0;
     const x = (i / 23) * width;
     const y = height - (Math.min(val, 100) / 100) * height;
     return `${x},${y}`;
@@ -51,21 +52,14 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
             <stop offset="100%" stopColor="#1a1a2e" stopOpacity="0" />
           </linearGradient>
         </defs>
-        
-        {/* Shaded Area */}
         <path d={pathD} fill="url(#chart-grad)" />
-        {/* Trend Line */}
         <path d={lineD} fill="none" stroke="#1a1a2e" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-        
-        {/* Data Dots */}
         {HOURS.map((hour, i) => {
           const val = valuesByHour[hour]?.[activeMetric];
-          if (val == null) return null; // Only draw dots where we actually have data
-          
+          if (val == null) return null;
           const x = (i / 23) * width;
           const y = height - (Math.min(val, 100) / 100) * height;
           const color = getColor(val, activeColorType);
-          
           return (
             <circle key={hour} cx={x} cy={y} r="5" fill={color} stroke="#fff" strokeWidth="2" />
           );
@@ -78,6 +72,7 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
 const DayDetails = ({ stationId, date, onBack }) => {
   const [records, setRecords] = useState([]);
   const [activeMetric, setActiveMetric] = useState("combined");
+  const [selectedHour, setSelectedHour] = useState(null); // 2. STATE TO TRACK SELECTED HOUR
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -116,7 +111,6 @@ const DayDetails = ({ stationId, date, onBack }) => {
     const vals = Object.values(valuesByHour);
     if (!vals.length) return null;
 
-    // 1. Fixed Average Calculation (Always divide by 24)
     const avg = (key) => {
       const nums = vals.map((v) => v[key]).filter((v) => v != null);
       if (!nums.length) return 0;
@@ -124,13 +118,11 @@ const DayDetails = ({ stationId, date, onBack }) => {
       return sum / 24; 
     };
 
-    // 2. Fixed Max Sequence Calculation (Get all hours matching max)
     const maxSeqVal = Math.max(...vals.map((v) => v.longestSequence ?? 0));
     const maxSeqHoursArr = vals
       .filter((v) => (v.longestSequence ?? 0) === maxSeqVal)
       .map((v) => `${String(v.hour).padStart(2, "0")}:00`);
       
-    // Format the hours beautifully (e.g., "02:00, 14:00, 15:00")
     const maxSeqHoursString = maxSeqHoursArr.join(", ");
 
     return {
@@ -143,6 +135,18 @@ const DayDetails = ({ stationId, date, onBack }) => {
       hoursWithData: vals.length,
     };
   }, [valuesByHour]);
+
+  // 3. IF AN HOUR IS SELECTED, SHOW THE HOUR DETAILS COMPONENT INSTEAD
+  if (selectedHour !== null) {
+    return (
+      <HourDetails
+        stationId={stationId}
+        date={date}
+        hour={selectedHour}
+        onBack={() => setSelectedHour(null)}
+      />
+    );
+  }
 
   const activeColorType = metrics.find((m) => m.key === activeMetric)?.colorType || "combined";
 
@@ -204,7 +208,7 @@ const DayDetails = ({ stationId, date, onBack }) => {
           ))}
         </div>
 
-        {/* ── THE INTERESTING GRAPH ── */}
+        {/* ── THE TREND GRAPH ── */}
         {dailyStats && (
            <TrendGraph 
              valuesByHour={valuesByHour} 
@@ -226,6 +230,8 @@ const DayDetails = ({ stationId, date, onBack }) => {
               <div
                 key={hour}
                 className={`dd-hour-cell${hasData ? " dd-hour-cell--active" : ""}`}
+                onClick={() => hasData && setSelectedHour(hour)} // 4. OPEN PAGE ON CLICK
+                style={{ cursor: hasData ? "pointer" : "default" }} // 5. ADD INTERACTIVE CURSOR
               >
                 <span className="dd-hour-time">
                   {String(hour).padStart(2, "0")}:00

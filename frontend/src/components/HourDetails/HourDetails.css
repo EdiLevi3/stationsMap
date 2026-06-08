@@ -1,0 +1,345 @@
+.hd-page {
+  position: fixed;
+  inset: 0;
+  background: #f4f6f9;
+  z-index: 3100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+.hd-header {
+  background: #fff;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.hd-back-btn {
+  padding: 7px 14px;
+  border: 1.5px solid #d0d7de;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hd-back-btn:hover { background: #f0f2f5; }
+.hd-title { margin: 0; font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
+.hd-subtitle { font-size: 0.78rem; color: #888; display: block; margin-top: 2px; }
+
+.hd-body {
+  padding: 1.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Stats Layout */
+.hd-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 600px) {
+  .hd-stats-grid { grid-template-columns: 1fr; }
+}
+.hd-stat-card {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hd-card-label { font-size: 0.72rem; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.03em;}
+.hd-card-value { font-size: 1.75rem; font-weight: 700; }
+
+/* Sequence Banner */
+.hd-sequence-banner {
+  background: #1a1a2e;
+  border-radius: 10px;
+  padding: 1.25rem;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hd-banner-label { font-size: 0.72rem; color: #9fa4dd; text-transform: uppercase; font-weight: 600; }
+.hd-banner-value { margin: 0; font-size: 1.2rem; font-weight: 600; }
+.hd-banner-visual { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.hd-visual-fill { height: 100%; background: #4caf50; border-radius: 3px; transition: width 0.4s ease; }
+
+/* Section & Satellite Grid */
+.hd-section {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.hd-section-title { margin: 0 0 1rem 0; font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+
+.hd-satellite-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.hd-satellite-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.hd-sat-name { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 4px; }
+.hd-sat-count { font-size: 1.6rem; font-weight: 800; color: #1a1a2e; }
+.hd-sat-sublabel { font-size: 0.68rem; color: #94a3b8; }
+
+.hd-loading, .hd-no-data, .hd-no-satellites {
+  padding: 2.5rem;
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Nested Satellite List Styles */
+.hd-sat-mini-list {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.hd-sat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+}
+
+.hd-sat-id {
+  font-weight: 600;
+  color: #475569;
+}
+
+.hd-sat-sig {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.hd-section-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: -0.75rem 0 1.25rem 0;
+}
+
+.hd-satellite-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer; /* Makes it clear it is clickable */
+  transition: all 0.2s ease-in-out;
+}
+
+.hd-satellite-box:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* Style for when the card is expanded */
+.hd-satellite-box--active {
+  background: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.hd-sat-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.hd-expand-arrow {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+.hd-satellite-box:hover .hd-expand-arrow {
+  color: #475569;
+}
+
+/* Nested Satellite List Container */
+.hd-sat-mini-list {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.hd-sat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+}
+
+.hd-sat-id {
+  font-weight: 600;
+  color: #334155;
+}
+
+.hd-sat-sig {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Layout wrappers for displaying multiple metrics side by side */
+.hd-sat-metrics-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hd-sat-sig {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Secondary label styling for the raw seconds marker */
+.hd-sat-sec {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+/* Subtle border adjustments to separate rows cleanly */
+.hd-sat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+}
+
+/* New Radial Sequence Container Layout */
+.hd-sequence-widget {
+  background: #ffffff;
+  border: 1px solid #e2e6ea;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (max-width: 520px) {
+  .hd-sequence-widget {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+/* SVG Radial Meter Styling */
+.hd-sequence-gauge-box {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+}
+
+.hd-radial-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.hd-radial-track {
+  fill: none;
+  stroke: #f1f5f9;
+  stroke-width: 7;
+}
+
+.hd-radial-progress {
+  fill: none;
+  stroke: #2563eb; /* Clean digital operational blue */
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hd-gauge-percentage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Informational Typography Details */
+.hd-sequence-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hd-sequence-tag {
+  font-size: 0.68rem;
+  color: #2563eb;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.hd-sequence-time-display {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.hd-sequence-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+}
