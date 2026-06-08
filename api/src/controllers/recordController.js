@@ -82,8 +82,10 @@ const getAllRecordsByStation = async (req, res) => {
     const { stationId } = req.params;
 
     const records = await Record.find({
-      "stations.stationId": stationId,
+      "stations.stationId": new mongoose.Types.ObjectId(stationId),
     }).sort({ date: 1, hour: 1 });
+
+    console.log("records:", records)
 
     res.status(200).json(records);
   } catch (error) {
