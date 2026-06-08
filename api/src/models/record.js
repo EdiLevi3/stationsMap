@@ -7,7 +7,6 @@ const stationRecordSchema = new mongoose.Schema(
       ref: "Station",
       required: true,
     },
-    valid: { type: Boolean, required: true },
 satelliteConstellation: {
       type: mongoose.Schema.Types.Mixed,
       default: {},
@@ -15,14 +14,26 @@ satelliteConstellation: {
     },
         recordPrecent: { type: Number, required: true },
     longestSequence: { type: Number, required: true },
+
+    spoofPrecents: {
+      type: Number,
+      default: 0,
+    },
+
+    gemPrecents: {
+      type: Number,
+      default: 0,
+    },
   },
+
+  
   { _id: false },
 );
 
 const recordsSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
-    hour: { type: Number, required: true, min: 0, max: 23, unique: true },
+    hour: { type: Number, required: true, min: 0, max: 23},
     stations: [stationRecordSchema],
   },
   { timestamps: true },

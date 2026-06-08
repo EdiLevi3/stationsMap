@@ -48,15 +48,66 @@ app.get("/health", (req, res) => {
 
 // try {
 //   await saveRecordInMongo({
-//     date: "2026-01-01",
+//     date: "2026-06-08",
 //     hour: 12,
-//     stationName: "Eilat",
+//     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
 //     recordPrecent: 80,
 //     longestSequence: 900,
-//     spoofPrecents: 0,
-//     GemPrecents: 0
+//     spoofPrecents: 60,
+//     gemPrecents: 40
+//   });
+//   console.log("Record saved successfully");
+// } catch (error) {
+//   console.error("Error saving record:", error);
+// }
+
+// try {
+//   await saveRecordInMongo({
+//     date: "2026-06-07",
+//     hour: 12,
+//     stationName: "Jerusalem",
+//     valid: true,
+//     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
+//     recordPrecent: 100,
+//     longestSequence: 900,
+//     spoofPrecents: 10,
+//     gemPrecents: 10
+//   });
+//   console.log("Record saved successfully");
+// } catch (error) {
+//   console.error("Error saving record:", error);
+// }
+
+// try {
+//   await saveRecordInMongo({
+//     date: "2026-06-08",
+//     hour: 11,
+//     stationName: "Jerusalem",
+//     valid: true,
+//     satelliteConstellation: {'R': {'R09':100}, 'C': {'C09': 20}},
+//     recordPrecent: 0,
+//     longestSequence: 5,
+//     spoofPrecents: 10,
+//     gemPrecents: 2
+//   });
+//   console.log("Record saved successfully");
+// } catch (error) {
+//   console.error("Error saving record:", error);
+// }
+
+// try {
+//   await saveRecordInMongo({
+//     date: "2026-06-07",
+//     hour: 11,
+//     stationName: "Jerusalem",
+//     valid: true,
+//     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
+//     recordPrecent: 30,
+//     longestSequence: 18,
+//     spoofPrecents: 100,
+//     gemPrecents: 100
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {

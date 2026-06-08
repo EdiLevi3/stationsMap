@@ -96,10 +96,11 @@ const saveRecordInMongo = async (recordData) => {
     date,
     hour,
     stationName,
-    valid,
     satelliteConstellation,
     recordPrecent,
     longestSequence,
+    spoofPrecents,
+    gemPrecents,
   } = recordData;
 
   const station = await Station.findOne({
@@ -127,10 +128,11 @@ const saveRecordInMongo = async (recordData) => {
       stations: [
         {
           stationId: station._id,
-          valid,
           satelliteConstellation,
           recordPrecent,
           longestSequence,
+          spoofPrecents,
+          gemPrecents,
         },
       ],
     });
@@ -144,10 +146,11 @@ const saveRecordInMongo = async (recordData) => {
   if (!existingStation) {
     record.stations.push({
       stationId: station._id,
-      valid,
       satelliteConstellation,
       recordPrecent,
       longestSequence,
+      spoofPrecents,
+      gemPrecents,
     });
 
     await record.save();
@@ -155,10 +158,10 @@ const saveRecordInMongo = async (recordData) => {
   }
 
   // Update existing station
-  existingStation.valid = valid;
 
   existingStation.recordPrecent += recordPrecent;
-
+  existingStation.spoofPrecents += spoofPrecents;
+  existingStation.gemPrecents += gemPrecents;
   existingStation.longestSequence = Math.max(
     existingStation.longestSequence,
     longestSequence

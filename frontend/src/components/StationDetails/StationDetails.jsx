@@ -13,7 +13,8 @@ const StationDetails = ({ station, onClose }) => {
   const { name, location } = displayStation;
 
   const [records, setRecords] = useState([]);
-  const [metric, setMetric] = useState("recordPrecent");
+  const [filter, setFilter] = useState("recordPrecent");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // ======================
   // FETCH RECORDS
@@ -42,15 +43,19 @@ const StationDetails = ({ station, onClose }) => {
     const map = {};
 
     records.forEach((r) => {
-      const day = new Date(r.date).toISOString().split("T")[0];
+    const d = new Date(r.date);
 
+    const day =
+      `${d.getFullYear()}-` +
+      `${String(d.getMonth() + 1).padStart(2, "0")}-` +
+      `${String(d.getDate()).padStart(2, "0")}`;
       const stationData = r.stations?.find(
         (s) => String(s.stationId) === String(_id)
       );
 
       if (!stationData) return;
 
-      const value = stationData?.[metric];
+      const value = stationData?.[filter];
 
       if (value === undefined || value === null) return;
 
@@ -67,52 +72,34 @@ const StationDetails = ({ station, onClose }) => {
     });
 
     return map;
-  }, [records, metric, _id]);
+  }, [records, filter, _id]);
 
   // ======================
   // BUILD REAL MONTH RANGE
   // ======================
-  const calendarDays = useMemo(() => {
-    if (!records.length) return [];
-
-    const dates = records.map((r) => new Date(r.date));
-
-    const min = new Date(Math.min(...dates));
-
-    const start = new Date(min.getFullYear(), min.getMonth(), 1);
-    const end = new Date(min.getFullYear(), min.getMonth() + 1, 0);
-
-    const days = [];
-    const current = new Date(start);
-
-    while (current <= end) {
-      days.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-
-    return days;
-  }, [records]);
-
-  // ======================
-  // ADD WEEKDAY PADDING
-  // ======================
   const calendarGrid = useMemo(() => {
-    if (!calendarDays.length) return [];
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
 
-    const firstWeekday = calendarDays[0].getDay();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
 
-    const padded = [];
+    const firstWeekday = firstDay.getDay();
 
-    // empty slots before month start
+    const cells = [];
+
+    // empty cells before month starts
     for (let i = 0; i < firstWeekday; i++) {
-      padded.push(null);
+      cells.push(null);
     }
 
-    // actual days
-    calendarDays.forEach((d) => padded.push(d));
+    // month days
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      cells.push(new Date(year, month, day));
+    }
 
-    return padded;
-  }, [calendarDays]);
+    return cells;
+  }, [currentMonth]);
 
   // ======================
   // COLORS
@@ -122,25 +109,25 @@ const StationDetails = ({ station, onClose }) => {
       return "#9E9E9E";
     }
 
-    if (metric === "recordPrecent") {
+    if (filter === "recordPrecent") {
       if (value >= 100) return "#4CAF50";
       if (value >= 60) return "#FFC107";
       return "#F44336";
     }
 
-    if (metric === "spoofPrecents") {
+    if (filter === "spoofPrecents") {
       if (value <= 5) return "#4CAF50";
       if (value <= 20) return "#FFC107";
       return "#F44336";
     }
 
-    if (metric === "longestSequence") {
+    if (filter === "longestSequence") {
       if (value >= 900) return "#4CAF50";
       if (value >= 500) return "#FFC107";
       return "#F44336";
     }
 
-    if (metric === "GemPrecents") {
+    if (filter === "gemPrecents") {
       if (value >= 70) return "#4CAF50";
       if (value >= 40) return "#FFC107";
       return "#F44336";
@@ -151,60 +138,120 @@ const StationDetails = ({ station, onClose }) => {
 
   return (
     <div className="station-page">
-      <header className="station-page__header">
-        <button onClick={onClose}>← Back</button>
-        <h1>{name}</h1>
-      </header>
+    <header className="station-page__header">
+      <button
+        className="station-page__back-button"
+        onClick={onClose}
+      >
+        ← Back
+      </button>
+
+      <h1>{name}</h1>
+    </header>
 
       <main className="station-info-card">
 
-        {/* METRIC SELECTOR */}
-        <div className="station-metric-selector">
-          <label>Metric</label>
+        {/* filter SELECTOR */}
+        <div className="station-filter-selector">
+          <label>Filter</label>
 
           <select
-            value={metric}
-            onChange={(e) => setMetric(e.target.value)}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
           >
             <option value="recordPrecent">Record %</option>
             <option value="longestSequence">Longest Sequence</option>
             <option value="spoofPrecents">Spoof %</option>
-            <option value="GemPrecents">GEM %</option>
+            <option value="gemPrecents">GEM %</option>
           </select>
         </div>
 
-        {/* CALENDAR GRID */}
-        <div className="calendar-grid">
-          {calendarGrid.map((date, idx) => {
-            if (!date) {
-              return (
-                <div key={idx} className="calendar-empty" />
-              );
-            }
+              {/* CALENDAR GRID */}
+      <div className="calendar-header">
+        <button
+          onClick={() =>
+            setCurrentMonth(
+              new Date(
+                currentMonth.getFullYear(),
+                currentMonth.getMonth() - 1,
+                1
+              )
+            )
+          }
+        >
+          ◀
+        </button>
 
-            const key = date.toISOString().split("T")[0];
-            const value = valueMap[key];
+        <h2>
+          {currentMonth.toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+          })}
+        </h2>
 
+        <button
+          onClick={() =>
+            setCurrentMonth(
+              new Date(
+                currentMonth.getFullYear(),
+                currentMonth.getMonth() + 1,
+                1
+              )
+            )
+          }
+        >
+          ▶
+        </button>
+      </div>
+
+      <div className="calendar-weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+
+      <div className="calendar-grid">
+        {calendarGrid.map((date, idx) => {
+          if (!date) {
             return (
               <div
-                key={key}
-                className="calendar-day"
-                style={{ backgroundColor: getColor(value) }}
-              >
-                <div className="day">
-                  {date.getDate()}
-                </div>
-
-                <div className="value">
-                  {value !== undefined && value !== null
-                    ? value.toFixed(1)
-                    : "—"}
-                </div>
-              </div>
+                key={`empty-${idx}`}
+                className="calendar-empty"
+              />
             );
-          })}
-        </div>
+          }
 
+          const key =
+            `${date.getFullYear()}-` +
+            `${String(date.getMonth() + 1).padStart(2, "0")}-` +
+            `${String(date.getDate()).padStart(2, "0")}`;          const value = valueMap[key];
+
+          return (
+            <div
+              key={key}
+              className="calendar-day"
+              style={{
+                backgroundColor: getColor(value),
+              }}
+            >
+              <div className="day">
+                {date.getDate()}
+              </div>
+
+              <div className="value">
+                {value !== undefined &&
+                value !== null
+                  ? value.toFixed(1)
+                  : "—"}
+              </div>
+            </div>
+          );
+        })}
+      </div>
         {/* STATUS */}
         {loading && <div>Loading...</div>}
         {error && <div>{error}</div>}
