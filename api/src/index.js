@@ -46,22 +46,22 @@ app.get("/health", (req, res) => {
 
 // await station2.save();
 
-try {
-  await saveRecordInMongo({
-    date: "2026-06-08",
-    hour: 17,
-    stationName: "Jerusalem",
-    valid: true,
-    satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
-    recordPrecent: 80,
-    longestSequence: 900,
-    spoofPrecents: 0,
-    gemPrecents: 0
-  });
-  console.log("Record saved successfully");
-} catch (error) {
-  console.error("Error saving record:", error);
-}
+// try {
+//   await saveRecordInMongo({
+//     date: "2026-06-08",
+//     hour: 17,
+//     stationName: "Jerusalem",
+//     valid: true,
+//     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
+//     recordPrecent: 80,
+//     longestSequence: 900,
+//     spoofPrecents: 0,
+//     gemPrecents: 0
+//   });
+//   console.log("Record saved successfully");
+// } catch (error) {
+//   console.error("Error saving record:", error);
+// }
 
 // try {
 //   await saveRecordInMongo({

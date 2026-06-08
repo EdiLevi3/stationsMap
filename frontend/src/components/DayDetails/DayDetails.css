@@ -1,59 +1,196 @@
-.day-details-page {
-  padding: 20px;
-  font-family: Arial;
+.dd-page {
+  position: fixed;
+  inset: 0;
+  background: #f4f6f9;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
-/* HEADER */
-.day-details-header {
+.dd-header {
+  background: #fff;
+  padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.day-details-header button {
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-/* LAYOUT */
-.day-layout {
-  display: flex;
-  gap: 20px;
-}
-
-/* LEFT STATS PANEL */
-.day-stats {
-  width: 250px;
-  padding: 15px;
-  background: #111;
-  color: white;
-  border-radius: 10px;
-}
-
-/* HOURS GRID */
-.hours-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-}
-
-/* HOUR BOX */
-.hour-cell {
-  padding: 10px;
+.dd-back-btn {
+  padding: 7px 14px;
+  border: 1.5px solid #d0d7de;
   border-radius: 8px;
-  color: white;
-  text-align: center;
+  background: #fff;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+}
+.dd-back-btn:hover { background: #f0f2f5; }
+
+.dd-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.dd-subtitle {
+  font-size: 0.78rem;
+  color: #888;
+  display: block;
+  margin-top: 2px;
 }
 
-.hour-label {
-  font-size: 12px;
-  opacity: 0.8;
+.dd-body {
+  padding: 1.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-.hour-value {
-  font-size: 16px;
-  font-weight: bold;
+/* ── Stat cards ── */
+.dd-stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.dd-stat-card {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dd-stat-label {
+  font-size: 0.68rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.dd-stat-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+/* ── Tabs ── */
+.dd-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.dd-tab {
+  padding: 6px 16px;
+  border: 1.5px solid #d0d7de;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dd-tab:hover { background: #f0f2f5; }
+.dd-tab--active {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+/* ── Hour grid ── */
+.dd-hour-grid {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dd-hour-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid #f3f3f3;
+  opacity: 0.38;
+  transition: background 0.12s;
+}
+.dd-hour-cell:last-child { border-bottom: none; }
+.dd-hour-cell--active {
+  opacity: 1;
+  background: #fafbfc;
+}
+.dd-hour-cell--active:hover { background: #f3f5f7; }
+
+.dd-hour-time {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #444;
+  min-width: 46px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-hour-track {
+  flex: 1;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dd-hour-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.35s ease;
+  min-width: 4px;
+}
+
+.dd-hour-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .dd-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Trend Graph ── */
+.dd-trend-graph {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  padding: 1.5rem 1rem 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure the label can wrap if there are many max hours */
+.dd-stat-label {
+  white-space: normal; 
+  word-wrap: break-word;
 }
