@@ -16,7 +16,21 @@ const createStation = async (req, res) => {
 const getAllStations = async (req, res) => {
   try {
     const stations = await Station.find();
-    res.status(200).json(stations);
+
+    const stationsWithUpdates = await Promise.all(
+      stations.map(async (station) => {
+        const latestRecord = await Record.findOne({
+          "stations.stationId": station._id,
+        }).sort({ updatedAt: -1 });
+
+        return {
+          ...station.toObject(),
+          lastUpdate: latestRecord?.updatedAt || null,
+        };
+      })
+    );
+
+    res.status(200).json(stationsWithUpdates);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

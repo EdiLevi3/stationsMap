@@ -1,115 +1,112 @@
-.dd-page {
-  position: fixed;
-  inset: 0;
-  background: #f4f6f9;
-  z-index: 3000;
+/* New content subsection row layout */
+.dd-content-heading {
   display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  font-family: "Segoe UI", system-ui, sans-serif;
-}
-
-.dd-header {
-  background: #fff;
-  padding: 0.85rem 1.5rem;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  margin-bottom: 0.85rem;
 }
 
-.dd-back-btn {
-  padding: 7px 14px;
-  border: 1.5px solid #d0d7de;
-  border-radius: 8px;
-  background: #fff;
-  color: #333;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.dd-back-btn:hover { background: #f0f2f5; }
-
-.dd-title {
+.dd-section-title {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #1a1a2e;
 }
-.dd-subtitle {
-  font-size: 0.78rem;
-  color: #888;
-  display: block;
-  margin-top: 2px;
+
+/* Beautiful new location badge style for telemetry status */
+.dd-hours-badge {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
 }
 
-.dd-body {
-  padding: 1.5rem;
-  max-width: 860px;
-  margin: 0 auto;
-  width: 100%;
+/* Base custom badge styling inside header */
+.dd-date-highlight {
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
-/* ── Stat cards ── */
+/* ── STAT CARDS ── */
 .dd-stats-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin-bottom: 1.25rem;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
 .dd-stat-card {
   background: #fff;
   border: 1px solid #e2e6ea;
   border-radius: 10px;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
+  flex: 1;
+  min-width: 160px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
+
 .dd-stat-label {
-  font-size: 0.68rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
   font-weight: 600;
-  line-height: 1.3;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
+
 .dd-stat-value {
-  font-size: 1.45rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
-/* ── Tabs ── */
+/* ── TABS ── */
 .dd-tabs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 1rem;
-  flex-wrap: wrap;
 }
+
 .dd-tab {
-  padding: 6px 16px;
-  border: 1.5px solid #d0d7de;
-  border-radius: 20px;
+  padding: 6px 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
   background: #fff;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #555;
   cursor: pointer;
   transition: all 0.15s;
 }
-.dd-tab:hover { background: #f0f2f5; }
+
+.dd-tab:hover {
+  background: #f6f8fa;
+}
+
 .dd-tab--active {
   background: #1a1a2e;
   color: #fff;
   border-color: #1a1a2e;
 }
 
-/* ── Hour grid ── */
+/* ── TREND GRAPH ── */
+.dd-trend-graph {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── HOUR GRID ── */
 .dd-hour-grid {
   background: #fff;
   border: 1px solid #e2e6ea;
@@ -122,75 +119,85 @@
 .dd-hour-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 14px;
-  border-bottom: 1px solid #f3f3f3;
-  opacity: 0.38;
-  transition: background 0.12s;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e2e6ea;
+  gap: 16px;
 }
-.dd-hour-cell:last-child { border-bottom: none; }
-.dd-hour-cell--active {
-  opacity: 1;
-  background: #fafbfc;
+
+.dd-hour-cell:last-child {
+  border-bottom: none;
 }
-.dd-hour-cell--active:hover { background: #f3f5f7; }
+
+.dd-hour-cell--active:hover {
+  background: #f8fafc;
+}
 
 .dd-hour-time {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #444;
-  min-width: 46px;
-  font-variant-numeric: tabular-nums;
+  color: #333;
+  width: 50px;
+  flex-shrink: 0;
 }
 
 .dd-hour-track {
   flex: 1;
-  height: 10px;
-  background: #f0f0f0;
-  border-radius: 5px;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
   overflow: hidden;
+  position: relative;
 }
 
 .dd-hour-fill {
   height: 100%;
-  border-radius: 5px;
-  transition: width 0.35s ease;
-  min-width: 4px;
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 .dd-hour-val {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  min-width: 50px;
+  width: 55px;
   text-align: right;
-  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 .dd-no-data {
   text-align: center;
   padding: 2rem;
-  color: #888;
-  font-size: 0.9rem;
-}
-
-@media (max-width: 700px) {
-  .dd-stats-row { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ── Trend Graph ── */
-.dd-trend-graph {
   background: #fff;
   border: 1px solid #e2e6ea;
   border-radius: 10px;
-  margin-bottom: 1rem;
-  padding: 1.5rem 1rem 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-  width: 100%;
-  box-sizing: border-box;
+  color: #666;
+}
+/* ── TREND GRAPH LAYOUT ENHANCEMENTS ── */
+.dd-trend-graph {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  /* CHANGED: Increased the left padding (last value) to 1.75rem to protect the Y-axis numbers */
+  padding: 1.5rem 1.25rem 1rem 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-/* Ensure the label can wrap if there are many max hours */
-.dd-stat-label {
-  white-space: normal; 
-  word-wrap: break-word;
+.dd-trend-graph svg {
+  overflow: visible; 
+  display: block;
+}
+
+/* Smooth transitions when switching metrics */
+.dd-trend-graph path {
+  transition: d 0.3s ease-in-out, fill 0.3s ease-in-out;
+}
+
+.dd-trend-graph circle {
+  transition: cx 0.3s ease-in-out, cy 0.3s ease-in-out, fill 0.3s ease-in-out;
+}
+
+/* Text cleanups */
+.dd-trend-graph text {
+  user-select: none;
+  pointer-events: none;
 }

@@ -256,3 +256,71 @@
   flex-shrink: 0;
   margin-top: 1px;
 }
+
+.station-page__meta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.station-page__coordinates {
+  font-size: 0.85rem;
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* ─── DATE SEARCH INPUT PANEL ─── */
+.cal-search-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.cal-search-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.cal-search-input {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.cal-search-input:focus {
+  border-color: #1a1a2e;
+  box-shadow: 0 0 0 2px rgba(26, 26, 46, 0.1);
+}
+
+/* Optional responsive override for mobile layout compatibility */
+@media (max-width: 640px) {
+  .cal-search-container {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .cal-search-input {
+    width: 100%;
+  }
+}

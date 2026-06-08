@@ -20,10 +20,12 @@ const getMetricColor = (val, type) => {
   return val >= 80 ? "#10b981" : val >= 50 ? "#f59e0b" : "#ef4444";
 };
 
-const HourDetails = ({ stationId, date, hour, onBack }) => {
+const HourDetails = ({ station, stationId, date, hour, onBack }) => {
   const [hourData, setHourData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedConstellation, setExpandedConstellation] = useState(null);
+
+  const { name, location } = station || {};
 
   useEffect(() => {
     const fetchHourData = async () => {
@@ -50,7 +52,6 @@ const HourDetails = ({ stationId, date, hour, onBack }) => {
     setExpandedConstellation(prev => prev === constellation ? null : constellation);
   };
 
-  // --- New Sequence Formatting Utilities ---
   const rawSequence = hourData.longestSequence || 0;
   const sequencePercentage = Math.min(100, (rawSequence / 3600) * 100);
   
@@ -61,22 +62,40 @@ const HourDetails = ({ stationId, date, hour, onBack }) => {
     return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   };
 
-  // SVG Gauge calculations
   const radius = 35;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (sequencePercentage / 100) * circumference;
 
   return (
-    <div className="hd-page">
-      <header className="hd-header">
-        <button className="hd-back-btn" onClick={onBack}>← Back to Day</button>
-        <div>
-          <h1 className="hd-title">Hour {formattedHour}:00</h1>
-          <span className="hd-subtitle">{date}</span>
+    /* Structural classes match StationDetails/DayDetails exactly to freeze sizes */
+    <div className="station-page">
+      <header className="station-page__header">
+        <button className="station-page__back-button" onClick={onBack}>
+          ← Back
+        </button>
+        <div className="station-page__title-group">
+          <span className="station-page__icon">📍</span>
+          <div>
+            <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
+            
+            <div className="station-page__meta-group">
+              <span className="hd-date-highlight">{date}</span>
+              
+              {location?.coordinates && location.coordinates.length === 2 && (
+                <span className="station-page__coordinates">
+                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                </span>
+              )}
+
+              <span className="hd-hour-tag-badge">
+                 {formattedHour}:00
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="hd-body">
+      <main className="station-main">
         {/* Core Stats Overview */}
         <div className="hd-stats-grid">
           {[
@@ -96,13 +115,11 @@ const HourDetails = ({ stationId, date, hour, onBack }) => {
           ))}
         </div>
 
-        {/* ── NEW VISUAL: Radial/Circular Sequence Widget ── */}
+        {/* Circular Sequence Widget */}
         <div className="hd-sequence-widget">
           <div className="hd-sequence-gauge-box">
             <svg className="hd-radial-svg" viewBox="0 0 80 80">
-              {/* Background Track Circle */}
               <circle className="hd-radial-track" cx="40" cy="40" r={radius} />
-              {/* Animated Progress Arc */}
               <circle 
                 className="hd-radial-progress" 
                 cx="40" 
@@ -150,7 +167,6 @@ const HourDetails = ({ stationId, date, hour, onBack }) => {
                     <span className="hd-sat-count">{activeCount}</span>
                     <span className="hd-sat-sublabel">Satellites Active</span>
                     
-                    {/* Nested breakdown list with percentage calculation */}
                     {isExpanded && activeCount > 0 && (
                       <div className="hd-sat-mini-list" onClick={(e) => e.stopPropagation()}>
                         {satList.map(([satId, seconds]) => {
@@ -178,7 +194,7 @@ const HourDetails = ({ stationId, date, hour, onBack }) => {
             </div>
           )}
         </section>
-      </div>
+      </main>
     </div>
   );
 };

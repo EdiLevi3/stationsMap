@@ -146,3 +146,39 @@
 .station-name-label::before {
   display: none !important;
 }
+
+/* Removes default Leaflet styling borders around custom HTML injections */
+.custom-circle-marker-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Base custom circle element layout styling */
+.marker-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.marker-circle:hover {
+  transform: scale(1.25);
+  cursor: pointer;
+}
+
+/* Green condition (Active today) */
+.marker-circle--green {
+  background-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Red condition (Outdated/Stale) */
+.marker-circle--red {
+  background-color: #F44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+}

@@ -25,10 +25,10 @@ app.get("/health", (req, res) => {
 
 
 // const station = new Station({
-//   name: "Jerusalem",
+//   name: "Tel Aviv",
 //   location: {
 //     type: "Point",
-//     coordinates: [35.2224346, 31.7768831], // [longitude, latitude]
+//     coordinates: [34.7817676, 32.0852999], // [longitude, latitude]
 //   },
 //   // frequenthy: 1,
 //   // anthena: "abc"

@@ -22,13 +22,12 @@ const getColor = (value, type) => {
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 const metrics = [
+  { key: "recordPrecent", label: "Record %",       colorType: "record"   },
   { key: "combined",      label: "Spoof+GEM avg", colorType: "combined" },
   { key: "spoofPrecents", label: "Spoof %",        colorType: "spoof"    },
   { key: "gemPrecents",   label: "GEM %",          colorType: "gem"      },
-  { key: "recordPrecent", label: "Record %",       colorType: "record"   },
 ];
 
-// --- Native SVG Trend Graph Component ---
 const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
   const height = 100;
   const width = 800;
@@ -45,15 +44,55 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
 
   return (
     <div className="dd-trend-graph">
-      <svg viewBox={`0 -10 ${width} ${height + 20}`} preserveAspectRatio="none" style={{ width: "100%", height: "140px" }}>
+      {/* Shifted the left boundary of viewBox to -45 to give the Y-axis labels plenty of breathing room */}
+      <svg viewBox={`-45 -15 ${width + 70} ${height + 40}`} preserveAspectRatio="none" style={{ width: "100%", height: "160px" }}>
         <defs>
           <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#1a1a2e" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#1a1a2e" stopOpacity="0" />
           </linearGradient>
         </defs>
+
+        {/* ── Y-AXIS PERCENTAGE LABELS ── */}
+        <g fill="#64748b" fontSize="11px" fontWeight="600" textAnchor="end">
+          <text x="-12" y="4">100%</text>
+          <text x="-12" y={height / 2 + 4}>50%</text>
+          <text x="-12" y={height + 4}>0%</text>
+        </g>
+
+        {/* Horizontal Background Guidelines */}
+        <line x1="0" y1="0" x2={width} y2="0" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
+        <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
+        <line x1="0" y1={height} x2={width} y2={height} stroke="#e2e8f0" strokeWidth="1.5" />
+
+        {/* Vertical Hour Guidelines & X-Axis Time Labels */}
+        {HOURS.map((hour) => {
+          if (hour % 2 !== 0 && hour !== 23) return null;
+          
+          const x = (hour / 23) * width;
+          return (
+            <g key={`axis-${hour}`}>
+              <line x1={x} y1="0" x2={x} y2={height} stroke="#f1f5f9" strokeWidth="1" />
+              <text 
+                x={x} 
+                y={height + 18} 
+                textAnchor="middle" 
+                fill="#64748b" 
+                fontSize="11px" 
+                fontWeight="600"
+                style={{ fontFamily: 'inherit' }}
+              >
+                {String(hour).padStart(2, "0")}:00
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Graph Render Shapes */}
         <path d={pathD} fill="url(#chart-grad)" />
         <path d={lineD} fill="none" stroke="#1a1a2e" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        
+        {/* Metric Node Circles */}
         {HOURS.map((hour, i) => {
           const val = valuesByHour[hour]?.[activeMetric];
           if (val == null) return null;
@@ -61,7 +100,7 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
           const y = height - (Math.min(val, 100) / 100) * height;
           const color = getColor(val, activeColorType);
           return (
-            <circle key={hour} cx={x} cy={y} r="5" fill={color} stroke="#fff" strokeWidth="2" />
+            <circle key={hour} cx={x} cy={y} r="4.5" fill={color} stroke="#fff" strokeWidth="2" />
           );
         })}
       </svg>
@@ -69,10 +108,12 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
   );
 };
 
-const DayDetails = ({ stationId, date, onBack }) => {
+const DayDetails = ({ station, stationId, date, onBack }) => {
   const [records, setRecords] = useState([]);
-  const [activeMetric, setActiveMetric] = useState("combined");
-  const [selectedHour, setSelectedHour] = useState(null); // 2. STATE TO TRACK SELECTED HOUR
+  const [selectedHour, setSelectedHour] = useState(null); 
+  const [activeMetric, setActiveMetric] = useState("recordPrecent");
+
+  const { name, location } = station || {};
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -136,10 +177,10 @@ const DayDetails = ({ stationId, date, onBack }) => {
     };
   }, [valuesByHour]);
 
-  // 3. IF AN HOUR IS SELECTED, SHOW THE HOUR DETAILS COMPONENT INSTEAD
   if (selectedHour !== null) {
     return (
       <HourDetails
+        station={station}
         stationId={stationId}
         date={date}
         hour={selectedHour}
@@ -151,26 +192,47 @@ const DayDetails = ({ stationId, date, onBack }) => {
   const activeColorType = metrics.find((m) => m.key === activeMetric)?.colorType || "combined";
 
   return (
-    <div className="dd-page">
-      <header className="dd-header">
-        <button className="dd-back-btn" onClick={onBack}>← Back</button>
-        <div>
-          <h1 className="dd-title">{date}</h1>
-          {dailyStats && (
-            <span className="dd-subtitle">{dailyStats.hoursWithData} hours with data</span>
-          )}
+    <div className="station-page">
+      <header className="station-page__header">
+        <button className="station-page__back-button" onClick={onBack}>
+          ← Back
+        </button>
+        <div className="station-page__title-group">
+          <span className="station-page__icon">📍</span>
+          <div>
+            <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
+            
+            <div className="station-page__meta-group">
+              <span className="dd-date-highlight">{date}</span>
+              
+              {location?.coordinates && location.coordinates.length === 2 && (
+                <span className="station-page__coordinates">
+                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="dd-body">
+      <main className="station-main">
+        <div className="dd-content-heading">
+          <h2 className="dd-section-title">24-Hour Metric Analysis</h2>
+          {dailyStats && (
+            <span className="dd-hours-badge">
+              {dailyStats.hoursWithData} / 24 hours captured
+            </span>
+          )}
+        </div>
+
         {/* ── STAT CARDS ── */}
         {dailyStats ? (
           <div className="dd-stats-row">
             {[
               { label: "Avg record % (24hr)",    value: dailyStats.avgRecord,   type: "record",   suffix: "%" },
+              { label: "Spoof+GEM avg (24hr)",   value: dailyStats.avgCombined, type: "combined", suffix: "%" },
               { label: "Avg spoof % (24hr)",     value: dailyStats.avgSpoof,    type: "spoof",    suffix: "%" },
               { label: "Avg GEM % (24hr)",       value: dailyStats.avgGem,      type: "gem",      suffix: "%" },
-              { label: "Spoof+GEM avg (24hr)",   value: dailyStats.avgCombined, type: "combined", suffix: "%" },
               {
                 label: `Max sequence (${dailyStats.maxSeqHours})`,
                 value: dailyStats.maxSeq,
@@ -230,8 +292,8 @@ const DayDetails = ({ stationId, date, onBack }) => {
               <div
                 key={hour}
                 className={`dd-hour-cell${hasData ? " dd-hour-cell--active" : ""}`}
-                onClick={() => hasData && setSelectedHour(hour)} // 4. OPEN PAGE ON CLICK
-                style={{ cursor: hasData ? "pointer" : "default" }} // 5. ADD INTERACTIVE CURSOR
+                onClick={() => hasData && setSelectedHour(hour)} 
+                style={{ cursor: hasData ? "pointer" : "default" }} 
               >
                 <span className="dd-hour-time">
                   {String(hour).padStart(2, "0")}:00
@@ -251,7 +313,7 @@ const DayDetails = ({ stationId, date, onBack }) => {
             );
           })}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -17,7 +17,6 @@ const getDominantColor = (hourlyValues) => {
   hourlyValues.forEach((v) => {
     counts[getColor(v)]++;
   });
-  // include all 24 slots — gray counts too, so majority gray → gray number
   const best = Object.entries(counts).reduce((a, b) => (b[1] > a[1] ? b : a));
   if (best[0] === "#D1D5DB") return "#9CA3AF";
   return best[0];
@@ -75,9 +74,7 @@ const HourlyRing = ({ hourlyValues, size = 80 }) => {
         fontSize={size * 0.22}
         fontWeight="700"
         fill={dominantColor}
-      >
-        {/* day number injected by parent via data attr — see below */}
-      </text>
+      />
     </svg>
   );
 };
@@ -88,13 +85,25 @@ const StationDetails = ({ station, onClose }) => {
 
   const { station: chosenStation, loading, error } = useStationById(_id);
   const displayStation = chosenStation || station;
-  const { name, lastUpdate } = displayStation;
+  
+  const { name, lastUpdate, location } = displayStation;
 
   const [records, setRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
   const handleDayClick = (date) => setSelectedDate(date);
+
+  // NEW: Directly jumps to selected date and updates current calendar view month
+  const handleDirectDateJump = (e) => {
+    const dateString = e.target.value; // Format: "YYYY-MM-DD"
+    if (!dateString) return;
+
+    const [year, month] = dateString.split("-").map(Number);
+    // Sync active calendar view so going back lands on the correct month view
+    setCurrentMonth(new Date(year, month - 1, 1));
+    setSelectedDate(dateString);
+  };
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -142,7 +151,6 @@ const StationDetails = ({ station, onClose }) => {
     return result;
   }, [records, _id]);
 
-  // BUILD CALENDAR GRID — includes trailing prev-month days & leading next-month days
   const calendarGrid = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -150,18 +158,15 @@ const StationDetails = ({ station, onClose }) => {
     const lastDay = new Date(year, month + 1, 0);
     const cells = [];
 
-    // prev month fill
     const prevMonthLastDay = new Date(year, month, 0);
     for (let i = firstDay.getDay() - 1; i >= 0; i--) {
       cells.push({ date: new Date(year, month - 1, prevMonthLastDay.getDate() - i), outside: true });
     }
 
-    // current month
     for (let day = 1; day <= lastDay.getDate(); day++) {
       cells.push({ date: new Date(year, month, day), outside: false });
     }
 
-    // next month fill — complete to 42 cells (6 rows)
     const remaining = 42 - cells.length;
     for (let i = 1; i <= remaining; i++) {
       cells.push({ date: new Date(year, month + 1, i), outside: true });
@@ -178,6 +183,7 @@ const StationDetails = ({ station, onClose }) => {
   if (selectedDate) {
     return (
       <DayDetails
+        station={displayStation}
         stationId={_id}
         date={selectedDate}
         filter="spoofPrecents"
@@ -196,16 +202,37 @@ const StationDetails = ({ station, onClose }) => {
           <span className="station-page__icon">📍</span>
           <div>
             <h1 className="station-page__title">Station: {name}</h1>
-            {lastUpdate && (
-              <span className="station-page__last-update">
-                Last update: {new Date(lastUpdate).toLocaleString()}
-              </span>
-            )}
+            <div className="station-page__meta-group">
+              {lastUpdate && (
+                <span className="station-page__last-update">
+                  Last update: {new Date(lastUpdate).toLocaleString()}
+                </span>
+              )}
+              {location?.coordinates && location.coordinates.length === 2 && (
+                <span className="station-page__coordinates">
+                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       <main className="station-main">
+        {/* ── NEW FEATURE: Date Search Control Panel Bar ── */}
+        <div className="cal-search-container">
+          <label htmlFor="date-search" className="cal-search-label">
+            Search a Specific Date:
+          </label>
+          <input 
+            type="date" 
+            id="date-search" 
+            className="cal-search-input"
+            onChange={handleDirectDateJump}
+            value="" // Kept blank to allow picking the same date again later if needed
+          />
+        </div>
+
         <div className="cal-month-nav">
           <button
             className="cal-nav-btn"
@@ -216,7 +243,6 @@ const StationDetails = ({ station, onClose }) => {
             ‹
           </button>
           <span className="cal-month-label">
-            {" "}
             {currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}
           </span>
           <button
