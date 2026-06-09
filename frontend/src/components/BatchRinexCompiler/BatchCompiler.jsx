@@ -2,12 +2,21 @@ import { useState, useEffect, useRef } from "react";
 import "./BatchCompiler.css";
 
 const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStationIds }) => {
-  // New States for Sidebar UI behavior
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sidebarWidth, setSidebarWidth] = useState(340); // default width in pixels
-  const [isResizing, setIsResizing] = useState(false);
+  // Cache of id → station object so selections survive leaving the viewport scope
+  const stationCacheRef = useRef({});
 
-  // Core configuration form states
+  // Keep cache updated whenever visible stations change
+  useEffect(() => {
+    visibleStations.forEach((s) => {
+      stationCacheRef.current[s._id] = s;
+    });
+  }, [visibleStations]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sidebarWidth, setSidebarWidth] = useState(340);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [startHour, setStartHour] = useState("0");
@@ -16,9 +25,19 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
   const [isProcessing, setIsProcessing] = useState(false);
 
   const sidebarRef = useRef(null);
+  const widthBeforeCollapse = useRef(340);
 
-  // ── RESIZING ENGINE (DRAG-TO-RESIZE) ──
+  // ── COLLAPSE TOGGLE ──
+  const handleCollapseToggle = () => {
+    if (!isCollapsed) {
+      widthBeforeCollapse.current = sidebarWidth;
+    }
+    setIsCollapsed((prev) => !prev);
+  };
+
+  // ── RESIZING ENGINE ──
   const startResizing = (e) => {
+    if (isCollapsed) return;
     e.preventDefault();
     setIsResizing(true);
   };
@@ -26,48 +45,51 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing) return;
-      // Get distance from the left edge of screen to mouse pointer
       let newWidth = e.clientX;
-      
-      // Set bounds limits so the user can't accidentally break the layout
       if (newWidth < 260) newWidth = 260;
-      if (newWidth > 600) newWidth = 600;
-      
+      if (newWidth > 680) newWidth = 680;
       setSidebarWidth(newWidth);
     };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
+    const handleMouseUp = () => setIsResizing(false);
 
     if (isResizing) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
     }
-
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isResizing]);
 
+  // ── COMBINE VISIBLE AND SELECTED STATIONS ──
+  // Build a unique pool of stations combining everything currently in the map viewport 
+  // along with anything the user has checked (retrieved from cache if off-screen).
+  const combinedStationPool = (() => {
+    const poolMap = new Map();
+    
+    // Add current viewport stations
+    visibleStations.forEach(s => poolMap.set(s._id, s));
+    
+    // Supplement with selected stations from cache if they left viewport bounds
+    selectedStationIds.forEach(id => {
+      if (!poolMap.has(id) && stationCacheRef.current[id]) {
+        poolMap.set(id, stationCacheRef.current[id]);
+      }
+    });
+    
+    return Array.from(poolMap.values());
+  })();
 
-  // ── SEARCH & FILTER ENGINE ──
-  // Filters visible stations by matching name OR coordinates strings
-  const filteredStations = visibleStations.filter((station) => {
+  // ── SEARCH & FILTER ──
+  const filteredStations = combinedStationPool.filter((station) => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
-
     const nameMatch = (station.name || "").toLowerCase().includes(query);
-    
-    // Coordinates mapping safe checks [lng, lat]
     const lng = station.location?.coordinates?.[0]?.toString() || "";
     const lat = station.location?.coordinates?.[1]?.toString() || "";
-    const coordMatch = lat.includes(query) || lng.includes(query);
-
-    return nameMatch || coordMatch;
+    return nameMatch || lat.includes(query) || lng.includes(query);
   });
-
 
   // ── SELECTION LOGIC ──
   const handleStationCheck = (id) => {
@@ -76,12 +98,15 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
     );
   };
 
+  const allFilteredSelected =
+    filteredStations.length > 0 &&
+    filteredStations.every((s) => selectedStationIds.includes(s._id));
+
   const handleSelectAllFiltered = (e) => {
+    const filteredIds = filteredStations.map((s) => s._id);
     if (e.target.checked) {
-      const allFilteredIds = filteredStations.map((s) => s._id);
-      setSelectedStationIds((prev) => Array.from(new Set([...prev, ...allFilteredIds])));
+      setSelectedStationIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
     } else {
-      const filteredIds = filteredStations.map((s) => s._id);
       setSelectedStationIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
     }
   };
@@ -89,53 +114,96 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
   const handleBatchConvert = (e) => {
     e.preventDefault();
     if (selectedStationIds.length === 0) {
-      alert("Please select at least one station from the checklist container.");
+      alert("Please select at least one station.");
       return;
     }
     if (!startDate || !endDate) {
-      alert("Please enter a valid timeline range configuration.");
+      alert("Please enter a valid date range.");
       return;
     }
-
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
-      alert(`Success! Compiled batch processing loop completed for ${selectedStationIds.length} stations.`);
+      alert(`Done! Exported ${selectedStationIds.length} station(s).`);
     }, 5000);
   };
 
+  // ── COLLAPSED RAIL VIEW ──
+  if (isCollapsed) {
+    return (
+      <aside className="batch-download-sidebar batch-download-sidebar--collapsed">
+        <button
+          className="sidebar-collapse-btn sidebar-collapse-btn--rail"
+          onClick={handleCollapseToggle}
+          title="Expand sidebar"
+          aria-label="Expand sidebar"
+        >
+          ›
+        </button>
+        <div className="sidebar-rail-label">RINEX</div>
+        {selectedStationIds.length > 0 && (
+          <div className="sidebar-rail-badge">{selectedStationIds.length}</div>
+        )}
+      </aside>
+    );
+  }
+
   return (
-    <aside 
+    <aside
       className={`batch-download-sidebar ${isResizing ? "is-resizing" : ""}`}
       ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
     >
-      {/* DRAG HANDLE RESIZER STRIP */}
-      <div className="sidebar-resizer-handle" onMouseDown={startResizing} />
+      {/* DRAG HANDLE */}
+      <div
+        className="sidebar-resizer-handle"
+        onMouseDown={startResizing}
+        title="Drag to resize"
+      />
 
+      {/* HEADER */}
       <div className="batch-sidebar__header">
-        <h2>Batch RINEX Compiler</h2>
-        <p className="batch-sidebar__subtitle">Extract datasets across multiple scopes</p>
+        <div className="batch-sidebar__header-top">
+          <div>
+            <h2 className="batch-sidebar__title">RINEX Compiler</h2>
+            <p className="batch-sidebar__subtitle">Batch export across stations</p>
+          </div>
+          <button
+            className="sidebar-collapse-btn"
+            onClick={handleCollapseToggle}
+            title="Collapse sidebar"
+            aria-label="Collapse sidebar"
+          >
+            ‹
+          </button>
+        </div>
+        {selectedStationIds.length > 0 && (
+          <div className="batch-selection-pill">
+            {selectedStationIds.length} station{selectedStationIds.length !== 1 ? "s" : ""} selected
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleBatchConvert} className="batch-sidebar__form">
-        
-        {/* NEW SEARCH & FILTER SUB-CONTAINER */}
+
+        {/* SEARCH */}
         <div className="batch-form-section">
-          <label className="batch-section-label">Filter Current Viewport</label>
+          <label className="batch-section-label">Filter Viewport</label>
           <div className="batch-search-wrapper">
+            <span className="batch-search-icon">⌕</span>
             <input
               type="text"
-              placeholder="Search by name or coordinates..."
+              placeholder="Name or coordinates…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="batch-input-field batch-search-input"
             />
             {searchQuery && (
-              <button 
-                type="button" 
-                className="batch-search-clear" 
+              <button
+                type="button"
+                className="batch-search-clear"
                 onClick={() => setSearchQuery("")}
+                aria-label="Clear search"
               >
                 ✕
               </button>
@@ -143,20 +211,26 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* Dynamic Station Scope Checkbox Listing */}
-        <div className="batch-form-section">
+        {/* STATION LIST */}
+        <div className="batch-form-section batch-form-section--grow">
           <div className="batch-section-title-row">
             <label className="batch-section-label">
-              Results ({filteredStations.length}/{visibleStations.length})
+              Stations&nbsp;
+              <span className="batch-count-chip">
+                {filteredStations.length}
+                {filteredStations.length !== visibleStations.length && (
+                  <> / {visibleStations.length}</>
+                )}
+              </span>
             </label>
             {filteredStations.length > 0 && (
               <label className="batch-select-all">
                 <input
                   type="checkbox"
                   onChange={handleSelectAllFiltered}
-                  checked={filteredStations.every((s) => selectedStationIds.includes(s._id))}
+                  checked={allFilteredSelected}
                 />
-                <span>Select Page</span>
+                <span>Select all</span>
               </label>
             )}
           </div>
@@ -164,35 +238,46 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           <div className="batch-station-scrollbox">
             {filteredStations.length === 0 ? (
               <div className="batch-empty-scope">
-                {visibleStations.length === 0 
-                  ? "No stations found within your current map scope view." 
-                  : "No stations match your query search filter parameters."}
+                {visibleStations.length === 0
+                  ? "Pan the map to load stations into view."
+                  : "No stations match your search."}
               </div>
             ) : (
-              filteredStations.map((station) => (
-                <label key={station._id} className="batch-station-row">
-                  <input
-                    type="checkbox"
-                    checked={selectedStationIds.includes(station._id)}
-                    onChange={() => handleStationCheck(station._id)}
-                  />
-                  <div className="batch-station-info-block">
-                    <span className="batch-station-name-text">{station.name || "Unnamed Station"}</span>
-                    {station.location?.coordinates && (
-                      <span className="batch-station-coords-subtext">
-                        {station.location.coordinates[1].toFixed(3)}°, {station.location.coordinates[0].toFixed(3)}°
+              filteredStations.map((station) => {
+                const isChecked = selectedStationIds.includes(station._id);
+                const lat = station.location?.coordinates?.[1];
+                const lng = station.location?.coordinates?.[0];
+                return (
+                  <label
+                    key={station._id}
+                    className={`batch-station-row ${isChecked ? "batch-station-row--checked" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handleStationCheck(station._id)}
+                    />
+                    <div className="batch-station-info-block">
+                      <span className="batch-station-name-text">
+                        {station.name || "Unnamed Station"}
                       </span>
-                    )}
-                  </div>
-                </label>
-              ))
+                      {lat != null && lng != null && (
+                        <span className="batch-station-coords-subtext">
+                          {lat.toFixed(4)}°&thinsp;N &nbsp;{lng.toFixed(4)}°&thinsp;E
+                        </span>
+                      )}
+                    </div>
+                    {isChecked && <span className="batch-station-check-tick">✓</span>}
+                  </label>
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Date Ranges Inputs */}
+        {/* DATE RANGE */}
         <div className="batch-form-section">
-          <label className="batch-section-label">Timeline Range</label>
+          <label className="batch-section-label">Date Range</label>
           <div className="batch-grid-row">
             <div>
               <span className="batch-input-sublabel">From</span>
@@ -217,12 +302,12 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* Hourly Selection Framework */}
+        {/* HOUR WINDOW */}
         <div className="batch-form-section">
-          <label className="batch-section-label">Hour Interval Window</label>
+          <label className="batch-section-label">Hour Window</label>
           <div className="batch-grid-row">
             <div>
-              <span className="batch-input-sublabel">Start Hour</span>
+              <span className="batch-input-sublabel">Start</span>
               <select
                 value={startHour}
                 onChange={(e) => setStartHour(e.target.value)}
@@ -234,7 +319,7 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
               </select>
             </div>
             <div>
-              <span className="batch-input-sublabel">End Hour</span>
+              <span className="batch-input-sublabel">End</span>
               <select
                 value={endHour}
                 onChange={(e) => setEndHour(e.target.value)}
@@ -248,7 +333,7 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* Engine Version Selection Dropdown */}
+        {/* RINEX VERSION */}
         <div className="batch-form-section">
           <label className="batch-section-label">RINEX Version</label>
           <select
@@ -256,13 +341,13 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
             onChange={(e) => setRinexVersion(e.target.value)}
             className="batch-input-field"
           >
-            <option value="2.11">v2.11 (Legacy Navigation Log)</option>
-            <option value="3.05">v3.05 (Standard Multi-GNSS)</option>
-            <option value="4.01">v4.01 (Modern High-Rate Phase)</option>
+            <option value="2.11">v2.11 — Legacy Navigation</option>
+            <option value="3.05">v3.05 — Multi-GNSS Standard</option>
+            <option value="4.01">v4.01 — High-Rate Phase</option>
           </select>
         </div>
 
-        {/* Huge Bottom Trigger Compilation System Action Block */}
+        {/* EXPORT BUTTON */}
         <div className="batch-action-center-wrapper">
           <button
             type="submit"
@@ -281,12 +366,14 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3" />
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
               </svg>
             )}
           </button>
           <span className="batch-action-label-text">
-            {isProcessing ? `Processing RINEX v${rinexVersion}...` : "Convert & Export Bundle"}
+            {isProcessing
+              ? `Compiling RINEX v${rinexVersion}…`
+              : "Export Bundle"}
           </span>
         </div>
       </form>

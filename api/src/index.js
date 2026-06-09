@@ -24,17 +24,60 @@ app.get("/health", (req, res) => {
 // startRecordConsumer();
 
 
-// const station = new Station({
-//   name: "Tel Aviv",
-//   location: {
-//     type: "Point",
-//     coordinates: [34.7817676, 32.0852999], // [longitude, latitude]
-//   },
-//   // frequenthy: 1,
-//   // anthena: "abc"
-// });
+const station = new Station({
+  name: "Herzelia",
+  location: {
+    type: "Point",
+    coordinates: [34.8446750, 32.1624130], // [longitude, latitude]
+  },
+  // frequenthy: 1,
+  // anthena: "abc"
+});
+await station.save();
 
-// await station.save();
+const station1 = new Station({
+  name: "Lebanon",
+  location: {
+    type: "Point",
+    coordinates: [35.8622850, 33.8547210], // [longitude, latitude]
+  },
+  // frequenthy: 1,
+  // anthena: "abc"
+});
+await station1.save();
+
+const station2 = new Station({
+  name: "Beer Sheva",
+  location: {
+    type: "Point",
+    coordinates: [34.7867691, 31.2521018], // [longitude, latitude]
+  },
+  // frequenthy: 1,
+  // anthena: "abc"
+});
+await station2.save();
+
+const station3 = new Station({
+  name: "Raanana",
+  location: {
+    type: "Point",
+    coordinates: [34.8745337, 32.1923797], // [longitude, latitude]
+  },
+  // frequenthy: 1,
+  // anthena: "abc"
+});
+await station3.save();
+
+const station4 = new Station({
+  name: "Haifa",
+  location: {
+    type: "Point",
+    coordinates: [34.9895710, 32.7940463], // [longitude, latitude]
+  },
+  // frequenthy: 1,
+  // anthena: "abc"
+});
+await station4.save();
 
 // const station2 = new Station({
 //   name: "Eilat",
