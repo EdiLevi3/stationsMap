@@ -62,14 +62,9 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
     return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
   };
 
-  const radius = 35;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (sequencePercentage / 100) * circumference;
-
   return (
     <div className="station-page">
       <header className="station-page__header">
-        {/* ADDED: Layout wrapper container to group everything cleanly to the left next to the button */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <button className="station-page__back-button" onClick={onBack}>
             ← Back
@@ -80,18 +75,13 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
               <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
               
               <div className="station-page__meta-group">
-                {/* REORDERED: Coordinates now render first inside the list */}
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
                     Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
                   </span>
                 )}
-
                 <span className="hd-date-highlight">{date}</span>
-
-                <span className="hd-hour-tag-badge">
-                   {formattedHour}:00
-                </span>
+                <span className="hd-hour-tag-badge">{formattedHour}:00</span>
               </div>
             </div>
           </div>
@@ -118,28 +108,18 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
           ))}
         </div>
 
-        {/* Circular Sequence Widget */}
+        {/* ── UPDATED: CLEAN TEXT-ONLY SCORE AND NUMBER ── */}
         <div className="hd-sequence-widget">
-          <div className="hd-sequence-gauge-box">
-            <svg className="hd-radial-svg" viewBox="0 0 80 80">
-              <circle className="hd-radial-track" cx="40" cy="40" r={radius} />
-              <circle 
-                className="hd-radial-progress" 
-                cx="40" 
-                cy="40" 
-                r={radius} 
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-              />
-            </svg>
-            <div className="hd-gauge-percentage">{sequencePercentage.toFixed(0)}%</div>
+          <div className="hd-telemetry-display-panel">
+            <span className="hd-telemetry-percentage">{sequencePercentage.toFixed(0)}%</span>
+            <span className="hd-telemetry-subtext">INTEGRITY SCORE</span>
           </div>
           
           <div className="hd-sequence-info">
-            <span className="hd-sequence-tag">Signal Lock Integrity</span>
+            <span className="hd-sequence-tag">Maximum Continuous Recording Length</span>
             <h2 className="hd-sequence-time-display">{formatSequenceDuration(rawSequence)}</h2>
             <p className="hd-sequence-desc">
-              Longest continuous window held without dropping carrier packets ({rawSequence.toLocaleString()} consecutive frames).
+              ({rawSequence.toLocaleString()} consecutive frames).
             </p>
           </div>
         </div>
@@ -147,7 +127,6 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
         {/* Dynamic Satellite Constellation Matrix */}
         <section className="hd-section">
           <h3 className="hd-section-title">Satellite Constellation Distribution</h3>
-          <p className="hd-section-hint">Click a family card below to inspect internal satellite metrics.</p>
           
           {constellationEntries.length > 0 ? (
             <div className="hd-satellite-matrix">
@@ -174,12 +153,15 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
                       <div className="hd-sat-mini-list" onClick={(e) => e.stopPropagation()}>
                         {satList.map(([satId, seconds]) => {
                           const trackingPercent = Math.round((seconds / 3600) * 100);
+                          const satColor = trackingPercent >= 80 ? "#10b981" : "#ef4444";
 
                           return (
                             <div key={satId} className="hd-sat-row">
                               <span className="hd-sat-id"> {satId}</span>
                               <div className="hd-sat-metrics-wrapper">
-                                <span className="hd-sat-sig">{trackingPercent}%</span>
+                                <span className="hd-sat-sig" style={{ color: satColor }}>
+                                  {trackingPercent}%
+                                </span>
                                 <span className="hd-sat-sec">({seconds}s)</span>
                               </div>
                             </div>
