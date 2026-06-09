@@ -109,7 +109,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
                 className="hd-card-value" 
                 style={{ color: getMetricColor(item.val, item.type) }}
               >
-                {item.val != null ? `${item.val.toFixed(1)}%` : "—"}
+                {item.val != null ? `${Math.round(item.val)}%` : "—"}
               </span>
             </div>
           ))}
@@ -170,11 +170,11 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
                     {isExpanded && activeCount > 0 && (
                       <div className="hd-sat-mini-list" onClick={(e) => e.stopPropagation()}>
                         {satList.map(([satId, seconds]) => {
-                          const trackingPercent = ((seconds / 3600) * 100).toFixed(1);
+                          const trackingPercent = Math.round((seconds / 3600) * 100);
 
                           return (
                             <div key={satId} className="hd-sat-row">
-                              <span className="hd-sat-id">Satellite {satId}</span>
+                              <span className="hd-sat-id"> {satId}</span>
                               <div className="hd-sat-metrics-wrapper">
                                 <span className="hd-sat-sig">{trackingPercent}%</span>
                                 <span className="hd-sat-sec">({seconds}s)</span>

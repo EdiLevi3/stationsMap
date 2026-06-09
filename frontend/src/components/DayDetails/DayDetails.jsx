@@ -44,7 +44,6 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
 
   return (
     <div className="dd-trend-graph">
-      {/* Shifted the left boundary of viewBox to -45 to give the Y-axis labels plenty of breathing room */}
       <svg viewBox={`-45 -15 ${width + 70} ${height + 40}`} preserveAspectRatio="none" style={{ width: "100%", height: "160px" }}>
         <defs>
           <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
@@ -246,7 +245,7 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
                   <span className="dd-stat-label">{label}</span>
                   <span className="dd-stat-value" style={{ color }}>
                     {value != null
-                      ? `${Number.isInteger(value) ? value : value.toFixed(1)}${suffix}`
+                      ? `${Math.round(value)}${suffix}`
                       : "—"}
                   </span>
                 </div>
@@ -307,7 +306,7 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
                   )}
                 </div>
                 <span className="dd-hour-val" style={{ color: hasData ? color : "#ccc" }}>
-                  {val != null ? `${val.toFixed(1)}%` : hasData ? "—" : ""}
+                  {val != null ? `${Math.round(val)}%` : hasData ? "—" : ""}
                 </span>
               </div>
             );

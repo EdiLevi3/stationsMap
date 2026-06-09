@@ -14,12 +14,36 @@ const getColor = (value) => {
 
 const getDominantColor = (hourlyValues) => {
   const counts = { "#4CAF50": 0, "#FFC107": 0, "#F44336": 0, "#D1D5DB": 0 };
+  
+  // Count total filled data slices (excluding No Data)
+  let activeDataCount = 0;
   hourlyValues.forEach((v) => {
-    counts[getColor(v)]++;
+    const color = getColor(v);
+    counts[color]++;
+    if (v !== null && v !== undefined) {
+      activeDataCount++;
+    }
   });
-  const best = Object.entries(counts).reduce((a, b) => (b[1] > a[1] ? b : a));
-  if (best[0] === "#D1D5DB") return "#9CA3AF";
-  return best[0];
+
+  // CRITERIA 1: If more than 75% of ALL 24 slots are green, return green
+  // (If you meant 75% of *available data slots* instead, switch 24 to activeDataCount)
+  const greenPercentage = (counts["#4CAF50"] / 24) * 100;
+  if (greenPercentage > 75) {
+    return "#4CAF50";
+  }
+
+  // CRITERIA 2: Else color by yellow/red/grey depending on which one has the highest count
+  const fallbacks = [
+    { color: "#FFC107", count: counts["#FFC107"] }, // Yellow
+    { color: "#F44336", count: counts["#F44336"] }, // Red
+    { color: "#9CA3AF", count: counts["#D1D5DB"] }  // Grey label styling
+  ];
+
+  const bestFallback = fallbacks.reduce((highest, current) => 
+    current.count > highest.count ? current : highest
+  );
+
+  return bestFallback.color;
 };
 
 const HourlyRing = ({ hourlyValues, size = 80 }) => {
@@ -94,13 +118,11 @@ const StationDetails = ({ station, onClose }) => {
 
   const handleDayClick = (date) => setSelectedDate(date);
 
-  // NEW: Directly jumps to selected date and updates current calendar view month
   const handleDirectDateJump = (e) => {
-    const dateString = e.target.value; // Format: "YYYY-MM-DD"
+    const dateString = e.target.value;
     if (!dateString) return;
 
     const [year, month] = dateString.split("-").map(Number);
-    // Sync active calendar view so going back lands on the correct month view
     setCurrentMonth(new Date(year, month - 1, 1));
     setSelectedDate(dateString);
   };
@@ -219,7 +241,6 @@ const StationDetails = ({ station, onClose }) => {
       </header>
 
       <main className="station-main">
-        {/* ── NEW FEATURE: Date Search Control Panel Bar ── */}
         <div className="cal-search-container">
           <label htmlFor="date-search" className="cal-search-label">
             Search a Specific Date:
@@ -229,7 +250,7 @@ const StationDetails = ({ station, onClose }) => {
             id="date-search" 
             className="cal-search-input"
             onChange={handleDirectDateJump}
-            value="" // Kept blank to allow picking the same date again later if needed
+            value=""
           />
         </div>
 

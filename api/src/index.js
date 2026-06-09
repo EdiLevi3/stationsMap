@@ -48,13 +48,13 @@ app.get("/health", (req, res) => {
 
 // try {
 //   await saveRecordInMongo({
-//     date: "2026-06-08",
+//     date: "2026-06-09",
 //     hour: 17,
 //     stationName: "Jerusalem",
 //     valid: true,
-//     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
+//     satelliteConstellation: {'R': {'R07':100, 'R09':3000}, 'C': {'C07': 20}},
 //     recordPrecent: 80,
-//     longestSequence: 900,
+//     longestSequence: 1000,
 //     spoofPrecents: 0,
 //     gemPrecents: 0
 //   });
@@ -66,12 +66,11 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 3,
+//     hour: 15,
 //     stationName: "Jerusalem",
-//     valid: true,
 //     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
 //     recordPrecent: 100,
-//     longestSequence: 900,
+//     longestSequence: 3600,
 //     spoofPrecents: 0,
 //     gemPrecents: 0
 //   });
@@ -83,7 +82,7 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 4,
+//     hour: 18,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R09':100}, 'C': {'C09': 20}},
@@ -100,7 +99,7 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 5,
+//     hour: 19,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
@@ -116,7 +115,7 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 6,
+//     hour: 20,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
@@ -132,7 +131,7 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 7,
+//     hour: 21,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
@@ -148,7 +147,7 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 8,
+//     hour: 22,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R06':100}, 'C': {'C06': 20}},
@@ -161,15 +160,11 @@ app.get("/health", (req, res) => {
 // } catch (error) {
 //   console.error("Error saving record:", error);
 // }
+
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-08",
-//     hour: 9,
-//     stationName:
-// try {
-//   await saveRecordInMongo({
-//     date: "2026-06-08",
-//     hour: 2,
+//     hour: 23,
 //     stationName: "Jerusalem",
 //     valid: true,
 //     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
