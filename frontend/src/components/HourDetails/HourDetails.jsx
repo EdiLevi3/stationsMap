@@ -24,6 +24,11 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
   const [hourData, setHourData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedConstellation, setExpandedConstellation] = useState(null);
+  
+  // States to manage download dropdown and mockup loader
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState("");
 
   const { name, location } = station || {};
 
@@ -41,6 +46,17 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
     };
     fetchHourData();
   }, [stationId, date, hour]);
+
+  const handleDownloadSelect = (version) => {
+    setSelectedVersion(version);
+    setShowDropdown(false);
+    setIsDownloading(true);
+
+    setTimeout(() => {
+      setIsDownloading(false);
+      setSelectedVersion("");
+    }, 5000);
+  };
 
   if (loading) return <div className="hd-loading">Loading hour data...</div>;
   if (!hourData) return <div className="hd-no-data">No data found for this hour.</div>;
@@ -64,6 +80,16 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
 
   return (
     <div className="station-page">
+      {/* FULLSCREEN MOCK LOADING OVERLAY */}
+      {isDownloading && (
+        <div className="hd-download-overlay">
+          <div className="hd-download-spinner-box">
+            <div className="hd-download-spinner"></div>
+            <p className="hd-download-loading-text">Downloading RINEX {selectedVersion}...</p>
+          </div>
+        </div>
+      )}
+
       <header className="station-page__header">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <button className="station-page__back-button" onClick={onBack}>
@@ -108,7 +134,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
           ))}
         </div>
 
-        {/* ── UPDATED: CLEAN TEXT-ONLY SCORE AND NUMBER ── */}
+        {/* Telemetry Score View */}
         <div className="hd-sequence-widget">
           <div className="hd-telemetry-display-panel">
             <span className="hd-telemetry-percentage">{sequencePercentage.toFixed(0)}%</span>
@@ -124,7 +150,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
           </div>
         </div>
 
-        {/* Dynamic Satellite Constellation Matrix */}
+        {/* ── REPOSITIONED: SATELLITE CONSTELLATION MATRIX (NOW MIDDLE) ── */}
         <section className="hd-section">
           <h3 className="hd-section-title">Satellite Constellation Distribution</h3>
           
@@ -179,6 +205,44 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
             </div>
           )}
         </section>
+
+        {/* ── REPOSITIONED: CENTRALIZED CIRCULAR DOWNLOAD PORTAL (NOW BOTTOM) ── */}
+        <div className="hd-central-showcase">
+          <div className="hd-circle-download-wrapper">
+            <button 
+              className={`hd-circle-download-btn ${showDropdown ? "hd-circle-download-btn--active" : ""}`}
+              onClick={() => setShowDropdown(!showDropdown)}
+              title="Download RINEX Data"
+            >
+              <svg 
+                className="hd-download-icon-svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+            </button>
+
+            {showDropdown && (
+              <div className="hd-central-dropdown">
+                <button onClick={() => handleDownloadSelect("2.11")} className="hd-central-dropdown-item">
+                  v2.11
+                </button>
+                <button onClick={() => handleDownloadSelect("3.05")} className="hd-central-dropdown-item">
+                  v3.05
+                </button>
+                <button onClick={() => handleDownloadSelect("4.01")} className="hd-central-dropdown-item">
+                  v4.01
+                </button>
+              </div>
+            )}
+          </div>
+          <span className="hd-central-download-label">Download RINEX Files</span>
+        </div>
       </main>
     </div>
   );

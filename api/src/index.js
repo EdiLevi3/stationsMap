@@ -65,10 +65,10 @@ app.get("/health", (req, res) => {
 
 // try {
 //   await saveRecordInMongo({
-//     date: "2026-06-08",
-//     hour: 15,
+//     date: "2026-06-07",
+//     hour: 0,
 //     stationName: "Jerusalem",
-//     satelliteConstellation: {'R': {'R07':100}, 'C': {'C07': 20}},
+//     satelliteConstellation: {'R': {'R07':100, 'R08':3600, 'R54': 3600, 'R14': 900, 'R67': 840}, 'C': {'C07': 20}},
 //     recordPrecent: 100,
 //     longestSequence: 3600,
 //     spoofPrecents: 0,
