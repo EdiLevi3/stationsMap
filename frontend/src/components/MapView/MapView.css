@@ -1,8 +1,16 @@
-/* ── Map container wrapper ── */
+/* ── Split Layout Dashboard Master Wrapper ── */
+.map-dashboard-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, sans-serif;
+}
 
+/* ── Map container view viewport window adjustments ── */
 .map-wrapper {
+  flex: 1; /* Automatically fills out all viewport space remaining next to sidebar */
   height: 100%;
-  width: 100%;
   position: relative;
 }
 
@@ -12,7 +20,6 @@
 }
 
 /* ── Map loading & error states ── */
-
 .map-loading {
   display: flex;
   flex-direction: column;
@@ -62,17 +69,11 @@
   background: #2563eb;
 }
 
-.map-error__retry:focus-visible {
-  outline: 3px solid #93c5fd;
-  outline-offset: 2px;
-}
-
-/* ── Station count badge ── */
-
+/* ── Station count badge positioning updated relative to new layout ── */
 .station-count {
   position: absolute;
   top: 12px;
-  left: 310px;
+  left: 70px; /* Offset so it rests beautifully inside the map frame bound boundaries */
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
@@ -85,22 +86,7 @@
   pointer-events: none;
 }
 
-/* ── Leaflet layer control overrides ── */
-
-.leaflet-control-layers {
-  border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  border: none !important;
-}
-
-.leaflet-control-layers-expanded {
-  padding: 8px 12px !important;
-  font-size: 0.85rem;
-  color: #334155;
-}
-
-/* ── Center button ── */
-
+/* ── Center button layout adjustment overrides ── */
 .center-button {
   position: absolute;
   top: 90px;
@@ -124,13 +110,20 @@
   background: #f4f4f4;
 }
 
-.center-button:focus-visible {
-  outline: 3px solid #93c5fd;
-  outline-offset: 2px;
+/* ── Leaflet baseline controls alignments overrides ── */
+.leaflet-control-layers {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 8px 12px !important;
+  font-size: 0.85rem;
+  color: #334155;
 }
 
 /* ── Station name labels below markers ── */
-
 .station-name-label {
   background: none !important;
   border: none !important;
@@ -147,7 +140,7 @@
   display: none !important;
 }
 
-/* Removes default Leaflet styling borders around custom HTML injections */
+/* Custom Circle Markers Canvas wrappers configurations */
 .custom-circle-marker-container {
   display: flex;
   align-items: center;
@@ -156,7 +149,6 @@
   border: none !important;
 }
 
-/* Base custom circle element layout styling */
 .marker-circle {
   width: 14px;
   height: 14px;
@@ -171,15 +163,14 @@
   cursor: pointer;
 }
 
-/* Green condition (Active today) */
+/* Green status engine indicator */
 .marker-circle--green {
   background-color: #4CAF50;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Red condition (Outdated/Stale) */
+/* Red stale engine status indicator */
 .marker-circle--red {
   background-color: #F44336;
   box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-

@@ -1,6 +1,3 @@
-// Main map component. Fetches stations, renders the Leaflet map with markers,
-// search bar, layer switcher (Streets/Hybrid), and a home button.
-
 import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
@@ -14,10 +11,10 @@ import { useStations } from "../../hooks/useStations";
 import StationMarker from "../StationMarker/StationMarker";
 import StationSearch from "../StationSearch/StationSearch";
 import StationDetails from "../StationDetails/StationDetails";
+import BatchCompiler from "../BatchRinexCompiler/BatchCompiler"; // 🆕 IMPORT NEW COMPONENT
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
 
-// Fix default marker icon issue with bundlers
 import leaflet from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -33,21 +30,16 @@ leaflet.Icon.Default.mergeOptions({
 const FALLBACK_CENTER = [31.5, 34.8];
 const FALLBACK_ZOOM = 8;
 
-// Calculate the bounding box that contains all stations
 const getBounds = (stations) => {
-  console.log("hi! stations:", stations);
   if (!stations || stations.length === 0) return null;
   const lats = stations.map((station) => station.location.coordinates[1]);
   const lons = stations.map((station) => station.location.coordinates[0]);
-  console.log("lats:", lats);
-  console.log("lons:", lons);
   return [
     [Math.min(...lats), Math.min(...lons)],
     [Math.max(...lats), Math.max(...lons)],
   ];
 };
 
-// Auto-fits the map view to show all stations on initial load
 const FitBounds = ({ stations }) => {
   const map = useMap();
   useEffect(() => {
@@ -59,7 +51,6 @@ const FitBounds = ({ stations }) => {
   return null;
 };
 
-// Button that resets the map view to show all stations
 const CenterButton = ({ stations }) => {
   const map = useMap();
   const handleClick = () => {
@@ -82,12 +73,36 @@ const CenterButton = ({ stations }) => {
   );
 };
 
+// 🆕 Scope Tracking Child component stays inside MapView context
+const ScopeBoundsTracker = ({ stations, onVisibleStationsChange }) => {
+  const map = useMap();
+
+  const updateVisibleStations = () => {
+    const mapBounds = map.getBounds();
+    const visible = stations.filter((station) => {
+      const [lng, lat] = station.location.coordinates;
+      return mapBounds.contains(leaflet.latLng(lat, lng));
+    });
+    onVisibleStationsChange(visible);
+  };
+
+  useMapEvents({
+    moveend: updateVisibleStations,
+    zoomend: updateVisibleStations,
+  });
+
+  useEffect(() => {
+    updateVisibleStations();
+  }, [stations]);
+
+  return null;
+};
+
 const ESRI_IMAGERY =
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const CARTO_LABELS =
   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png";
 
-// Available map tile layers (Streets = OSM, Hybrid = Esri satellite + CARTO labels)
 export const TILE_LAYERS = [
   {
     name: "Streets",
@@ -107,7 +122,6 @@ export const TILE_LAYERS = [
 export const STORAGE_KEY = "mapLayerPreference";
 export const DEFAULT_LAYER = "Streets";
 
-// Read the user's saved layer preference from localStorage
 export const getStoredLayer = () => {
   const stored = localStorage.getItem(STORAGE_KEY);
   const validNames = TILE_LAYERS.map((layer) => layer.name);
@@ -116,7 +130,6 @@ export const getStoredLayer = () => {
   return DEFAULT_LAYER;
 };
 
-// Persists the selected map layer to localStorage when the user switches layers
 const LayerChangeHandler = () => {
   useMapEvents({
     baselayerchange: (e) => {
@@ -130,6 +143,10 @@ const MapView = () => {
   const { stations, loading, error, retry: loadStations } = useStations();
   const markerRefs = useRef(new Map());
   const [selectedStation, setSelectedStation] = useState(null);
+
+  // 🆕 BATCH STATES TRANSFERRED TO CHILD VIA PROPS
+  const [visibleStations, setVisibleStations] = useState([]);
+  const [selectedStationIds, setSelectedStationIds] = useState([]);
 
   if (loading) {
     return (
@@ -164,59 +181,73 @@ const MapView = () => {
   const storedLayer = getStoredLayer();
 
   return (
-    <div className="map-wrapper">
-      {stations.length > 0 && (
-        <div className="station-count">📍 {stations.length} stations</div>
-      )}
-      <MapContainer
-        center={FALLBACK_CENTER}
-        zoom={FALLBACK_ZOOM}
-        className="map-container"
-        aria-label="Station map"
-      >
-        <LayersControl position="topright">
-          {TILE_LAYERS.map((layer) => (
-            <LayersControl.BaseLayer
-              key={layer.name}
-              checked={storedLayer === layer.name}
-              name={layer.name}
-            >
-              {layer.overlayUrl ? (
-                <LayerGroup>
-                  <TileLayer url={layer.url} attribution={layer.attribution} />
-                  <TileLayer
-                    url={layer.overlayUrl}
-                    attribution={layer.overlayAttribution}
-                  />
-                </LayerGroup>
-              ) : (
-                <TileLayer url={layer.url} attribution={layer.attribution} />
-              )}
-            </LayersControl.BaseLayer>
-          ))}
-        </LayersControl>
-        <LayerChangeHandler />
-        <FitBounds stations={stations} />
-        <CenterButton stations={stations} />
-        {stations.length > 0 && (
-          <StationSearch markerRefs={markerRefs} />
-        )}
+    <div className="map-dashboard-container"> {/* 🆕 Updated container wrapper */}
+      
+      {/* 🆕 RENDER THE NEW ISOLATED COMPONENT */}
+      <BatchCompiler 
+        visibleStations={visibleStations}
+        selectedStationIds={selectedStationIds}
+        setSelectedStationIds={setSelectedStationIds}
+      />
 
-        {stations.map((station) => (
-          <StationMarker
-            key={station._id}
-            station={station}
-            onSelect={() => setSelectedStation(station)}
-            markerRef={(marker) => {
-              if (marker) {
-                markerRefs.current.set(station._id, marker);
-              } else {
-                markerRefs.current.delete(station._id);
-              }
-            }}
+      <div className="map-wrapper">
+        {stations.length > 0 && (
+          <div className="station-count">📍 {stations.length} stations total</div>
+        )}
+        <MapContainer
+          center={FALLBACK_CENTER}
+          zoom={FALLBACK_ZOOM}
+          className="map-container"
+          aria-label="Station map"
+        >
+          <LayersControl position="topright">
+            {TILE_LAYERS.map((layer) => (
+              <LayersControl.BaseLayer
+                key={layer.name}
+                checked={storedLayer === layer.name}
+                name={layer.name}
+              >
+                {layer.overlayUrl ? (
+                  <LayerGroup>
+                    <TileLayer url={layer.url} attribution={layer.attribution} />
+                    <TileLayer
+                      url={layer.overlayUrl}
+                      attribution={layer.overlayAttribution}
+                    />
+                  </LayerGroup>
+                ) : (
+                  <TileLayer url={layer.url} attribution={layer.attribution} />
+                )}
+              </LayersControl.BaseLayer>
+            ))}
+          </LayersControl>
+          <LayerChangeHandler />
+          <FitBounds stations={stations} />
+          <CenterButton stations={stations} />
+          {stations.length > 0 && <StationSearch markerRefs={markerRefs} />}
+
+          {/* Scope Tracker Engine */}
+          <ScopeBoundsTracker
+            stations={stations}
+            onVisibleStationsChange={setVisibleStations}
           />
-        ))}
-      </MapContainer>
+
+          {stations.map((station) => (
+            <StationMarker
+              key={station._id}
+              station={station}
+              onSelect={() => setSelectedStation(station)}
+              markerRef={(marker) => {
+                if (marker) {
+                  markerRefs.current.set(station._id, marker);
+                } else {
+                  markerRefs.current.delete(station._id);
+                }
+              }}
+            />
+          ))}
+        </MapContainer>
+      </div>
     </div>
   );
 };
