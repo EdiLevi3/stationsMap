@@ -25,11 +25,11 @@ const DISTANCE_LINE_COLOR = "#555";
 const DISTANCE_LINE_WEIGHT = 2;
 const DISTANCE_LINE_DASH = "6, 4";
 
-const fetchNearbyStations = async (lat, lon, maxDistanceMeters, signal) => {
+const fetchNearbyStations = async (lat, lon, limit, signal) => {
   const params = new URLSearchParams({
     lat: String(lat),
     lon: String(lon),
-    maxDistanceMeters: String(maxDistanceMeters),
+    limit: String(limit),
   });
   const res = await fetch(`${API_BASE_URL}/api/stations/nearby?${params}`, {
     signal,
@@ -109,7 +109,7 @@ const useSearchMarker = () => {
   }, [removeDistanceLines]);
 
   const flyToGeoLocation = useCallback(
-    (lat, lon, label) => {
+    (lat, lon, label, limit = 3) => {
       removeSearchMarker();
       const geoMarker = leaflet
         .marker([lat, lon], { icon: BLACK_MARKER_ICON })
@@ -153,14 +153,15 @@ const useSearchMarker = () => {
           const stations = await fetchNearbyStations(
             lat,
             lon,
-            largestRadiusMeters,
+            limit,
             abortController.signal,
           );
           if (abortController.signal.aborted) return;
 
           const distanceLines = stations.map((station) => {
-            const [lon, lat] = station.fuseResult.location.coordinates;
-            const stationLatLon = [lat, lon];
+            const loc = station.location || station.fuseResult?.location;
+            const [sLon, sLat] = loc.coordinates;
+            const stationLatLon = [sLat, sLon];
             const distanceKm = (station.distanceMeters / 1000).toFixed(2);
 
             const polyline = leaflet.polyline([[lat, lon], stationLatLon], {

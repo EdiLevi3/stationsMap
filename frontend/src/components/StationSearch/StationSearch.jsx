@@ -7,7 +7,6 @@ import "./StationSearch.css";
 import { useMap } from "react-leaflet";
 import leaflet from "leaflet";
 import { highlightMatch } from "../../utils/highlightMatch";
-import { RADIUS_CIRCLE_CONFIGS } from "../../config";
 import useGeoSearch from "../../hooks/useGeoSearch";
 import useSearchMarker from "../../controllers/useSearchMarker";
 
@@ -26,12 +25,6 @@ const StationSearch = ({ markerRefs, onSelect }) => {
   } = useGeoSearch(query);
   const {
     removeSearchMarker,
-    hasRadiusCircles,
-    radiusCircleVisibility,
-    toggleRadiusCircle,
-    nearbyStations,
-    distanceLineVisibility,
-    toggleDistanceLine,
   } = useSearchMarker();
 
   // Stop Leaflet event propagation on the container
@@ -153,43 +146,6 @@ const StationSearch = ({ markerRefs, onSelect }) => {
           aria-label="Search stations"
         />
       </div>
-      {hasRadiusCircles && (
-        <div className="radius-layers">
-          {RADIUS_CIRCLE_CONFIGS.map(({ key, label, color }) => (
-            <label key={key} className="radius-layers__item">
-              <input
-                type="checkbox"
-                checked={radiusCircleVisibility[key]}
-                onChange={() => toggleRadiusCircle(key)}
-                style={{ accentColor: color }}
-              />
-              <span
-                className="radius-layers__color"
-                style={{ background: color }}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      )}
-      {nearbyStations.length > 0 && (
-        <div className="distance-layers">
-          <div className="distance-layers__title">Distances</div>
-          {nearbyStations.map((station) => (
-            <label key={station._id} className="distance-layers__item">
-              <input
-                type="checkbox"
-                checked={!!distanceLineVisibility[station._id]}
-                onChange={() => toggleDistanceLine(station._id)}
-              />
-              <span className="distance-layers__name">{station.name}</span>
-              <span className="distance-layers__distance">
-                {(station.distanceMeters / 1000).toFixed(2)} km
-              </span>
-            </label>
-          ))}
-        </div>
-      )}
       {showList && (
         <ul
           className="station-search__list"

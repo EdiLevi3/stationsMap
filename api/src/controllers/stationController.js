@@ -131,6 +131,42 @@ const searchStations = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+const getNearbyStations = async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lon = parseFloat(req.query.lon);
+    const limit = parseInt(req.query.limit, 10) || 3;
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      return res.status(400).json({ error: "Invalid lat/lon parameters" });
+    }
+
+    const stations = await Station.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lon, lat] },
+          distanceField: "distanceMeters",
+          spherical: true,
+        },
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $project: {
+          name: 1,
+          location: 1,
+          distanceMeters: { $round: ["$distanceMeters", 0] },
+        },
+      },
+    ]);
+
+    return res.status(200).json(stations);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   createStation,
   getAllStations,
@@ -138,4 +174,5 @@ export {
   updateStation,
   deleteStation,
   searchStations,
+  getNearbyStations,
 };

@@ -10,6 +10,7 @@ import {
 import { useStations } from "../../hooks/useStations";
 import StationMarker from "../StationMarker/StationMarker";
 import StationSearch from "../StationSearch/StationSearch";
+import NearbyStations from "../NearbyStations/NearbyStations"; // 🆕 IMPORT NEW COMPONENT
 import StationDetails from "../StationDetails/StationDetails";
 import BatchCompiler from "../BatchRinexCompiler/BatchCompiler"; // 🆕 IMPORT NEW COMPONENT
 import "leaflet/dist/leaflet.css";
@@ -225,6 +226,7 @@ const MapView = () => {
           <FitBounds stations={stations} />
           <CenterButton stations={stations} />
           {stations.length > 0 && <StationSearch markerRefs={markerRefs} />}
+          {stations.length > 0 && <NearbyStations />}
 
           {/* Scope Tracker Engine */}
           <ScopeBoundsTracker

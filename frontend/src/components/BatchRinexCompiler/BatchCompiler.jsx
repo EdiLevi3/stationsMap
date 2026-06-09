@@ -373,7 +373,7 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           <span className="batch-action-label-text">
             {isProcessing
               ? `Compiling RINEX v${rinexVersion}…`
-              : "Export Bundle"}
+              : "Download Files"}
           </span>
         </div>
       </form>
