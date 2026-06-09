@@ -201,3 +201,12 @@
   user-select: none;
   pointer-events: none;
 }
+
+/* ── HEADER META ENHANCEMENTS ── */
+.station-page__meta-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;       /* Adds clean spacing between coordinates and the date badge */
+  flex-wrap: wrap; /* Prevents text breaking weirdly on small screens */
+  margin-top: 4px; /* Gives breathing room right under the Station title */
+}

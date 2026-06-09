@@ -324,3 +324,16 @@
     width: 100%;
   }
 }
+
+.station-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* You can also add this new class for the right-side text */
+.station-page__last-record {
+  text-align: right;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}

@@ -67,29 +67,32 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
   const strokeDashoffset = circumference - (sequencePercentage / 100) * circumference;
 
   return (
-    /* Structural classes match StationDetails/DayDetails exactly to freeze sizes */
     <div className="station-page">
       <header className="station-page__header">
-        <button className="station-page__back-button" onClick={onBack}>
-          ← Back
-        </button>
-        <div className="station-page__title-group">
-          <span className="station-page__icon">📍</span>
-          <div>
-            <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
-            
-            <div className="station-page__meta-group">
-              <span className="hd-date-highlight">{date}</span>
+        {/* ADDED: Layout wrapper container to group everything cleanly to the left next to the button */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <button className="station-page__back-button" onClick={onBack}>
+            ← Back
+          </button>
+          <div className="station-page__title-group">
+            <span className="station-page__icon">📍</span>
+            <div>
+              <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
               
-              {location?.coordinates && location.coordinates.length === 2 && (
-                <span className="station-page__coordinates">
-                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
-                </span>
-              )}
+              <div className="station-page__meta-group">
+                {/* REORDERED: Coordinates now render first inside the list */}
+                {location?.coordinates && location.coordinates.length === 2 && (
+                  <span className="station-page__coordinates">
+                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                  </span>
+                )}
 
-              <span className="hd-hour-tag-badge">
-                 {formattedHour}:00
-              </span>
+                <span className="hd-date-highlight">{date}</span>
+
+                <span className="hd-hour-tag-badge">
+                   {formattedHour}:00
+                </span>
+              </div>
             </div>
           </div>
         </div>

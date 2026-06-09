@@ -15,7 +15,6 @@ const getColor = (value) => {
 const getDominantColor = (hourlyValues) => {
   const counts = { "#4CAF50": 0, "#FFC107": 0, "#F44336": 0, "#D1D5DB": 0 };
   
-  // Count total filled data slices (excluding No Data)
   let activeDataCount = 0;
   hourlyValues.forEach((v) => {
     const color = getColor(v);
@@ -25,14 +24,11 @@ const getDominantColor = (hourlyValues) => {
     }
   });
 
-  // CRITERIA 1: If more than 75% of ALL 24 slots are green, return green
-  // (If you meant 75% of *available data slots* instead, switch 24 to activeDataCount)
   const greenPercentage = (counts["#4CAF50"] / 24) * 100;
   if (greenPercentage > 75) {
     return "#4CAF50";
   }
 
-  // CRITERIA 2: Else color by yellow/red/grey depending on which one has the highest count
   const fallbacks = [
     { color: "#FFC107", count: counts["#FFC107"] }, // Yellow
     { color: "#F44336", count: counts["#F44336"] }, // Red
@@ -216,28 +212,31 @@ const StationDetails = ({ station, onClose }) => {
 
   return (
     <div className="station-page">
-      <header className="station-page__header">
-        <button className="station-page__back-button" onClick={onClose}>
-          ← Back
-        </button>
-        <div className="station-page__title-group">
-          <span className="station-page__icon">📍</span>
-          <div>
-            <h1 className="station-page__title">Station: {name}</h1>
-            <div className="station-page__meta-group">
-              {lastUpdate && (
-                <span className="station-page__last-update">
-                  Last update: {new Date(lastUpdate).toLocaleString()}
-                </span>
-              )}
-              {location?.coordinates && location.coordinates.length === 2 && (
-                <span className="station-page__coordinates">
-                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
-                </span>
-              )}
+      <header className="station-page__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button className="station-page__back-button" onClick={onClose}>
+            ← Back
+          </button>
+          <div className="station-page__title-group">
+            <span className="station-page__icon">📍</span>
+            <div>
+              <h1 className="station-page__title">Station: {name}</h1>
+              <div className="station-page__meta-group">
+                {location?.coordinates && location.coordinates.length === 2 && (
+                  <span className="station-page__coordinates">
+                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
+
+        {lastUpdate && (
+          <div className="station-page__last-record" style={{ textAlign: 'right', opacity: 0.8, fontSize: '0.9rem' }}>
+            <strong>Last record:</strong> {new Date(lastUpdate).toLocaleString()}
+          </div>
+        )}
       </header>
 
       <main className="station-main">

@@ -193,22 +193,25 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
   return (
     <div className="station-page">
       <header className="station-page__header">
-        <button className="station-page__back-button" onClick={onBack}>
-          ← Back
-        </button>
-        <div className="station-page__title-group">
-          <span className="station-page__icon">📍</span>
-          <div>
-            <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
-            
-            <div className="station-page__meta-group">
-              <span className="dd-date-highlight">{date}</span>
+        {/* Wrapper to bundle back button and title information together on the left side */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <button className="station-page__back-button" onClick={onBack}>
+            ← Back
+          </button>
+          <div className="station-page__title-group">
+            <span className="station-page__icon">📍</span>
+            <div>
+              <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
               
-              {location?.coordinates && location.coordinates.length === 2 && (
-                <span className="station-page__coordinates">
-                  Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
-                </span>
-              )}
+              <div className="station-page__meta-group">
+                {location?.coordinates && location.coordinates.length === 2 && (
+                  <span className="station-page__coordinates">
+                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                  </span>
+                )}
+
+                <span className="dd-date-highlight">{date}</span>
+              </div>
             </div>
           </div>
         </div>

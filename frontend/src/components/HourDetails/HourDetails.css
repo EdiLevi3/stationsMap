@@ -1,4 +1,12 @@
 /* Custom internal metadata badges inside header */
+.station-page__meta-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
 .hd-date-highlight {
   font-size: 0.85rem;
   font-weight: 700;
