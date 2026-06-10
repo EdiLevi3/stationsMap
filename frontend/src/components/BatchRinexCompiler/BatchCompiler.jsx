@@ -48,6 +48,9 @@ const BatchCompiler = ({
       return;
     }
     if (!isCollapsed) widthBeforeCollapse.current = sidebarWidth;
+    
+    // 🆕 SYNC FIX: Notify parent so MapView layout state (rinexUserOpen) matches visual state
+    onForceToggle?.();
     setIsCollapsed((prev) => !prev);
   };
 
