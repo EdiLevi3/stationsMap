@@ -7,13 +7,46 @@
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* ── Map container view viewport window adjustments ── */
+/* ── Map panel ── */
 .map-wrapper {
-  flex: 1; /* Automatically fills out all viewport space remaining next to sidebar */
+  flex: 1 1 0%;
   height: 100%;
   position: relative;
+  transition: flex 0.3s ease, min-width 0.3s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
+/* Narrows to 30% when station sidebar is open */
+.map-wrapper--narrow {
+  flex: 0 0 30%;
+  min-width: 0;
+}
+
+/* Fully hidden — zero width, no interaction */
+.map-wrapper--hidden {
+  flex: 0 0 0% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none;
+}
+
+/* ── Station detail sidebar ── */
+.station-sidebar {
+  flex: 1 1 0%;
+  height: 100vh;
+  overflow-y: auto;
+  border-left: 1px solid #e2e8f0;
+  background: #f4f6f9;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+
+
+/* ── Map container ── */
 .map-container {
   height: 100%;
   width: 100%;
@@ -43,9 +76,7 @@
   padding: 24px;
 }
 
-.map-error__icon {
-  font-size: 2.5rem;
-}
+.map-error__icon { font-size: 2.5rem; }
 
 .map-error__message {
   font-size: 1rem;
@@ -64,16 +95,13 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+.map-error__retry:hover { background: #2563eb; }
 
-.map-error__retry:hover {
-  background: #2563eb;
-}
-
-/* ── Station count badge positioning updated relative to new layout ── */
+/* ── Station count badge ── */
 .station-count {
   position: absolute;
   top: 12px;
-  left: 70px; /* Offset so it rests beautifully inside the map frame bound boundaries */
+  left: 70px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
@@ -86,7 +114,7 @@
   pointer-events: none;
 }
 
-/* ── Center button layout adjustment overrides ── */
+/* ── Center button ── */
 .center-button {
   position: absolute;
   top: 90px;
@@ -105,25 +133,21 @@
   padding: 0;
   transition: background 0.15s;
 }
+.center-button:hover { background: #f4f4f4; }
 
-.center-button:hover {
-  background: #f4f4f4;
-}
-
-/* ── Leaflet baseline controls alignments overrides ── */
+/* ── Leaflet controls ── */
 .leaflet-control-layers {
   border-radius: 12px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   border: none !important;
 }
-
 .leaflet-control-layers-expanded {
   padding: 8px 12px !important;
   font-size: 0.85rem;
   color: #334155;
 }
 
-/* ── Station name labels below markers ── */
+/* ── Station name labels ── */
 .station-name-label {
   background: none !important;
   border: none !important;
@@ -135,12 +159,9 @@
   white-space: nowrap;
   padding: 0 !important;
 }
+.station-name-label::before { display: none !important; }
 
-.station-name-label::before {
-  display: none !important;
-}
-
-/* Custom Circle Markers Canvas wrappers configurations */
+/* ── Custom circle markers ── */
 .custom-circle-marker-container {
   display: flex;
   align-items: center;
@@ -157,19 +178,14 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.15s ease;
 }
-
 .marker-circle:hover {
   transform: scale(1.25);
   cursor: pointer;
 }
-
-/* Green status engine indicator */
 .marker-circle--green {
   background-color: #4CAF50;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-
-/* Red stale engine status indicator */
 .marker-circle--red {
   background-color: #F44336;
   box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);

@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import "./BatchCompiler.css";
 
-const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStationIds }) => {
-  // Cache of id → station object so selections survive leaving the viewport scope
+const BatchCompiler = ({
+  visibleStations,
+  selectedStationIds,
+  setSelectedStationIds,
+  forceCollapsed = false,
+  onForceToggle,            // called when user clicks ‹/› while force-collapsed
+}) => {
   const stationCacheRef = useRef({});
 
-  // Keep cache updated whenever visible stations change
   useEffect(() => {
     visibleStations.forEach((s) => {
       stationCacheRef.current[s._id] = s;
@@ -27,11 +31,22 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
   const sidebarRef = useRef(null);
   const widthBeforeCollapse = useRef(340);
 
-  // ── COLLAPSE TOGGLE ──
-  const handleCollapseToggle = () => {
-    if (!isCollapsed) {
+  useEffect(() => {
+    if (forceCollapsed) {
       widthBeforeCollapse.current = sidebarWidth;
+      setIsCollapsed(true);
+    } else {
+      setIsCollapsed(false);
     }
+  }, [forceCollapsed]);
+
+  const handleCollapseToggle = () => {
+    if (forceCollapsed) {
+      // Delegate to MapView to toggle rinexUserOpen
+      onForceToggle?.();
+      return;
+    }
+    if (!isCollapsed) widthBeforeCollapse.current = sidebarWidth;
     setIsCollapsed((prev) => !prev);
   };
 
@@ -51,7 +66,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
       setSidebarWidth(newWidth);
     };
     const handleMouseUp = () => setIsResizing(false);
-
     if (isResizing) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
@@ -62,26 +76,18 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
     };
   }, [isResizing]);
 
-  // ── COMBINE VISIBLE AND SELECTED STATIONS ──
-  // Build a unique pool of stations combining everything currently in the map viewport 
-  // along with anything the user has checked (retrieved from cache if off-screen).
+  // ── COMBINED STATION POOL ──
   const combinedStationPool = (() => {
     const poolMap = new Map();
-    
-    // Add current viewport stations
-    visibleStations.forEach(s => poolMap.set(s._id, s));
-    
-    // Supplement with selected stations from cache if they left viewport bounds
-    selectedStationIds.forEach(id => {
+    visibleStations.forEach((s) => poolMap.set(s._id, s));
+    selectedStationIds.forEach((id) => {
       if (!poolMap.has(id) && stationCacheRef.current[id]) {
         poolMap.set(id, stationCacheRef.current[id]);
       }
     });
-    
     return Array.from(poolMap.values());
   })();
 
-  // ── SEARCH & FILTER ──
   const filteredStations = combinedStationPool.filter((station) => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
@@ -91,7 +97,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
     return nameMatch || lat.includes(query) || lng.includes(query);
   });
 
-  // ── SELECTION LOGIC ──
   const handleStationCheck = (id) => {
     setSelectedStationIds((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
@@ -132,15 +137,16 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
   if (isCollapsed) {
     return (
       <aside className="batch-download-sidebar batch-download-sidebar--collapsed">
+        {/* Always show the expand arrow — if force-collapsed it calls onForceToggle */}
         <button
           className="sidebar-collapse-btn sidebar-collapse-btn--rail"
           onClick={handleCollapseToggle}
-          title="Expand sidebar"
-          aria-label="Expand sidebar"
+          title="Expand RINEX sidebar"
+          aria-label="Expand RINEX sidebar"
         >
           ›
         </button>
-        <div className="sidebar-rail-label">RINEX</div>
+        <div className="sidebar-rail-label">RINEX Files</div>
         {selectedStationIds.length > 0 && (
           <div className="sidebar-rail-badge">{selectedStationIds.length}</div>
         )}
@@ -154,14 +160,12 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
       ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
     >
-      {/* DRAG HANDLE */}
       <div
         className="sidebar-resizer-handle"
         onMouseDown={startResizing}
         title="Drag to resize"
       />
 
-      {/* HEADER */}
       <div className="batch-sidebar__header">
         <div className="batch-sidebar__header-top">
           <div>
@@ -186,7 +190,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
 
       <form onSubmit={handleBatchConvert} className="batch-sidebar__form">
 
-        {/* SEARCH */}
         <div className="batch-form-section">
           <label className="batch-section-label">Filter Viewport</label>
           <div className="batch-search-wrapper">
@@ -211,7 +214,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* STATION LIST */}
         <div className="batch-form-section batch-form-section--grow">
           <div className="batch-section-title-row">
             <label className="batch-section-label">
@@ -275,7 +277,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* DATE RANGE */}
         <div className="batch-form-section">
           <label className="batch-section-label">Date Range</label>
           <div className="batch-grid-row">
@@ -302,7 +303,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* HOUR WINDOW */}
         <div className="batch-form-section">
           <label className="batch-section-label">Hour Window</label>
           <div className="batch-grid-row">
@@ -333,7 +333,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </div>
         </div>
 
-        {/* RINEX VERSION */}
         <div className="batch-form-section">
           <label className="batch-section-label">RINEX Version</label>
           <select
@@ -347,7 +346,6 @@ const BatchCompiler = ({ visibleStations, selectedStationIds, setSelectedStation
           </select>
         </div>
 
-        {/* EXPORT BUTTON */}
         <div className="batch-action-center-wrapper">
           <button
             type="submit"

@@ -67,7 +67,6 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
         {/* Vertical Hour Guidelines & X-Axis Time Labels */}
         {HOURS.map((hour) => {
           if (hour % 2 !== 0 && hour !== 23) return null;
-          
           const x = (hour / 23) * width;
           return (
             <g key={`axis-${hour}`}>
@@ -107,7 +106,9 @@ const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
   );
 };
 
-const DayDetails = ({ station, stationId, date, onBack }) => {
+// onClose: closes the entire station panel (back to map)
+// onBack:  goes back to StationDetails day list
+const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
   const [records, setRecords] = useState([]);
   const [selectedHour, setSelectedHour] = useState(null); 
   const [activeMetric, setActiveMetric] = useState("recordPrecent");
@@ -184,6 +185,7 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
         date={date}
         hour={selectedHour}
         onBack={() => setSelectedHour(null)}
+        onClose={onClose}
       />
     );
   }
@@ -193,8 +195,7 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
   return (
     <div className="station-page">
       <header className="station-page__header">
-        {/* Wrapper to bundle back button and title information together on the left side */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
           <button className="station-page__back-button" onClick={onBack}>
             ← Back
           </button>
@@ -202,19 +203,29 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
             <span className="station-page__icon">📍</span>
             <div>
               <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
-              
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
                   </span>
                 )}
-
                 <span className="dd-date-highlight">{date}</span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* ✕ Close entire station */}
+        {onClose && (
+          <button
+            className="station-page__close-btn"
+            onClick={onClose}
+            title="Close station"
+            aria-label="Close station"
+          >
+            ✕
+          </button>
+        )}
       </header>
 
       <main className="station-main">
@@ -281,7 +292,7 @@ const DayDetails = ({ station, stationId, date, onBack }) => {
            />
         )}
 
-        {/* ── HOUR GRID (horizontal) ── */}
+        {/* ── HOUR GRID ── */}
         <div className="dd-hour-grid">
           {HOURS.map((hour) => {
             const d = valuesByHour[hour];

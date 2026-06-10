@@ -4,7 +4,6 @@ import { useStationById } from "../../hooks/useStationById";
 import { API_BASE_URL } from "../../config";
 import DayDetails from "../DayDetails/DayDetails";
 
-// ─── Hourly Ring (24 arc segments) ───────────────────────────────────────────
 const getColor = (value) => {
   if (value === undefined || value === null) return "#D1D5DB";
   if (value <= 0) return "#4CAF50";
@@ -14,32 +13,22 @@ const getColor = (value) => {
 
 const getDominantColor = (hourlyValues) => {
   const counts = { "#4CAF50": 0, "#FFC107": 0, "#F44336": 0, "#D1D5DB": 0 };
-  
   let activeDataCount = 0;
   hourlyValues.forEach((v) => {
     const color = getColor(v);
     counts[color]++;
-    if (v !== null && v !== undefined) {
-      activeDataCount++;
-    }
+    if (v !== null && v !== undefined) activeDataCount++;
   });
 
   const greenPercentage = (counts["#4CAF50"] / 24) * 100;
-  if (greenPercentage > 75) {
-    return "#4CAF50";
-  }
+  if (greenPercentage > 75) return "#4CAF50";
 
   const fallbacks = [
-    { color: "#FFC107", count: counts["#FFC107"] }, // Yellow
-    { color: "#F44336", count: counts["#F44336"] }, // Red
-    { color: "#9CA3AF", count: counts["#D1D5DB"] }  // Grey label styling
+    { color: "#FFC107", count: counts["#FFC107"] },
+    { color: "#F44336", count: counts["#F44336"] },
+    { color: "#9CA3AF", count: counts["#D1D5DB"] },
   ];
-
-  const bestFallback = fallbacks.reduce((highest, current) => 
-    current.count > highest.count ? current : highest
-  );
-
-  return bestFallback.color;
+  return fallbacks.reduce((h, c) => (c.count > h.count ? c : h)).color;
 };
 
 const HourlyRing = ({ hourlyValues, size = 80 }) => {
@@ -99,13 +88,11 @@ const HourlyRing = ({ hourlyValues, size = 80 }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 const StationDetails = ({ station, onClose }) => {
   const { _id } = station;
 
   const { station: chosenStation, loading, error } = useStationById(_id);
   const displayStation = chosenStation || station;
-  
   const { name, lastUpdate, location } = displayStation;
 
   const [records, setRecords] = useState([]);
@@ -117,7 +104,6 @@ const StationDetails = ({ station, onClose }) => {
   const handleDirectDateJump = (e) => {
     const dateString = e.target.value;
     if (!dateString) return;
-
     const [year, month] = dateString.split("-").map(Number);
     setCurrentMonth(new Date(year, month - 1, 1));
     setSelectedDate(dateString);
@@ -180,16 +166,13 @@ const StationDetails = ({ station, onClose }) => {
     for (let i = firstDay.getDay() - 1; i >= 0; i--) {
       cells.push({ date: new Date(year, month - 1, prevMonthLastDay.getDate() - i), outside: true });
     }
-
     for (let day = 1; day <= lastDay.getDate(); day++) {
       cells.push({ date: new Date(year, month, day), outside: false });
     }
-
     const remaining = 42 - cells.length;
     for (let i = 1; i <= remaining; i++) {
       cells.push({ date: new Date(year, month + 1, i), outside: true });
     }
-
     return cells;
   }, [currentMonth]);
 
@@ -206,25 +189,24 @@ const StationDetails = ({ station, onClose }) => {
         date={selectedDate}
         filter="spoofPrecents"
         onBack={() => setSelectedDate(null)}
+        onClose={onClose}
       />
     );
   }
 
   return (
     <div className="station-page">
-      <header className="station-page__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button className="station-page__back-button" onClick={onClose}>
-            ← Back
-          </button>
+      <header className="station-page__header">
+        {/* Left: title only — no back button, ✕ is on the right */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", minWidth: 0 }}>
           <div className="station-page__title-group">
             <span className="station-page__icon">📍</span>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h1 className="station-page__title">Station: {name}</h1>
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
                   </span>
                 )}
               </div>
@@ -232,11 +214,22 @@ const StationDetails = ({ station, onClose }) => {
           </div>
         </div>
 
-        {lastUpdate && (
-          <div className="station-page__last-record" style={{ textAlign: 'right', opacity: 0.8, fontSize: '0.9rem' }}>
-            <strong>Last record:</strong> {new Date(lastUpdate).toLocaleString()}
-          </div>
-        )}
+        {/* Right: last record + close ✕ */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+          {lastUpdate && (
+            <div className="station-page__last-record">
+              <strong>Last record:</strong> {new Date(lastUpdate).toLocaleString()}
+            </div>
+          )}
+          <button
+            className="station-page__close-btn"
+            onClick={onClose}
+            title="Close station details"
+            aria-label="Close station details"
+          >
+            ✕
+          </button>
+        </div>
       </header>
 
       <main className="station-main">
@@ -244,9 +237,9 @@ const StationDetails = ({ station, onClose }) => {
           <label htmlFor="date-search" className="cal-search-label">
             Search a Specific Date:
           </label>
-          <input 
-            type="date" 
-            id="date-search" 
+          <input
+            type="date"
+            id="date-search"
             className="cal-search-input"
             onChange={handleDirectDateJump}
             value=""
@@ -293,7 +286,6 @@ const StationDetails = ({ station, onClose }) => {
             const key = dateKey(date);
             const hourly = hourlyMap[key] || Array(24).fill(null);
             const dominantColor = getDominantColor(hourly);
-
             return (
               <div
                 key={`${key}-${idx}`}

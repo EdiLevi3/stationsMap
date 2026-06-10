@@ -20,12 +20,13 @@ const getMetricColor = (val, type) => {
   return val >= 80 ? "#10b981" : val >= 50 ? "#f59e0b" : "#ef4444";
 };
 
-const HourDetails = ({ station, stationId, date, hour, onBack }) => {
+// onClose: closes entire station panel (back to map)
+// onBack:  goes back to DayDetails
+const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
   const [hourData, setHourData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedConstellation, setExpandedConstellation] = useState(null);
   
-  // States to manage download dropdown and mockup loader
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState("");
@@ -91,7 +92,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
       )}
 
       <header className="station-page__header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
           <button className="station-page__back-button" onClick={onBack}>
             ← Back
           </button>
@@ -99,11 +100,10 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
             <span className="station-page__icon">📍</span>
             <div>
               <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
-              
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    Coordinates: {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
                   </span>
                 )}
                 <span className="hd-date-highlight">{date}</span>
@@ -112,6 +112,18 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
             </div>
           </div>
         </div>
+
+        {/* ✕ Close entire station */}
+        {onClose && (
+          <button
+            className="station-page__close-btn"
+            onClick={onClose}
+            title="Close station"
+            aria-label="Close station"
+          >
+            ✕
+          </button>
+        )}
       </header>
 
       <main className="station-main">
@@ -150,7 +162,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
           </div>
         </div>
 
-        {/* ── REPOSITIONED: SATELLITE CONSTELLATION MATRIX (NOW MIDDLE) ── */}
+        {/* Satellite Constellation Matrix */}
         <section className="hd-section">
           <h3 className="hd-section-title">Satellite Constellation Distribution</h3>
           
@@ -206,7 +218,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack }) => {
           )}
         </section>
 
-        {/* ── REPOSITIONED: CENTRALIZED CIRCULAR DOWNLOAD PORTAL (NOW BOTTOM) ── */}
+        {/* Circular Download Portal */}
         <div className="hd-central-showcase">
           <div className="hd-circle-download-wrapper">
             <button 

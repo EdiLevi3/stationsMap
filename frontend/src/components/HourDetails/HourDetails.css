@@ -410,3 +410,40 @@
   font-size: 0.72rem;
   font-weight: 500;
 }
+
+/* ── Add this to your shared station page CSS (DayDetails.css, HourDetails.css,
+      or a shared StationPage.css — wherever .station-page__header is defined) ── */
+
+/* Make header a flex row so the ✕ button can sit on the far right */
+.station-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  /* keep any existing padding/background you already have */
+}
+
+/* ✕ Close-station button in page headers */
+.station-page__close-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  transition: background 0.15s, transform 0.15s;
+}
+.station-page__close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  transform: scale(1.1);
+}

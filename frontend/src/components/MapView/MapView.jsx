@@ -10,9 +10,9 @@ import {
 import { useStations } from "../../hooks/useStations";
 import StationMarker from "../StationMarker/StationMarker";
 import StationSearch from "../StationSearch/StationSearch";
-import NearbyStations from "../NearbyStations/NearbyStations"; // 🆕 IMPORT NEW COMPONENT
+import NearbyStations from "../NearbyStations/NearbyStations";
 import StationDetails from "../StationDetails/StationDetails";
-import BatchCompiler from "../BatchRinexCompiler/BatchCompiler"; // 🆕 IMPORT NEW COMPONENT
+import BatchCompiler from "../BatchRinexCompiler/BatchCompiler";
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
 
@@ -33,8 +33,8 @@ const FALLBACK_ZOOM = 8;
 
 const getBounds = (stations) => {
   if (!stations || stations.length === 0) return null;
-  const lats = stations.map((station) => station.location.coordinates[1]);
-  const lons = stations.map((station) => station.location.coordinates[0]);
+  const lats = stations.map((s) => s.location.coordinates[1]);
+  const lons = stations.map((s) => s.location.coordinates[0]);
   return [
     [Math.min(...lats), Math.min(...lons)],
     [Math.max(...lats), Math.max(...lons)],
@@ -45,10 +45,41 @@ const FitBounds = ({ stations }) => {
   const map = useMap();
   useEffect(() => {
     const bounds = getBounds(stations);
-    if (bounds) {
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
+    if (bounds) map.fitBounds(bounds, { padding: [40, 40] });
   }, [stations, map]);
+  return null;
+};
+
+const FlyToStation = ({ station }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (!station) return;
+    const [lng, lat] = station.location.coordinates;
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      map.flyTo([lat, lng], 14, { duration: 0.8 });
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [station, map]);
+  return null;
+};
+
+// Fires invalidateSize whenever the map panel resizes (station open/close, RINEX toggle)
+const MapResizer = ({ trigger }) => {
+  const map = useMap();
+  useEffect(() => {
+    // Small delay so the CSS transition finishes before Leaflet repaints
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      // If no station is selected, also re-fit all bounds
+      if (!trigger) {
+        const container = map.getContainer();
+        // fitBounds is handled by FitBounds component on mount;
+        // here we just ensure the tile grid fills the new size
+      }
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [trigger, map]);
   return null;
 };
 
@@ -56,11 +87,8 @@ const CenterButton = ({ stations }) => {
   const map = useMap();
   const handleClick = () => {
     const bounds = getBounds(stations);
-    if (bounds) {
-      map.flyToBounds(bounds, { padding: [40, 40] });
-    } else {
-      map.flyTo(FALLBACK_CENTER, FALLBACK_ZOOM);
-    }
+    if (bounds) map.flyToBounds(bounds, { padding: [40, 40] });
+    else map.flyTo(FALLBACK_CENTER, FALLBACK_ZOOM);
   };
   return (
     <button
@@ -74,7 +102,6 @@ const CenterButton = ({ stations }) => {
   );
 };
 
-// 🆕 Scope Tracking Child component stays inside MapView context
 const ScopeBoundsTracker = ({ stations, onVisibleStationsChange }) => {
   const map = useMap();
 
@@ -144,10 +171,18 @@ const MapView = () => {
   const { stations, loading, error, retry: loadStations } = useStations();
   const markerRefs = useRef(new Map());
   const [selectedStation, setSelectedStation] = useState(null);
-
-  // 🆕 BATCH STATES TRANSFERRED TO CHILD VIA PROPS
+  const [rinexUserOpen, setRinexUserOpen] = useState(false);
   const [visibleStations, setVisibleStations] = useState([]);
   const [selectedStationIds, setSelectedStationIds] = useState([]);
+
+  const handleCloseStation = () => {
+    setSelectedStation(null);
+    setRinexUserOpen(false);
+  };
+
+  useEffect(() => {
+    if (!selectedStation) setRinexUserOpen(false);
+  }, [selectedStation]);
 
   if (loading) {
     return (
@@ -170,31 +205,33 @@ const MapView = () => {
     );
   }
 
-  if (selectedStation) {
-    return (
-      <StationDetails
-        station={selectedStation}
-        onClose={() => setSelectedStation(null)}
-      />
-    );
-  }
-
   const storedLayer = getStoredLayer();
+  const stationOpen = !!selectedStation;
+  // RINEX rail is force-collapsed whenever a station is open and the user hasn't toggled it
+  const rinexForceCollapsed = stationOpen && !rinexUserOpen;
+
+  // Map is narrow (30%) when station open; hidden when RINEX is also open
+  let mapClass = "map-wrapper";
+  if (stationOpen && !rinexUserOpen) mapClass += " map-wrapper--narrow";
+  if (stationOpen && rinexUserOpen)  mapClass += " map-wrapper--hidden";
 
   return (
-    <div className="map-dashboard-container"> {/* 🆕 Updated container wrapper */}
-      
-      {/* 🆕 RENDER THE NEW ISOLATED COMPONENT */}
-      <BatchCompiler 
+    <div className="map-dashboard-container">
+      {/* RINEX sidebar — shows a ‹/› rail toggle when force-collapsed */}
+      <BatchCompiler
         visibleStations={visibleStations}
         selectedStationIds={selectedStationIds}
         setSelectedStationIds={setSelectedStationIds}
+        forceCollapsed={rinexForceCollapsed}
+        onForceToggle={() => setRinexUserOpen((prev) => !prev)}
       />
 
-      <div className="map-wrapper">
+      {/* Map panel */}
+      <div className={mapClass}>
         {stations.length > 0 && (
           <div className="station-count">📍 {stations.length} stations total</div>
         )}
+
         <MapContainer
           center={FALLBACK_CENTER}
           zoom={FALLBACK_ZOOM}
@@ -225,10 +262,12 @@ const MapView = () => {
           <LayerChangeHandler />
           <FitBounds stations={stations} />
           <CenterButton stations={stations} />
+          <FlyToStation station={selectedStation} />
+          {/* Repaints map whenever layout changes */}
+          <MapResizer trigger={stationOpen || rinexUserOpen} />
           {stations.length > 0 && <StationSearch markerRefs={markerRefs} />}
           {stations.length > 0 && <NearbyStations />}
 
-          {/* Scope Tracker Engine */}
           <ScopeBoundsTracker
             stations={stations}
             onVisibleStationsChange={setVisibleStations}
@@ -238,18 +277,28 @@ const MapView = () => {
             <StationMarker
               key={station._id}
               station={station}
-              onSelect={() => setSelectedStation(station)}
+              onSelect={() => {
+                setSelectedStation(station);
+                setRinexUserOpen(false);
+              }}
               markerRef={(marker) => {
-                if (marker) {
-                  markerRefs.current.set(station._id, marker);
-                } else {
-                  markerRefs.current.delete(station._id);
-                }
+                if (marker) markerRefs.current.set(station._id, marker);
+                else markerRefs.current.delete(station._id);
               }}
             />
           ))}
         </MapContainer>
       </div>
+
+      {/* Station detail sidebar — ✕ is rendered inside StationDetails only */}
+      {selectedStation && (
+        <div className="station-sidebar">
+          <StationDetails
+            station={selectedStation}
+            onClose={handleCloseStation}
+          />
+        </div>
+      )}
     </div>
   );
 };
