@@ -569,3 +569,13 @@
   letter-spacing: 0.01em;
   text-align: center;
 }
+
+.batch-field-error {
+  color: #e05252;
+  font-size: 0.75rem;
+  margin: 4px 0 0;
+}
+
+.batch-input-field--error {
+  border-color: #e05252;
+}

@@ -25,8 +25,10 @@ const BatchCompiler = ({
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [dateError, setDateError] = useState("");
   const [startHour, setStartHour] = useState("0");
   const [endHour, setEndHour] = useState("23");
+  const [hourError, setHourError] = useState("");
   const [rinexVersion, setRinexVersion] = useState("3.05");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -36,20 +38,27 @@ const BatchCompiler = ({
   // ── DATE VALIDATION ──
   const handleStartDateChange = (e) => {
     const val = e.target.value;
-    if (endDate && val > endDate) {
-      alert("Start date cannot be after end date.");
-      return;
-    }
     setStartDate(val);
+    setDateError(endDate && val > endDate ? "Start date cannot be after end date." : "");
   };
 
   const handleEndDateChange = (e) => {
     const val = e.target.value;
-    if (startDate && val < startDate) {
-      alert("End date cannot be before start date.");
-      return;
-    }
     setEndDate(val);
+    setDateError(startDate && val < startDate ? "End date cannot be before start date." : "");
+  };
+
+  // ── HOUR VALIDATION ──
+  const handleStartHourChange = (e) => {
+    const val = e.target.value;
+    setStartHour(val);
+    setHourError(Number(val) > Number(endHour) ? "Hours order are not valid." : "");
+  };
+
+  const handleEndHourChange = (e) => {
+    const val = e.target.value;
+    setEndHour(val);
+    setHourError(Number(startHour) > Number(val) ? "Hours order are not valid." : "");
   };
 
   const sidebarRef = useRef(null);
@@ -164,6 +173,14 @@ const BatchCompiler = ({
     }
     if (!startDate || !endDate) {
       alert("Please enter a valid date range.");
+      return;
+    }
+    if (dateError) {
+      alert(dateError);
+      return;
+    }
+    if (Number(startHour) > Number(endHour)) {
+      alert("Start hour must be before or equal to end hour.");
       return;
     }
     setIsProcessing(true);
@@ -362,7 +379,7 @@ const BatchCompiler = ({
                 value={startDate}
                 max={todayIso}
                 onChange={handleStartDateChange}
-                className="batch-input-field"
+                className={`batch-input-field ${dateError ? "batch-input-field--error" : ""}`}
               />
             </div>
             <div>
@@ -373,10 +390,13 @@ const BatchCompiler = ({
                 value={endDate}
                 max={todayIso}
                 onChange={handleEndDateChange}
-                className="batch-input-field"
+                className={`batch-input-field ${dateError ? "batch-input-field--error" : ""}`}
               />
             </div>
           </div>
+          {dateError && (
+            <p className="batch-field-error">{dateError}</p>
+          )}
         </div>
 
         <div className="batch-form-section">
@@ -386,8 +406,8 @@ const BatchCompiler = ({
               <span className="batch-input-sublabel">Start</span>
               <select
                 value={startHour}
-                onChange={(e) => setStartHour(e.target.value)}
-                className="batch-input-field"
+                onChange={handleStartHourChange}
+                className={`batch-input-field ${hourError ? "batch-input-field--error" : ""}`}
               >
                 {Array.from({ length: 24 }).map((_, h) => (
                   <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
@@ -398,8 +418,8 @@ const BatchCompiler = ({
               <span className="batch-input-sublabel">End</span>
               <select
                 value={endHour}
-                onChange={(e) => setEndHour(e.target.value)}
-                className="batch-input-field"
+                onChange={handleEndHourChange}
+                className={`batch-input-field ${hourError ? "batch-input-field--error" : ""}`}
               >
                 {Array.from({ length: 24 }).map((_, h) => (
                   <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
@@ -407,6 +427,9 @@ const BatchCompiler = ({
               </select>
             </div>
           </div>
+          {hourError && (
+            <p className="batch-field-error">{hourError}</p>
+          )}
         </div>
 
         <div className="batch-form-section">
@@ -425,7 +448,7 @@ const BatchCompiler = ({
         <div className="batch-action-center-wrapper">
           <button
             type="submit"
-            disabled={isProcessing}
+            disabled={isProcessing || !!hourError || !!dateError}
             className={`batch-giant-circle-btn ${isProcessing ? "batch-giant-circle-btn--loading" : ""}`}
           >
             {isProcessing ? (
