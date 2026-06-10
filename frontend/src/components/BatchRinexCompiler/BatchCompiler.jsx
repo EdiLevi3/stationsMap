@@ -130,6 +130,10 @@ const BatchCompiler = ({
     }
   };
 
+  const handleClearAll = () => {
+    setSelectedStationIds([]);
+  };
+
   const handleBatchConvert = (e) => {
     e.preventDefault();
     if (selectedStationIds.length === 0) {
@@ -198,6 +202,14 @@ const BatchCompiler = ({
         {selectedStationIds.length > 0 && (
           <div className="batch-selection-pill">
             {selectedStationIds.length} station{selectedStationIds.length !== 1 ? "s" : ""} selected
+            <button 
+              type="button" 
+              className="batch-selection-pill-clear"
+              onClick={handleClearAll}
+              title="Unselect all stations"
+            >
+              ✕
+            </button>
           </div>
         )}
       </div>
@@ -239,16 +251,27 @@ const BatchCompiler = ({
                 )}
               </span>
             </label>
-            {filteredStations.length > 0 && (
-              <label className="batch-select-all">
-                <input
-                  type="checkbox"
-                  onChange={handleSelectAllFiltered}
-                  checked={allFilteredSelected}
-                />
-                <span>Select all</span>
-              </label>
-            )}
+            <div className="batch-selection-actions">
+              {filteredStations.length > 0 && (
+                <label className="batch-select-all">
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllFiltered}
+                    checked={allFilteredSelected}
+                  />
+                  <span>Select all</span>
+                </label>
+              )}
+              {selectedStationIds.length > 0 && (
+                <button
+                  type="button"
+                  className="batch-clear-btn"
+                  onClick={handleClearAll}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="batch-station-scrollbox">
