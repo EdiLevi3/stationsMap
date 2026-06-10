@@ -265,8 +265,13 @@ const MapView = () => {
           <FlyToStation station={selectedStation} />
           {/* Repaints map whenever layout changes */}
           <MapResizer trigger={stationOpen || rinexUserOpen} />
-          {stations.length > 0 && <StationSearch markerRefs={markerRefs} />}
-          {stations.length > 0 && <NearbyStations />}
+          
+          {stations.length > 0 && (
+            <div className="map-search-controls">
+              <StationSearch markerRefs={markerRefs} />
+              <NearbyStations />
+            </div>
+          )}
 
           <ScopeBoundsTracker
             stations={stations}

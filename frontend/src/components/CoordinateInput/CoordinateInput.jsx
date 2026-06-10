@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { DEFAULT_UTM_ZONE, DEFAULT_UTM_HEMISPHERE } from '../../config';
+import './CoordinateInput.css'; // 🆕 IMPORT YOUR CSS FILE HERE
 
 const CoordinateInput = ({ onGoToLocation }) => {
     const [mode, setMode] = useState('utm'); // 'latlon' or 'utm'
@@ -96,7 +97,7 @@ const CoordinateInput = ({ onGoToLocation }) => {
                             </select>
                         </label>
                         <label className="coord-input__label">
-                            Easting
+                            E
                             <input
                                 type="text"
                                 className="coord-input__field"
@@ -106,7 +107,7 @@ const CoordinateInput = ({ onGoToLocation }) => {
                             />
                         </label>
                         <label className="coord-input__label">
-                            Northing
+                            N
                             <input
                                 type="text"
                                 className="coord-input__field"

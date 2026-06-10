@@ -1,8 +1,4 @@
 .nearby-stations {
-  position: absolute;
-  top: 60px; /* Below the main search bar */
-  left: 56px;
-  z-index: 1000;
   width: 240px;
 }
 
