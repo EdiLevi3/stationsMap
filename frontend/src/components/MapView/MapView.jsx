@@ -226,6 +226,10 @@ const MapView = () => {
         forceCollapsed={rinexForceCollapsed}
         onForceToggle={() => setRinexUserOpen((prev) => !prev)}
         onHoverStationId={setHoveredStationId}
+        onSelectStation={(station) => {
+          setSelectedStation(station);
+          // Don't close RINEX here, let the layout hide the map if both open
+        }}
       />
 
       {/* Map panel */}

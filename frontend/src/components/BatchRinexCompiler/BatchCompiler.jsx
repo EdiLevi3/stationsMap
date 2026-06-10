@@ -8,6 +8,7 @@ const BatchCompiler = ({
   forceCollapsed = false,
   onForceToggle,            // called when user clicks ‹/› while force-collapsed
   onHoverStationId,         // Callback for station hover highlighting on map
+  onSelectStation,          // Callback to view station details
 }) => {
   const stationCacheRef = useRef({});
 
@@ -285,6 +286,19 @@ const BatchCompiler = ({
                       )}
                     </div>
                     {isChecked && <span className="batch-station-check-tick">✓</span>}
+                    
+                    <button
+                      type="button"
+                      className="batch-station-details-btn"
+                      title="View station details"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectStation?.(station);
+                      }}
+                    >
+                      ⓘ
+                    </button>
                   </label>
                 );
               })
