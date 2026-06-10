@@ -20,7 +20,7 @@ satelliteConstellation: {
       default: 0,
     },
 
-    gemPrecents: {
+    gamPrecents: {
       type: Number,
       default: 0,
     },

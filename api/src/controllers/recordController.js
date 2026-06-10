@@ -102,7 +102,7 @@ const saveRecordInMongo = async (recordData) => {
     recordPrecent,
     longestSequence,
     spoofPrecents,
-    gemPrecents,
+    gamPrecents,
   } = recordData;
 
   const station = await Station.findOne({
@@ -134,7 +134,7 @@ const saveRecordInMongo = async (recordData) => {
           recordPrecent,
           longestSequence,
           spoofPrecents,
-          gemPrecents,
+          gamPrecents,
         },
       ],
     });
@@ -152,7 +152,7 @@ const saveRecordInMongo = async (recordData) => {
       recordPrecent,
       longestSequence,
       spoofPrecents,
-      gemPrecents,
+      gamPrecents,
     });
 
     await record.save();
@@ -162,8 +162,11 @@ const saveRecordInMongo = async (recordData) => {
   // Update existing station
 
   existingStation.recordPrecent += recordPrecent;
-  existingStation.spoofPrecents += spoofPrecents;
-  existingStation.gemPrecents += gemPrecents;
+  existingStation.spoofPrecents = Math.max(
+    existingStation.spoofPrecents,
+    spoofPrecents
+  );
+  existingStation.gamPrecents += gamPrecents;
   existingStation.longestSequence = Math.max(
     existingStation.longestSequence,
     longestSequence

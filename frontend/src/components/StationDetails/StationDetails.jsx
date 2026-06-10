@@ -4,11 +4,11 @@ import { useStationById } from "../../hooks/useStationById";
 import { API_BASE_URL } from "../../config";
 import DayDetails from "../DayDetails/DayDetails";
 
-const getColor = (value) => {
-  if (value === undefined || value === null) return "#D1D5DB";
-  if (value <= 0) return "#4CAF50";
-  if (value <= 60) return "#FFC107";
-  return "#F44336";
+const getColor = ({ spoof, gam } = {}) => {
+  if (spoof === null && gam === null) return "#D1D5DB"; // no data
+  if (spoof === 100 || gam >= 80) return "#F44336";    // red
+  if (gam >= 40) return "#FFC107";                     // yellow
+  return "#4CAF50";                                    // green
 };
 
 const getDominantColor = (hourlyValues) => {
@@ -17,7 +17,7 @@ const getDominantColor = (hourlyValues) => {
   hourlyValues.forEach((v) => {
     const color = getColor(v);
     counts[color]++;
-    if (v !== null && v !== undefined) activeDataCount++;
+if (v.spoof !== null || v.gam !== null) activeDataCount++;
   });
 
   const greenPercentage = (counts["#4CAF50"] / 24) * 100;
@@ -139,38 +139,44 @@ const StationDetails = ({ station, onClose }) => {
     fetchRecords();
   }, [_id]);
 
-  const hourlyMap = useMemo(() => {
-    const raw = {};
-    records.forEach((r) => {
-      const d = new Date(r.date);
-      const day =
-        `${d.getUTCFullYear()}-` +
-        `${String(d.getUTCMonth() + 1).padStart(2, "0")}-` +
-        `${String(d.getUTCDate()).padStart(2, "0")}`;
-      const hour = r.hour;
-      const stationData = r.stations?.find(
-        (s) => String(s.stationId) === String(_id)
-      );
-      if (!stationData) return;
-      const spoof = stationData.spoofPrecents ?? null;
-      const gem = stationData.gemPrecents ?? null;
-      if (spoof === null && gem === null) return;
-      const vals = [spoof, gem].filter((v) => v !== null);
-      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-      if (!raw[day]) raw[day] = {};
-      if (!raw[day][hour]) raw[day][hour] = { sum: 0, count: 0 };
-      raw[day][hour].sum += avg;
-      raw[day][hour].count += 1;
+const hourlyMap = useMemo(() => {
+  const raw = {};
+  records.forEach((r) => {
+    const d = new Date(r.date);
+    const day =
+      `${d.getUTCFullYear()}-` +
+      `${String(d.getUTCMonth() + 1).padStart(2, "0")}-` +
+      `${String(d.getUTCDate()).padStart(2, "0")}`;
+    const hour = r.hour;
+    const stationData = r.stations?.find(
+      (s) => String(s.stationId) === String(_id)
+    );
+    if (!stationData) return;
+
+    const spoof = stationData.spoofPrecents ?? null;
+    const gam   = stationData.gamPrecents  ?? null;
+    if (spoof === null && gam === null) return;
+
+    if (!raw[day]) raw[day] = {};
+    if (!raw[day][hour]) raw[day][hour] = { spoofSum: 0, gamSum: 0, spoofCount: 0, gamCount: 0 };
+
+    if (spoof !== null) { raw[day][hour].spoofSum += spoof; raw[day][hour].spoofCount++; }
+    if (gam   !== null) { raw[day][hour].gamSum   += gam;   raw[day][hour].gamCount++;   }
+  });
+
+  const result = {};
+  Object.keys(raw).forEach((day) => {
+    result[day] = Array.from({ length: 24 }, (_, h) => {
+      const slot = raw[day][h];
+      if (!slot) return { spoof: null, gam: null };
+      return {
+        spoof: slot.spoofCount ? slot.spoofSum / slot.spoofCount : null,
+        gam:   slot.gamCount   ? slot.gamSum   / slot.gamCount   : null,
+      };
     });
-    const result = {};
-    Object.keys(raw).forEach((day) => {
-      result[day] = Array.from({ length: 24 }, (_, h) => {
-        const slot = raw[day][h];
-        return slot ? slot.sum / slot.count : null;
-      });
-    });
-    return result;
-  }, [records, _id]);
+  });
+  return result;
+}, [records, _id]);
 
   const calendarGrid = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -292,13 +298,12 @@ const StationDetails = ({ station, onClose }) => {
             ›
           </button>
         </div>
-
-        <div className="cal-legend">
-          <span className="legend-dot green" /> 0 (Good)
-          <span className="legend-dot yellow" /> 0 – 60 (Fair)
-          <span className="legend-dot red" /> 60+ (Poor)
-          <span className="legend-dot gray" /> No Data
-        </div>
+<div className="cal-legend">
+  <span className="legend-dot green" /> Good (no spoof , gam &lt; 40%)
+  <span className="legend-dot yellow" /> Fair (gam 40–80)
+  <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
+  <span className="legend-dot gray" /> No Data
+</div>
 
         <div className="cal-weekdays">
           {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
@@ -309,7 +314,7 @@ const StationDetails = ({ station, onClose }) => {
         <div className="cal-grid">
           {calendarGrid.map(({ date, outside }, idx) => {
             const key = dateKey(date);
-            const hourly = hourlyMap[key] || Array(24).fill(null);
+            const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, gam: null });
             const dominantColor = getDominantColor(hourly);
             return (
               <div

@@ -6,7 +6,7 @@ import "./DayDetails.css";
 
 const getColor = (value, type) => {
   if (value == null) return "#D1D5DB";
-  if (type === "spoof" || type === "gem" || type === "combined") {
+  if (type === "spoof" || type === "gam" || type === "combined") {
     if (value <= 0)  return "#4CAF50";
     if (value <= 60) return "#FFC107";
     return "#F44336";
@@ -23,9 +23,9 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 const metrics = [
   { key: "recordPrecent", label: "Record %",       colorType: "record"   },
-  { key: "combined",      label: "Spoof+GEM avg", colorType: "combined" },
-  { key: "spoofPrecents", label: "Spoof %",        colorType: "spoof"    },
-  { key: "gemPrecents",   label: "GEM %",          colorType: "gem"      },
+  { key: "combined",      label: "Spoofing + gamming avg", colorType: "combined" },
+  { key: "spoofPrecents", label: "Spoofing %",        colorType: "spoof"    },
+  { key: "gamPrecents",   label: "Gamming %",          colorType: "gam"      },
 ];
 
 const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
@@ -137,12 +137,12 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
         hour: r.hour,
         recordPrecent: s.recordPrecent ?? null,
         spoofPrecents: s.spoofPrecents ?? null,
-        gemPrecents:   s.gemPrecents   ?? null,
+        gamPrecents:   s.gamPrecents   ?? null,
         longestSequence: s.longestSequence ?? null,
         combined:
-          s.spoofPrecents != null && s.gemPrecents != null
-            ? (s.spoofPrecents + s.gemPrecents) / 2
-            : s.spoofPrecents ?? s.gemPrecents ?? null,
+          s.spoofPrecents != null && s.gamPrecents != null
+            ? (s.spoofPrecents + s.gamPrecents) / 2
+            : s.spoofPrecents ?? s.gamPrecents ?? null,
       };
     });
     return map;
@@ -169,7 +169,7 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
     return {
       avgRecord:   avg("recordPrecent"),
       avgSpoof:    avg("spoofPrecents"),
-      avgGem:      avg("gemPrecents"),
+      avgGem:      avg("gamPrecents"),
       avgCombined: avg("combined"),
       maxSeq:      maxSeqVal,
       maxSeqHours: maxSeqHoursString,
@@ -243,9 +243,9 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
           <div className="dd-stats-row">
             {[
               { label: "Avg record % (24hr)",    value: dailyStats.avgRecord,   type: "record",   suffix: "%" },
-              { label: "Spoof+GEM avg (24hr)",   value: dailyStats.avgCombined, type: "combined", suffix: "%" },
-              { label: "Avg spoof % (24hr)",     value: dailyStats.avgSpoof,    type: "spoof",    suffix: "%" },
-              { label: "Avg GEM % (24hr)",       value: dailyStats.avgGem,      type: "gem",      suffix: "%" },
+              { label: "Spoofing+Gamming avg (24hr)",   value: dailyStats.avgCombined, type: "combined", suffix: "%" },
+              { label: "Avg spoofing % (24hr)",     value: dailyStats.avgSpoof,    type: "spoof",    suffix: "%" },
+              { label: "Avg Gamming % (24hr)",       value: dailyStats.avgGem,      type: "gam",      suffix: "%" },
               {
                 label: `Max sequence (${dailyStats.maxSeqHours})`,
                 value: dailyStats.maxSeq,
