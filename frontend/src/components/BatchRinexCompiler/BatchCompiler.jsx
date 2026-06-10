@@ -30,6 +30,28 @@ const BatchCompiler = ({
   const [rinexVersion, setRinexVersion] = useState("3.05");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Today's date in YYYY-MM-DD for validation and 'max' attribute
+  const todayIso = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // ── DATE VALIDATION ──
+  const handleStartDateChange = (e) => {
+    const val = e.target.value;
+    if (endDate && val > endDate) {
+      alert("Start date cannot be after end date.");
+      return;
+    }
+    setStartDate(val);
+  };
+
+  const handleEndDateChange = (e) => {
+    const val = e.target.value;
+    if (startDate && val < startDate) {
+      alert("End date cannot be before start date.");
+      return;
+    }
+    setEndDate(val);
+  };
+
   const sidebarRef = useRef(null);
   const widthBeforeCollapse = useRef(340);
 
@@ -40,7 +62,7 @@ const BatchCompiler = ({
     } else {
       setIsCollapsed(false);
     }
-  }, [forceCollapsed]);
+  }, [forceCollapsed, sidebarWidth]);
 
   const handleCollapseToggle = () => {
     if (forceCollapsed) {
@@ -338,7 +360,8 @@ const BatchCompiler = ({
                 type="date"
                 required
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                max={todayIso}
+                onChange={handleStartDateChange}
                 className="batch-input-field"
               />
             </div>
@@ -348,7 +371,8 @@ const BatchCompiler = ({
                 type="date"
                 required
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                max={todayIso}
+                onChange={handleEndDateChange}
                 className="batch-input-field"
               />
             </div>

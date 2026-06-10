@@ -71,6 +71,7 @@ const DateSelector = ({ dates, selectedDate, onChange }) => {
                 onKeyDown={handleKeyDown}
                 includeDates={availableDateObjects}
                 highlightDates={availableDateObjects}
+                maxDate={new Date()}
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Pick a date (dd/mm/yyyy)"
                 className="date-selector__input"

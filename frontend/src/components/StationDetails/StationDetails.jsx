@@ -99,11 +99,24 @@ const StationDetails = ({ station, onClose }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const handleDayClick = (date) => setSelectedDate(date);
+  // Today's date in YYYY-MM-DD for validation and 'max' attribute
+  const todayIso = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  const handleDayClick = (date) => {
+    if (date > todayIso) {
+      alert("Cannot view details for future dates.");
+      return;
+    }
+    setSelectedDate(date);
+  };
 
   const handleDirectDateJump = (e) => {
     const dateString = e.target.value;
     if (!dateString) return;
+    if (dateString > todayIso) {
+      alert("Cannot view details for future dates.");
+      return;
+    }
     const [year, month] = dateString.split("-").map(Number);
     setCurrentMonth(new Date(year, month - 1, 1));
     setSelectedDate(dateString);
@@ -241,6 +254,7 @@ const StationDetails = ({ station, onClose }) => {
             type="date"
             id="date-search"
             className="cal-search-input"
+            max={todayIso}
             onChange={handleDirectDateJump}
             value=""
           />
