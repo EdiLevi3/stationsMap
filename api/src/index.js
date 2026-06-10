@@ -25,13 +25,13 @@ app.get("/health", (req, res) => {
 
 
 // const station = new Station({
-//   name: "Herzelia",
+//   name: "Lebanon",
 //   location: {
 //     type: "Point",
-//     coordinates: [34.8446750, 32.1624130], // [longitude, latitude]
+//     coordinates: [35.8622850, 33.8547210], // [longitude, latitude]
 //   },
-//   // frequenthy: 1,
-//   // anthena: "abc"
+//   frequency: 4,
+//   antenna: "abc"
 // });
 // await station.save();
 

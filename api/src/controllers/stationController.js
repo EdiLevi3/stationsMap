@@ -5,8 +5,15 @@ import mongoose from "mongoose";
 
 const createStation = async (req, res) => {
   try {
-    const { name, location } = req.body;
-    const station = await Station.create({ name, location });
+    const { name, location, frequency, antenna } = req.body;
+
+    const station = await Station.create({
+      name,
+      location,
+      frequency,
+      antenna,
+    });
+
     res.status(201).json(station);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -43,12 +50,9 @@ const getStationById = async (req, res) => {
     if (!station) {
       return res.status(404).json({ error: "Station not found" });
     }
-    console.log("station._id =", station._id);
     const latestRecord = await Record.findOne({
       "stations.stationId": station._id,   // ✅ IMPORTANT FIX
     }).sort({ updatedAt: -1 });
-
-    console.log("latestRecord:", latestRecord);
 
     res.status(200).json({
       ...station.toObject(),
@@ -61,15 +65,26 @@ const getStationById = async (req, res) => {
 
 const updateStation = async (req, res) => {
   try {
-    const { name, location } = req.body;
+    const { name, location, frequency, antenna } = req.body;
+
     const station = await Station.findByIdAndUpdate(
       req.params.id,
-      { name, location },
-      { new: true },
+      {
+        name,
+        location,
+        frequency,
+        antenna,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
     );
+
     if (!station) {
       return res.status(404).json({ error: "Station not found" });
     }
+
     res.status(200).json(station);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -131,6 +146,8 @@ const searchStations = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+
 const getNearbyStations = async (req, res) => {
   try {
     const lat = parseFloat(req.query.lat);
@@ -155,6 +172,8 @@ const getNearbyStations = async (req, res) => {
       {
         $project: {
           name: 1,
+          frequency: 1,
+          antenna: 1,
           location: 1,
           distanceMeters: { $round: ["$distanceMeters", 0] },
         },

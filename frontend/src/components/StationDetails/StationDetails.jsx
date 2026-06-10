@@ -93,13 +93,17 @@ const StationDetails = ({ station, onClose }) => {
 
   const { station: chosenStation, loading, error } = useStationById(_id);
   const displayStation = chosenStation || station;
-  const { name, lastUpdate, location } = displayStation;
+  
+  // Destructured anthena and frequency here
+  const { name, lastUpdate, location, antenna
+, frequency } = displayStation;
+  console.log("antena is" , antenna
+)
 
   const [records, setRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
-  // Today's date in YYYY-MM-DD for validation and 'max' attribute
   const todayIso = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const handleDayClick = (date) => {
@@ -210,24 +214,31 @@ const StationDetails = ({ station, onClose }) => {
   return (
     <div className="station-page">
       <header className="station-page__header">
-        {/* Left: title only — no back button, ✕ is on the right */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", minWidth: 0 }}>
           <div className="station-page__title-group">
             <span className="station-page__icon">📍</span>
             <div style={{ minWidth: 0 }}>
               <h1 className="station-page__title">Station: {name}</h1>
-              <div className="station-page__meta-group">
+              
+              {/* Added Antenna and Frequency layouts below */}
+              <div className="station-page__meta-group" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    <strong>Coords:</strong> {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
                   </span>
                 )}
+                <span className="station-page__antenna">
+                  <strong>Antenna: </strong> {antenna ? `${antenna} ` : "N/A"}
+                </span>
+                <span className="station-page__frequency">
+                  <strong>Frequency:</strong> {frequency ? `${frequency} MHz` : "N/A"}
+                </span>
               </div>
+
             </div>
           </div>
         </div>
 
-        {/* Right: last record + close ✕ */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
           {lastUpdate && (
             <div className="station-page__last-record">

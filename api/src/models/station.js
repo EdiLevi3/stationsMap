@@ -7,6 +7,17 @@ const stationSchema = new mongoose.Schema(
       required: true,
     },
 
+    frequency: {
+      type: Number,
+      required: true, // remove if optional
+    },
+
+    antenna: {
+      type: String,
+      required: true, // remove if optional
+      trim: true,
+    },
+
     location: {
       type: {
         type: String,
