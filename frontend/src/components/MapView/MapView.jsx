@@ -174,6 +174,7 @@ const MapView = () => {
   const [rinexUserOpen, setRinexUserOpen] = useState(false);
   const [visibleStations, setVisibleStations] = useState([]);
   const [selectedStationIds, setSelectedStationIds] = useState([]);
+  const [hoveredStationId, setHoveredStationId] = useState(null);
 
   const handleCloseStation = () => {
     setSelectedStation(null);
@@ -224,6 +225,7 @@ const MapView = () => {
         setSelectedStationIds={setSelectedStationIds}
         forceCollapsed={rinexForceCollapsed}
         onForceToggle={() => setRinexUserOpen((prev) => !prev)}
+        onHoverStationId={setHoveredStationId}
       />
 
       {/* Map panel */}
@@ -282,6 +284,7 @@ const MapView = () => {
             <StationMarker
               key={station._id}
               station={station}
+              isHighlighted={hoveredStationId === station._id}
               onSelect={() => {
                 setSelectedStation(station);
                 setRinexUserOpen(false);
@@ -294,6 +297,7 @@ const MapView = () => {
           ))}
         </MapContainer>
       </div>
+
 
       {/* Station detail sidebar — ✕ is rendered inside StationDetails only */}
       {selectedStation && (

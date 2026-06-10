@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import "./BatchCompiler.css";
 
 const BatchCompiler = ({
@@ -7,6 +7,7 @@ const BatchCompiler = ({
   setSelectedStationIds,
   forceCollapsed = false,
   onForceToggle,            // called when user clicks ‹/› while force-collapsed
+  onHoverStationId,         // Callback for station hover highlighting on map
 }) => {
   const stationCacheRef = useRef({});
 
@@ -76,8 +77,8 @@ const BatchCompiler = ({
     };
   }, [isResizing]);
 
-  // ── COMBINED STATION POOL ──
-  const combinedStationPool = (() => {
+  // ── COMBINED & PINNED STATION POOL ──
+  const filteredStations = useMemo(() => {
     const poolMap = new Map();
     visibleStations.forEach((s) => poolMap.set(s._id, s));
     selectedStationIds.forEach((id) => {
@@ -85,17 +86,26 @@ const BatchCompiler = ({
         poolMap.set(id, stationCacheRef.current[id]);
       }
     });
-    return Array.from(poolMap.values());
-  })();
-
-  const filteredStations = combinedStationPool.filter((station) => {
+    
+    const pool = Array.from(poolMap.values());
     const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    const nameMatch = (station.name || "").toLowerCase().includes(query);
-    const lng = station.location?.coordinates?.[0]?.toString() || "";
-    const lat = station.location?.coordinates?.[1]?.toString() || "";
-    return nameMatch || lat.includes(query) || lng.includes(query);
-  });
+
+    return pool
+      .filter((station) => {
+        if (!query) return true;
+        const nameMatch = (station.name || "").toLowerCase().includes(query);
+        const lng = station.location?.coordinates?.[0]?.toString() || "";
+        const lat = station.location?.coordinates?.[1]?.toString() || "";
+        return nameMatch || lat.includes(query) || lng.includes(query);
+      })
+      .sort((a, b) => {
+        const aSel = selectedStationIds.includes(a._id);
+        const bSel = selectedStationIds.includes(b._id);
+        if (aSel && !bSel) return -1;
+        if (!aSel && bSel) return 1;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+  }, [visibleStations, selectedStationIds, searchQuery]);
 
   const handleStationCheck = (id) => {
     setSelectedStationIds((prev) =>
@@ -253,6 +263,8 @@ const BatchCompiler = ({
                   <label
                     key={station._id}
                     className={`batch-station-row ${isChecked ? "batch-station-row--checked" : ""}`}
+                    onMouseEnter={() => onHoverStationId?.(station._id)}
+                    onMouseLeave={() => onHoverStationId?.(null)}
                   >
                     <input
                       type="checkbox"

@@ -27,7 +27,7 @@ const isUpdatedToday = (dateStr) => {
   );
 };
 
-const StationMarker = memo(({ station, markerRef, onSelect }) => {
+const StationMarker = memo(({ station, markerRef, onSelect, isHighlighted }) => {
   console.log("Full station data received:", station); // ◄ ADD THIS
   const { name, location, lastUpdate } = station;
   
@@ -47,10 +47,11 @@ const StationMarker = memo(({ station, markerRef, onSelect }) => {
 
   const updatedToday = isUpdatedToday(lastUpdate);
   const statusColorClass = updatedToday ? "marker-circle--green" : "marker-circle--red";
+  const highlightClass = isHighlighted ? "marker-circle--highlighted" : "";
 
   const customCircleIcon = leaflet.divIcon({
     className: "custom-circle-marker-container",
-    html: `<div class="marker-circle ${statusColorClass}"></div>`,
+    html: `<div class="marker-circle ${statusColorClass} ${highlightClass}"></div>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
