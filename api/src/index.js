@@ -92,13 +92,13 @@ app.get("/health", (req, res) => {
 // try {
 //   await saveRecordInMongo({
 //     date: "2026-06-10",
-//     hour: 1,
+//     hour: 5,
 //     stationName: "Lebanon",
 //     satelliteConstellation: {'R': {'R07':100, 'R09':3000}, 'C': {'C07': 20}},
-//     recordPrecent: 80,
-//     longestSequence: 1000,
+//     recordPrecent: 100,
+//     longestSequence: 3600,
 //     spoofPrecents: 0,
-//     gamPrecents: 10
+//     gamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {

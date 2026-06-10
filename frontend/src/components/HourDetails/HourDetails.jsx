@@ -70,7 +70,6 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
   };
 
   const rawSequence = hourData.longestSequence || 0;
-  const sequencePercentage = Math.min(100, (rawSequence / 3600) * 100);
   
   const formatSequenceDuration = (totalSeconds) => {
     if (!totalSeconds) return "0s";
@@ -145,22 +144,18 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
             </div>
           ))}
         </div>
-
-        {/* Telemetry Score View */}
-        <div className="hd-sequence-widget">
-          <div className="hd-telemetry-display-panel">
-            <span className="hd-telemetry-percentage">{sequencePercentage.toFixed(0)}%</span>
-            <span className="hd-telemetry-subtext">INTEGRITY SCORE</span>
-          </div>
-          
-          <div className="hd-sequence-info">
-            <span className="hd-sequence-tag">Maximum Continuous Recording Length</span>
-            <h2 className="hd-sequence-time-display">{formatSequenceDuration(rawSequence)}</h2>
-            <p className="hd-sequence-desc">
-              ({rawSequence.toLocaleString()} consecutive frames).
-            </p>
-          </div>
-        </div>
+{/* Recording Length */}
+<div className="hd-sequence-widget">
+  <div className="hd-sequence-info" style={{ width: "100%", textAlign: "center" }}>
+    <span className="hd-sequence-tag">Maximum Continuous Recording Length</span>
+    <h2 className="hd-sequence-time-display">
+      {formatSequenceDuration(rawSequence)}
+    </h2>
+    <p className="hd-sequence-desc">
+      ({rawSequence.toLocaleString()} consecutive frames)
+    </p>
+  </div>
+</div>
 
         {/* Satellite Constellation Matrix */}
         <section className="hd-section">

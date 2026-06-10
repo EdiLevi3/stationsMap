@@ -17,7 +17,7 @@ const getDominantColor = (hourlyValues) => {
   hourlyValues.forEach((v) => {
     const color = getColor(v);
     counts[color]++;
-if (v.spoof !== null || v.gam !== null) activeDataCount++;
+    if (v.spoof !== null || v.gam !== null) activeDataCount++;
   });
 
   const greenPercentage = (counts["#4CAF50"] / 24) * 100;
@@ -60,8 +60,6 @@ const HourlyRing = ({ hourlyValues, size = 80 }) => {
     ].join(" ");
   };
 
-  const dominantColor = getDominantColor(hourlyValues);
-
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       {Array.from({ length: segments }, (_, i) => {
@@ -75,15 +73,6 @@ const HourlyRing = ({ hourlyValues, size = 80 }) => {
           />
         );
       })}
-      <text
-        x={cx}
-        y={cy}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={size * 0.22}
-        fontWeight="700"
-        fill={dominantColor}
-      />
     </svg>
   );
 };
@@ -94,11 +83,8 @@ const StationDetails = ({ station, onClose }) => {
   const { station: chosenStation, loading, error } = useStationById(_id);
   const displayStation = chosenStation || station;
   
-  // Destructured anthena and frequency here
-  const { name, lastUpdate, location, antenna
-, frequency } = displayStation;
-  console.log("antena is" , antenna
-)
+  const { name, lastUpdate, location, antenna, frequency } = displayStation;
+  console.log("antenna is", antenna);
 
   const [records, setRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -139,44 +125,44 @@ const StationDetails = ({ station, onClose }) => {
     fetchRecords();
   }, [_id]);
 
-const hourlyMap = useMemo(() => {
-  const raw = {};
-  records.forEach((r) => {
-    const d = new Date(r.date);
-    const day =
-      `${d.getUTCFullYear()}-` +
-      `${String(d.getUTCMonth() + 1).padStart(2, "0")}-` +
-      `${String(d.getUTCDate()).padStart(2, "0")}`;
-    const hour = r.hour;
-    const stationData = r.stations?.find(
-      (s) => String(s.stationId) === String(_id)
-    );
-    if (!stationData) return;
+  const hourlyMap = useMemo(() => {
+    const raw = {};
+    records.forEach((r) => {
+      const d = new Date(r.date);
+      const day =
+        `${d.getUTCFullYear()}-` +
+        `${String(d.getUTCMonth() + 1).padStart(2, "0")}-` +
+        `${String(d.getUTCDate()).padStart(2, "0")}`;
+      const hour = r.hour;
+      const stationData = r.stations?.find(
+        (s) => String(s.stationId) === String(_id)
+      );
+      if (!stationData) return;
 
-    const spoof = stationData.spoofPrecents ?? null;
-    const gam   = stationData.gamPrecents  ?? null;
-    if (spoof === null && gam === null) return;
+      const spoof = stationData.spoofPrecents ?? null;
+      const gam   = stationData.gamPrecents  ?? null;
+      if (spoof === null && gam === null) return;
 
-    if (!raw[day]) raw[day] = {};
-    if (!raw[day][hour]) raw[day][hour] = { spoofSum: 0, gamSum: 0, spoofCount: 0, gamCount: 0 };
+      if (!raw[day]) raw[day] = {};
+      if (!raw[day][hour]) raw[day][hour] = { spoofSum: 0, gamSum: 0, spoofCount: 0, gamCount: 0 };
 
-    if (spoof !== null) { raw[day][hour].spoofSum += spoof; raw[day][hour].spoofCount++; }
-    if (gam   !== null) { raw[day][hour].gamSum   += gam;   raw[day][hour].gamCount++;   }
-  });
-
-  const result = {};
-  Object.keys(raw).forEach((day) => {
-    result[day] = Array.from({ length: 24 }, (_, h) => {
-      const slot = raw[day][h];
-      if (!slot) return { spoof: null, gam: null };
-      return {
-        spoof: slot.spoofCount ? slot.spoofSum / slot.spoofCount : null,
-        gam:   slot.gamCount   ? slot.gamSum   / slot.gamCount   : null,
-      };
+      if (spoof !== null) { raw[day][hour].spoofSum += spoof; raw[day][hour].spoofCount++; }
+      if (gam   !== null) { raw[day][hour].gamSum   += gam;   raw[day][hour].gamCount++;   }
     });
-  });
-  return result;
-}, [records, _id]);
+
+    const result = {};
+    Object.keys(raw).forEach((day) => {
+      result[day] = Array.from({ length: 24 }, (_, h) => {
+        const slot = raw[day][h];
+        if (!slot) return { spoof: null, gam: null };
+        return {
+          spoof: slot.spoofCount ? slot.spoofSum / slot.spoofCount : null,
+          gam:   slot.gamCount   ? slot.gamSum   / slot.gamCount   : null,
+        };
+      });
+    });
+    return result;
+  }, [records, _id]);
 
   const calendarGrid = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -226,7 +212,6 @@ const hourlyMap = useMemo(() => {
             <div style={{ minWidth: 0 }}>
               <h1 className="station-page__title">Station: {name}</h1>
               
-              {/* Added Antenna and Frequency layouts below */}
               <div className="station-page__meta-group" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
@@ -240,7 +225,6 @@ const hourlyMap = useMemo(() => {
                   <strong>Frequency:</strong> {frequency ? `${frequency} MHz` : "N/A"}
                 </span>
               </div>
-
             </div>
           </div>
         </div>
@@ -298,12 +282,13 @@ const hourlyMap = useMemo(() => {
             ›
           </button>
         </div>
-<div className="cal-legend">
-  <span className="legend-dot green" /> Good (no spoof , gam &lt; 40%)
-  <span className="legend-dot yellow" /> Fair (gam 40–80)
-  <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
-  <span className="legend-dot gray" /> No Data
-</div>
+
+        <div className="cal-legend">
+          <span className="legend-dot green" /> Good (no spoof , gam &lt; 40%)
+          <span className="legend-dot yellow" /> Fair (gam 40–80)
+          <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
+          <span className="legend-dot gray" /> No Data
+        </div>
 
         <div className="cal-weekdays">
           {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
