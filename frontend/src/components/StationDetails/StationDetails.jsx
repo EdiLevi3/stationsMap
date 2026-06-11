@@ -102,20 +102,13 @@ const StationDetails = ({ station, onClose }) => {
   const [weeklyTo,   setWeeklyTo]   = useState(todayIso);
 
   const handleDayClick = (date) => {
-    if (date > todayIso) {
-      alert("Cannot view details for future dates.");
-      return;
-    }
+    if (date > todayIso) return;
     setSelectedDate(date);
   };
 
   const handleDirectDateJump = (e) => {
     const dateString = e.target.value;
-    if (!dateString) return;
-    if (dateString > todayIso) {
-      alert("Cannot view details for future dates.");
-      return;
-    }
+    if (!dateString || dateString > todayIso) return;
     const [year, month] = dateString.split("-").map(Number);
     setCurrentMonth(new Date(year, month - 1, 1));
     setSelectedDate(dateString);
@@ -268,7 +261,7 @@ const StationDetails = ({ station, onClose }) => {
             className={`sd-view-btn${viewMode === "weekly" ? " sd-view-btn--active" : ""}`}
             onClick={() => setViewMode("weekly")}
           >
-             Weekly avg
+             Weekly
           </button>
         </div>
 
@@ -329,20 +322,22 @@ const StationDetails = ({ station, onClose }) => {
             <div className="cal-grid">
               {calendarGrid.map(({ date, outside }, idx) => {
                 const key = dateKey(date);
+                const isFuture = key > todayIso;
                 const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, jam: null });
                 const dominantColor = getDominantColor(hourly);
                 return (
                   <div
                     key={`${key}-${idx}`}
-                    className={`cal-cell${outside ? " cal-cell--outside" : ""}`}
-                    onClick={() => !outside && handleDayClick(key)}
-                    title={outside ? undefined : `${key} — click for details`}
+                    className={`cal-cell${outside ? " cal-cell--outside" : ""}${isFuture ? " cal-cell--future" : ""}`}
+                    onClick={() => !outside && !isFuture && handleDayClick(key)}
+                    title={outside || isFuture ? undefined : `${key} — click for details`}
+                    style={{ cursor: outside || isFuture ? "default" : "pointer" }}
                   >
                     <div className="cal-cell__ring">
                       <HourlyRing hourlyValues={hourly} size={84} />
                       <span
                         className="cal-cell__day-num"
-                        style={{ color: outside ? "#bbb" : dominantColor }}
+                        style={{ color: (outside || isFuture) ? "#bbb" : dominantColor }}
                       >
                         {date.getDate()}
                       </span>

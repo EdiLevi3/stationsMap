@@ -195,7 +195,7 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
           </button>
           <div className="station-page__title-group">
             <div style={{ minWidth: 0 }}>
-              <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
+              <h1 className="station-page__title">📍Station {name || "Unknown"}</h1>
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__meta-item">

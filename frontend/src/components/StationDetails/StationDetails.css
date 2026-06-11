@@ -283,8 +283,16 @@
 .cal-cell--outside:hover {
   background: #fafafa;
 }
-.cal-cell--outside .cal-cell__ring svg path {
+.cal-cell--outside .cal-cell__ring svg path,
+.cal-cell--future .cal-cell__ring svg path {
   opacity: 0.3;
+}
+.cal-cell--future {
+  cursor: default;
+  background: #fafafa;
+}
+.cal-cell--future:hover {
+  background: #fafafa;
 }
 
 /* ── Ring + day number ───────────────────────────────────────────────────── */

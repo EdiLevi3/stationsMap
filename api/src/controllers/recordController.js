@@ -5,13 +5,12 @@ import mongoose from "mongoose";
 const createRecord = async (req, res) => {
   try {
     const recordData = req.body;
-    const newRecord = await Record.create(recordData);
-    res.status(201).json(newRecord);
+    const savedRecord = await saveRecordInMongo(recordData);
+    res.status(201).json(savedRecord);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
-
 const getAllRecords = async (req, res) => {
   try {
     const records = await Record.find();
@@ -110,9 +109,7 @@ const saveRecordInMongo = async (recordData) => {
   }).select("_id");
 
   if (!station) {
-    throw new Error(
-      `Station with name ${stationName} not found`
-    );
+    throw new Error(`Station with name '${stationName}' not found`);
   }
 
   const recordDate = new Date(date);
@@ -122,7 +119,7 @@ const saveRecordInMongo = async (recordData) => {
     hour,
   });
 
-  // Create date/hour document if it doesn't exist
+  // 1. Create date/hour document if it doesn't exist
   if (!record) {
     return await Record.create({
       date: recordDate,
@@ -133,71 +130,66 @@ const saveRecordInMongo = async (recordData) => {
           satelliteConstellation,
           recordPrecent,
           longestSequence,
-          spoofPrecents: 0,
+          spoofPrecents, // ✅ FIXED: Uses real incoming data instead of hardcoded 0
           jamPrecents,
-          },
-          ],
-          });
-          }
+        },
+      ],
+    });
+  }
 
-          const existingStation = record.stations.find(
-          (s) => s.stationId.toString() === station._id.toString()
-          );
+  const existingStation = record.stations.find(
+    (s) => s.stationId.toString() === station._id.toString()
+  );
 
-          // Add station if it doesn't exist
-          if (!existingStation) {
-          record.stations.push({
-          stationId: station._id,
-          satelliteConstellation,
-          recordPrecent,
-          longestSequence,
-          spoofPrecents,
-          jamPrecents,
-          });
+  // 2. Add station to the hourly array if it doesn't exist yet
+  if (!existingStation) {
+    record.stations.push({
+      stationId: station._id,
+      satelliteConstellation,
+      recordPrecent,
+      longestSequence,
+      spoofPrecents,
+      jamPrecents,
+    });
 
-          await record.save();
-          return record;
-          }
+    await record.save();
+    return record;
+  }
 
-          // Update existing station
-
-          existingStation.recordPrecent += recordPrecent;
-          existingStation.spoofPrecents = Math.max(
-          existingStation.spoofPrecents,
-          spoofPrecents
-          );
-          existingStation.jamPrecents += jamPrecents;
-          existingStation.longestSequence = Math.max(
-          existingStation.longestSequence,
-          longestSequence
-          );
+  // 3. Update existing station safely according to new schema constraints
+  // ✅ FIXED: Clamped to 100 maximum to prevent Mongoose validation failures
+  existingStation.recordPrecent = Math.min(100, existingStation.recordPrecent + recordPrecent);
+  
+  existingStation.spoofPrecents = Math.max(
+    existingStation.spoofPrecents,
+    spoofPrecents
+  );
+  
+  existingStation.jamPrecents += jamPrecents;
+  
+  existingStation.longestSequence = Math.max(
+    existingStation.longestSequence,
+    longestSequence
+  );
 
   // Merge satellite constellations
-  const existingConstellation =
-    existingStation.satelliteConstellation || {};
+  const existingConstellation = existingStation.satelliteConstellation || {};
 
-  for (const [system, satellites] of Object.entries(
-    satelliteConstellation || {}
-  )) {
+  for (const [system, satellites] of Object.entries(satelliteConstellation || {})) {
     if (!existingConstellation[system]) {
       existingConstellation[system] = {};
     }
 
-    for (const [satellite, value] of Object.entries(
-      satellites
-    )) {
-      if (
-        existingConstellation[system][satellite] === undefined
-      ) {
+    for (const [satellite, value] of Object.entries(satellites)) {
+      if (existingConstellation[system][satellite] === undefined) {
         existingConstellation[system][satellite] = value;
       }
     }
   }
 
-  existingStation.satelliteConstellation =
-    existingConstellation;
+  existingStation.satelliteConstellation = existingConstellation;
 
-  // Required because Mixed type changes may not be detected
+  // Track deep nested updates for Mongoose
   existingStation.markModified?.("satelliteConstellation");
   record.markModified("stations");
 
