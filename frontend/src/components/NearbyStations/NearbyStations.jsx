@@ -36,7 +36,7 @@ const NearbyStations = () => {
     if (result) {
       const { lat, lon } = result;
       setLastSearchCoords({ lat, lon });
-      flyToGeoLocation(lat, lon, `Search: ${lat.toFixed(4)}, ${lon.toFixed(4)}`, limit);
+      flyToGeoLocation(lat, lon, `Search: ${lat}, ${lon}`, limit);
     }
   }, [flyToGeoLocation, limit]);
 
@@ -45,7 +45,7 @@ const NearbyStations = () => {
     setLimit(newLimit);
     if (lastSearchCoords) {
       const { lat, lon } = lastSearchCoords;
-      flyToGeoLocation(lat, lon, `Search: ${lat.toFixed(4)}, ${lon.toFixed(4)}`, newLimit);
+      flyToGeoLocation(lat, lon, `Search: ${lat}, ${lon}`, newLimit);
     }
   };
 

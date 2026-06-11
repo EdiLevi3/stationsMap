@@ -343,7 +343,7 @@ const BatchCompiler = ({
                       </span>
                       {lat != null && lng != null && (
                         <span className="batch-station-coords-subtext">
-                          {lat.toFixed(4)}°&thinsp;N &nbsp;{lng.toFixed(4)}°&thinsp;E
+                          {lat}°&thinsp;N &nbsp;{lng}°&thinsp;E
                         </span>
                       )}
                     </div>

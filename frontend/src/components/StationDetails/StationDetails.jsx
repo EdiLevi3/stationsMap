@@ -215,7 +215,7 @@ const StationDetails = ({ station, onClose }) => {
               <div className="station-page__meta-group" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    <strong>Coords:</strong> {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    <strong>Coords:</strong> {location.coordinates[1]}°, {location.coordinates[0]}°
                   </span>
                 )}
                 <span className="station-page__antenna">

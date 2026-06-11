@@ -102,7 +102,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    {location.coordinates[1].toFixed(5)}°, {location.coordinates[0].toFixed(5)}°
+                    {location.coordinates[1]}°, {location.coordinates[0]}°
                   </span>
                 )}
                 <span className="hd-date-highlight">{date}</span>
