@@ -102,7 +102,7 @@ const saveRecordInMongo = async (recordData) => {
     recordPrecent,
     longestSequence,
     spoofPrecents,
-    gamPrecents,
+    jamPrecents,
   } = recordData;
 
   const station = await Station.findOne({
@@ -133,44 +133,44 @@ const saveRecordInMongo = async (recordData) => {
           satelliteConstellation,
           recordPrecent,
           longestSequence,
+          spoofPrecents: 0,
+          jamPrecents,
+          },
+          ],
+          });
+          }
+
+          const existingStation = record.stations.find(
+          (s) => s.stationId.toString() === station._id.toString()
+          );
+
+          // Add station if it doesn't exist
+          if (!existingStation) {
+          record.stations.push({
+          stationId: station._id,
+          satelliteConstellation,
+          recordPrecent,
+          longestSequence,
           spoofPrecents,
-          gamPrecents,
-        },
-      ],
-    });
-  }
+          jamPrecents,
+          });
 
-  const existingStation = record.stations.find(
-    (s) => s.stationId.toString() === station._id.toString()
-  );
+          await record.save();
+          return record;
+          }
 
-  // Add station if it doesn't exist
-  if (!existingStation) {
-    record.stations.push({
-      stationId: station._id,
-      satelliteConstellation,
-      recordPrecent,
-      longestSequence,
-      spoofPrecents,
-      gamPrecents,
-    });
+          // Update existing station
 
-    await record.save();
-    return record;
-  }
-
-  // Update existing station
-
-  existingStation.recordPrecent += recordPrecent;
-  existingStation.spoofPrecents = Math.max(
-    existingStation.spoofPrecents,
-    spoofPrecents
-  );
-  existingStation.gamPrecents += gamPrecents;
-  existingStation.longestSequence = Math.max(
-    existingStation.longestSequence,
-    longestSequence
-  );
+          existingStation.recordPrecent += recordPrecent;
+          existingStation.spoofPrecents = Math.max(
+          existingStation.spoofPrecents,
+          spoofPrecents
+          );
+          existingStation.jamPrecents += jamPrecents;
+          existingStation.longestSequence = Math.max(
+          existingStation.longestSequence,
+          longestSequence
+          );
 
   // Merge satellite constellations
   const existingConstellation =

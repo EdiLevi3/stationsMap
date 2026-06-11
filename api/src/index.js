@@ -98,7 +98,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 100,
 //     longestSequence: 3600,
 //     spoofPrecents: 0,
-//     gamPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -114,7 +114,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 100,
 //     longestSequence: 3600,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -131,7 +131,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 0,
 //     longestSequence: 5,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -148,7 +148,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -164,7 +164,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -180,7 +180,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -196,7 +196,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -213,7 +213,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 80,
 //     longestSequence: 900,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -230,7 +230,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 100,
 //     longestSequence: 900,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -247,7 +247,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 0,
 //     longestSequence: 5,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -264,7 +264,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -280,7 +280,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -296,7 +296,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -312,7 +312,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -328,7 +328,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -344,7 +344,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -355,7 +355,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {
@@ -371,7 +371,7 @@ app.get("/health", (req, res) => {
 //     recordPrecent: 30,
 //     longestSequence: 18,
 //     spoofPrecents: 0,
-//     gemPrecents: 0
+//     jamPrecents: 0
 //   });
 //   console.log("Record saved successfully");
 // } catch (error) {

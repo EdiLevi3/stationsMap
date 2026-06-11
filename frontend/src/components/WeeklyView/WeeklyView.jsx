@@ -9,7 +9,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 const getColor = (val, type) => {
   if (val == null) return "#9CA3AF";
-  if (type === "spoof" || type === "gam") {
+  if (type === "spoof" || type === "jam") {
     if (val <= 0) return "#4CAF50";
     if (val <= 60) return "#FFC107";
     return "#F44336";
@@ -23,7 +23,7 @@ const getColor = (val, type) => {
 const METRICS = [
   { key: "recordPrecent", label: "Record %",    type: "record" },
   { key: "spoofPrecents", label: "Spoofing %",  type: "spoof"  },
-  { key: "gamPrecents",   label: "Gamming %",   type: "gam"    },
+  { key: "jamPrecents",   label: "Jamming %",   type: "jam"    },
 ];
 
 
@@ -167,7 +167,7 @@ const WeeklyView = ({ records, stationId, fromDate, toDate }) => {
     const buckets = Array.from({ length: 7 }, () =>
       Array.from({ length: 24 }, () => ({
         spoofPrecents: { sum: 0, n: 0 },
-        gamPrecents:   { sum: 0, n: 0 },
+        jamPrecents:   { sum: 0, n: 0 },
         recordPrecent: { sum: 0, n: 0 },
       }))
     );
@@ -193,12 +193,12 @@ const WeeklyView = ({ records, stationId, fromDate, toDate }) => {
       if (!s) return;
 
       const bucket = buckets[dow][hour];
-      // spoofPrecents and gamPrecents default to 0 in schema, so they always exist
-      // treat them as always present (no null check needed for spoof/gam)
+      // spoofPrecents and jamPrecents default to 0 in schema, so they always exist
+      // treat them as always present (no null check needed for spoof/jam)
       bucket.spoofPrecents.sum += s.spoofPrecents ?? 0;
       bucket.spoofPrecents.n++;
-      bucket.gamPrecents.sum   += s.gamPrecents   ?? 0;
-      bucket.gamPrecents.n++;
+      bucket.jamPrecents.sum   += s.jamPrecents   ?? 0;
+      bucket.jamPrecents.n++;
       if (s.recordPrecent != null) {
         bucket.recordPrecent.sum += s.recordPrecent;
         bucket.recordPrecent.n++;
@@ -218,10 +218,10 @@ const WeeklyView = ({ records, stationId, fromDate, toDate }) => {
 
         return {
           spoofPrecents: calc(h.spoofPrecents),
-          gamPrecents:   calc(h.gamPrecents),
+          jamPrecents:   calc(h.jamPrecents),
           recordPrecent: calc(h.recordPrecent),
           // keep both for tooltip: how many had data vs total possible
-          samplesWithData: Math.max(h.spoofPrecents.n, h.gamPrecents.n, h.recordPrecent.n),
+          samplesWithData: Math.max(h.spoofPrecents.n, h.jamPrecents.n, h.recordPrecent.n),
           totalDays,
         };
       });

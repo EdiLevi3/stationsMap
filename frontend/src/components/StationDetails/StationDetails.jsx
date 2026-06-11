@@ -5,10 +5,10 @@ import { API_BASE_URL } from "../../config";
 import DayDetails from "../DayDetails/DayDetails";
 import WeeklyView from "../WeeklyView/WeeklyView";
 
-const getColor = ({ spoof, gam } = {}) => {
-  if (spoof === null && gam === null) return "#D1D5DB"; // no data
-  if (spoof === 100 || gam >= 80) return "#F44336";    // red
-  if (gam >= 40) return "#FFC107";                     // yellow
+const getColor = ({ spoof, jam } = {}) => {
+  if (spoof === null && jam === null) return "#D1D5DB"; // no data
+  if (spoof === 100 || jam >= 80) return "#F44336";    // red
+  if (jam >= 40) return "#FFC107";                     // yellow
   return "#4CAF50";                                    // green
 };
 
@@ -149,24 +149,24 @@ const StationDetails = ({ station, onClose }) => {
       if (!stationData) return;
 
       const spoof = stationData.spoofPrecents ?? null;
-      const gam   = stationData.gamPrecents  ?? null;
-      if (spoof === null && gam === null) return;
+      const jam   = stationData.jamPrecents  ?? null;
+      if (spoof === null && jam === null) return;
 
       if (!raw[day]) raw[day] = {};
-      if (!raw[day][hour]) raw[day][hour] = { spoofSum: 0, gamSum: 0, spoofCount: 0, gamCount: 0 };
+      if (!raw[day][hour]) raw[day][hour] = { spoofSum: 0, jamSum: 0, spoofCount: 0, jamCount: 0 };
 
       if (spoof !== null) { raw[day][hour].spoofSum += spoof; raw[day][hour].spoofCount++; }
-      if (gam   !== null) { raw[day][hour].gamSum   += gam;   raw[day][hour].gamCount++;   }
+      if (jam !== null) { raw[day][hour].jamSum += jam; raw[day][hour].jamCount++; }
     });
 
     const result = {};
     Object.keys(raw).forEach((day) => {
       result[day] = Array.from({ length: 24 }, (_, h) => {
         const slot = raw[day][h];
-        if (!slot) return { spoof: null, gam: null };
+        if (!slot) return { spoof: null, jam: null };
         return {
           spoof: slot.spoofCount ? slot.spoofSum / slot.spoofCount : null,
-          gam:   slot.gamCount   ? slot.gamSum   / slot.gamCount   : null,
+          jam:   slot.jamCount   ? slot.jamSum   / slot.jamCount   : null,
         };
       });
     });
@@ -314,9 +314,9 @@ const StationDetails = ({ station, onClose }) => {
             </div>
 
             <div className="cal-legend">
-              <span className="legend-dot green" /> Good (no spoof, gam &lt; 40%)
-              <span className="legend-dot yellow" /> Fair (gam 40–80)
-              <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
+              <span className="legend-dot green" /> Good (no spoof, jam &lt; 40%)
+              <span className="legend-dot yellow" /> Fair (jam 40–80)
+              <span className="legend-dot red" /> Poor (spoof or jam ≥ 80%)
               <span className="legend-dot gray" /> No Data
             </div>
 
@@ -329,7 +329,7 @@ const StationDetails = ({ station, onClose }) => {
             <div className="cal-grid">
               {calendarGrid.map(({ date, outside }, idx) => {
                 const key = dateKey(date);
-                const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, gam: null });
+                const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, jam: null });
                 const dominantColor = getDominantColor(hourly);
                 return (
                   <div

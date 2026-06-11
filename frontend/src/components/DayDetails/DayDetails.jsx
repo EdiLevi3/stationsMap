@@ -6,7 +6,7 @@ import "./DayDetails.css";
 
 const getColor = (value, type) => {
   if (value == null) return "#D1D5DB";
-  if (type === "spoof" || type === "gam") {
+  if (type === "spoof" || type === "jam") {
     if (value <= 0)  return "#4CAF50";
     if (value <= 60) return "#FFC107";
     return "#F44336";
@@ -24,7 +24,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const metrics = [
   { key: "recordPrecent", label: "Record %",       colorType: "record"   },
   { key: "spoofPrecents", label: "Spoofing %",        colorType: "spoof"    },
-  { key: "gamPrecents",   label: "Gamming %",          colorType: "gam"      },
+  { key: "jamPrecents",   label: "Jamming %",          colorType: "jam"      },
 ];
 
 const TrendGraph = ({ valuesByHour, activeMetric, activeColorType }) => {
@@ -136,7 +136,7 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
         hour: r.hour,
         recordPrecent: s.recordPrecent ?? null,
         spoofPrecents: s.spoofPrecents ?? null,
-        gamPrecents:   s.gamPrecents   ?? null,
+        jamPrecents:   s.jamPrecents   ?? null,
         longestSequence: s.longestSequence ?? null,
       };
     });
@@ -164,7 +164,7 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
     return {
       avgRecord:   avg("recordPrecent"),
       avgSpoof:    avg("spoofPrecents"),
-      avgGem:      avg("gamPrecents"),
+      avgJam:      avg("jamPrecents"),
       maxSeq:      maxSeqVal,
       maxSeqHours: maxSeqHoursString,
       hoursWithData: vals.length,
@@ -251,7 +251,7 @@ const DayDetails = ({ station, stationId, date, onBack, onClose }) => {
             {[
               { label: "Avg record % (24hr)",    value: dailyStats.avgRecord,   type: "record",   suffix: "%" },
               { label: "Avg spoofing % (24hr)",     value: dailyStats.avgSpoof,    type: "spoof",    suffix: "%" },
-              { label: "Avg Gamming % (24hr)",       value: dailyStats.avgGem,      type: "gam",      suffix: "%" },
+              { label: "Avg Jamming % (24hr)",       value: dailyStats.avgJam,      type: "jam",      suffix: "%" },
               {
                 label: `Max sequence (${dailyStats.maxSeqHours})`,
                 value: dailyStats.maxSeq,

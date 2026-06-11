@@ -14,7 +14,7 @@ const CONSTELLATION_NAMES = {
 
 const getMetricColor = (val, type) => {
   if (val == null) return "#64748b";
-  if (type === "spoof" || type === "gam") {
+  if (type === "spoof" || type === "jam") {
     return val <= 0 ? "#10b981" : val <= 60 ? "#f59e0b" : "#ef4444";
   }
   return val >= 80 ? "#10b981" : val >= 50 ? "#f59e0b" : "#ef4444";
@@ -147,7 +147,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
           {[
             { label: "Record Rate", val: hourData.recordPrecent, type: "record" },
             { label: "Spoofing Level", val: hourData.spoofPrecents, type: "spoof" },
-            { label: "Gamming Deviation", val: hourData.gamPrecents, type: "gam" },
+            { label: "Jamming Deviation", val: hourData.jamPrecents, type: "jam" },
           ].map((item) => (
             <div className="hd-stat-card" key={item.label}>
               <span className="hd-card-label">{item.label}</span>
