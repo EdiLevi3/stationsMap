@@ -1,8 +1,6 @@
-// Coordinate input panel for direct lat/lon or UTM entry
-
 import { useState } from 'react';
 import { DEFAULT_UTM_ZONE, DEFAULT_UTM_HEMISPHERE } from '../../config';
-import './CoordinateInput.css'; // 🆕 IMPORT YOUR CSS FILE HERE
+import './CoordinateInput.css';
 
 const CoordinateInput = ({ onGoToLocation }) => {
     const [mode, setMode] = useState('utm'); // 'latlon' or 'utm'
@@ -59,7 +57,6 @@ const CoordinateInput = ({ onGoToLocation }) => {
                                 className="coord-input__field"
                                 value={lat}
                                 onChange={(e) => setLat(e.target.value)}
-                                placeholder=""
                             />
                         </label>
                         <label className="coord-input__label">
@@ -69,7 +66,6 @@ const CoordinateInput = ({ onGoToLocation }) => {
                                 className="coord-input__field"
                                 value={lon}
                                 onChange={(e) => setLon(e.target.value)}
-                                placeholder=""
                             />
                         </label>
                     </div>
@@ -103,7 +99,6 @@ const CoordinateInput = ({ onGoToLocation }) => {
                                 className="coord-input__field"
                                 value={easting}
                                 onChange={(e) => setEasting(e.target.value)}
-                                placeholder=""
                             />
                         </label>
                         <label className="coord-input__label">
@@ -113,7 +108,6 @@ const CoordinateInput = ({ onGoToLocation }) => {
                                 className="coord-input__field"
                                 value={northing}
                                 onChange={(e) => setNorthing(e.target.value)}
-                                placeholder=""
                             />
                         </label>
                     </div>

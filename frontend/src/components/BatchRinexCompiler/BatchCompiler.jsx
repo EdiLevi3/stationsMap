@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import BatchStationList from "./BatchStationList";
+import BatchDownloadForm from "./BatchDownloadForm";
 import "./BatchCompiler.css";
 
 const BatchCompiler = ({
@@ -6,16 +8,13 @@ const BatchCompiler = ({
   selectedStationIds,
   setSelectedStationIds,
   forceCollapsed = false,
-  onForceToggle,            // called when user clicks ‹/› while force-collapsed
-  onHoverStationId,         // Callback for station hover highlighting on map
-  onSelectStation,          // Callback to view station details
+  onForceToggle,
+  onHoverStationId,
+  onSelectStation,
 }) => {
   const stationCacheRef = useRef({});
-
   useEffect(() => {
-    visibleStations.forEach((s) => {
-      stationCacheRef.current[s._id] = s;
-    });
+    visibleStations.forEach((s) => { stationCacheRef.current[s._id] = s; });
   }, [visibleStations]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,29 +31,23 @@ const BatchCompiler = ({
   const [rinexVersion, setRinexVersion] = useState("3.05");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Today's date in YYYY-MM-DD for validation and 'max' attribute
   const todayIso = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  // ── DATE VALIDATION ──
   const handleStartDateChange = (e) => {
     const val = e.target.value;
     setStartDate(val);
     setDateError(endDate && val > endDate ? "Start date cannot be after end date." : "");
   };
-
   const handleEndDateChange = (e) => {
     const val = e.target.value;
     setEndDate(val);
     setDateError(startDate && val < startDate ? "End date cannot be before start date." : "");
   };
-
-  // ── HOUR VALIDATION ──
   const handleStartHourChange = (e) => {
     const val = e.target.value;
     setStartHour(val);
     setHourError(Number(val) > Number(endHour) ? "Hours order are not valid." : "");
   };
-
   const handleEndHourChange = (e) => {
     const val = e.target.value;
     setEndHour(val);
@@ -74,23 +67,10 @@ const BatchCompiler = ({
   }, [forceCollapsed, sidebarWidth]);
 
   const handleCollapseToggle = () => {
-    if (forceCollapsed) {
-      // Delegate to MapView to toggle rinexUserOpen
-      onForceToggle?.();
-      return;
-    }
+    if (forceCollapsed) { onForceToggle?.(); return; }
     if (!isCollapsed) widthBeforeCollapse.current = sidebarWidth;
-    
-    // 🆕 SYNC FIX: Notify parent so MapView layout state (rinexUserOpen) matches visual state
     onForceToggle?.();
     setIsCollapsed((prev) => !prev);
-  };
-
-  // ── RESIZING ENGINE ──
-  const startResizing = (e) => {
-    if (isCollapsed) return;
-    e.preventDefault();
-    setIsResizing(true);
   };
 
   useEffect(() => {
@@ -112,26 +92,21 @@ const BatchCompiler = ({
     };
   }, [isResizing]);
 
-  // ── COMBINED & PINNED STATION POOL ──
   const filteredStations = useMemo(() => {
     const poolMap = new Map();
     visibleStations.forEach((s) => poolMap.set(s._id, s));
     selectedStationIds.forEach((id) => {
-      if (!poolMap.has(id) && stationCacheRef.current[id]) {
+      if (!poolMap.has(id) && stationCacheRef.current[id])
         poolMap.set(id, stationCacheRef.current[id]);
-      }
     });
-    
     const pool = Array.from(poolMap.values());
     const query = searchQuery.toLowerCase().trim();
-
     return pool
-      .filter((station) => {
+      .filter((s) => {
         if (!query) return true;
-        const nameMatch = (station.name || "").toLowerCase().includes(query);
-        const lng = station.location?.coordinates?.[0]?.toString() || "";
-        const lat = station.location?.coordinates?.[1]?.toString() || "";
-        return nameMatch || lat.includes(query) || lng.includes(query);
+        const lng = s.location?.coordinates?.[0]?.toString() || "";
+        const lat = s.location?.coordinates?.[1]?.toString() || "";
+        return (s.name || "").toLowerCase().includes(query) || lat.includes(query) || lng.includes(query);
       })
       .sort((a, b) => {
         const aSel = selectedStationIds.includes(a._id);
@@ -142,47 +117,32 @@ const BatchCompiler = ({
       });
   }, [visibleStations, selectedStationIds, searchQuery]);
 
-  const handleStationCheck = (id) => {
+  const handleStationCheck = (id) =>
     setSelectedStationIds((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
     );
-  };
 
   const allFilteredSelected =
     filteredStations.length > 0 &&
     filteredStations.every((s) => selectedStationIds.includes(s._id));
 
   const handleSelectAllFiltered = (e) => {
-    const filteredIds = filteredStations.map((s) => s._id);
+    const ids = filteredStations.map((s) => s._id);
     if (e.target.checked) {
-      setSelectedStationIds((prev) => Array.from(new Set([...prev, ...filteredIds])));
+      setSelectedStationIds((prev) => Array.from(new Set([...prev, ...ids])));
     } else {
-      setSelectedStationIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+      setSelectedStationIds((prev) => prev.filter((id) => !ids.includes(id)));
     }
   };
 
-  const handleClearAll = () => {
-    setSelectedStationIds([]);
-  };
+  const handleClearAll = () => setSelectedStationIds([]);
 
   const handleBatchConvert = (e) => {
     e.preventDefault();
-    if (selectedStationIds.length === 0) {
-      alert("Please select at least one station.");
-      return;
-    }
-    if (!startDate || !endDate) {
-      alert("Please enter a valid date range.");
-      return;
-    }
-    if (dateError) {
-      alert(dateError);
-      return;
-    }
-    if (Number(startHour) > Number(endHour)) {
-      alert("Start hour must be before or equal to end hour.");
-      return;
-    }
+    if (selectedStationIds.length === 0) { alert("Please select at least one station."); return; }
+    if (!startDate || !endDate) { alert("Please enter a valid date range."); return; }
+    if (dateError) { alert(dateError); return; }
+    if (Number(startHour) > Number(endHour)) { alert("Start hour must be before or equal to end hour."); return; }
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
@@ -190,11 +150,9 @@ const BatchCompiler = ({
     }, 5000);
   };
 
-  // ── COLLAPSED RAIL VIEW ──
   if (isCollapsed) {
     return (
       <aside className="batch-download-sidebar batch-download-sidebar--collapsed">
-        {/* Always show the expand arrow — if force-collapsed it calls onForceToggle */}
         <button
           className="sidebar-collapse-btn sidebar-collapse-btn--rail"
           onClick={handleCollapseToggle}
@@ -217,11 +175,7 @@ const BatchCompiler = ({
       ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
     >
-      <div
-        className="sidebar-resizer-handle"
-        onMouseDown={startResizing}
-        title="Drag to resize"
-      />
+      <div className="sidebar-resizer-handle" onMouseDown={(e) => { if (!isCollapsed) { e.preventDefault(); setIsResizing(true); } }} title="Drag to resize" />
 
       <div className="batch-sidebar__header">
         <div className="batch-sidebar__header-top">
@@ -229,24 +183,14 @@ const BatchCompiler = ({
             <h2 className="batch-sidebar__title">RINEX Compiler</h2>
             <p className="batch-sidebar__subtitle">Batch export across stations</p>
           </div>
-          <button
-            className="sidebar-collapse-btn"
-            onClick={handleCollapseToggle}
-            title="Collapse sidebar"
-            aria-label="Collapse sidebar"
-          >
+          <button className="sidebar-collapse-btn" onClick={handleCollapseToggle} title="Collapse sidebar" aria-label="Collapse sidebar">
             ‹
           </button>
         </div>
         {selectedStationIds.length > 0 && (
           <div className="batch-selection-pill">
             {selectedStationIds.length} station{selectedStationIds.length !== 1 ? "s" : ""} selected
-            <button 
-              type="button" 
-              className="batch-selection-pill-clear"
-              onClick={handleClearAll}
-              title="Unselect all stations"
-            >
+            <button type="button" className="batch-selection-pill-clear" onClick={handleClearAll} title="Unselect all stations">
               ✕
             </button>
           </div>
@@ -254,225 +198,35 @@ const BatchCompiler = ({
       </div>
 
       <form onSubmit={handleBatchConvert} className="batch-sidebar__form">
-
-        <div className="batch-form-section">
-          <label className="batch-section-label">Filter Viewport</label>
-          <div className="batch-search-wrapper">
-            <span className="batch-search-icon">⌕</span>
-            <input
-              type="text"
-              placeholder="Name or coordinates…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="batch-input-field batch-search-input"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                className="batch-search-clear"
-                onClick={() => setSearchQuery("")}
-                aria-label="Clear search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="batch-form-section batch-form-section--grow">
-          <div className="batch-section-title-row">
-            <label className="batch-section-label">
-              Stations&nbsp;
-              <span className="batch-count-chip">
-                {filteredStations.length}
-                {filteredStations.length !== visibleStations.length && (
-                  <> / {visibleStations.length}</>
-                )}
-              </span>
-            </label>
-            <div className="batch-selection-actions">
-              {filteredStations.length > 0 && (
-                <label className="batch-select-all">
-                  <input
-                    type="checkbox"
-                    onChange={handleSelectAllFiltered}
-                    checked={allFilteredSelected}
-                  />
-                  <span>Select all</span>
-                </label>
-              )}
-              {selectedStationIds.length > 0 && (
-                <button
-                  type="button"
-                  className="batch-clear-btn"
-                  onClick={handleClearAll}
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="batch-station-scrollbox">
-            {filteredStations.length === 0 ? (
-              <div className="batch-empty-scope">
-                {visibleStations.length === 0
-                  ? "Pan the map to load stations into view."
-                  : "No stations match your search."}
-              </div>
-            ) : (
-              filteredStations.map((station) => {
-                const isChecked = selectedStationIds.includes(station._id);
-                const lat = station.location?.coordinates?.[1];
-                const lng = station.location?.coordinates?.[0];
-                return (
-                  <label
-                    key={station._id}
-                    className={`batch-station-row ${isChecked ? "batch-station-row--checked" : ""}`}
-                    onMouseEnter={() => onHoverStationId?.(station._id)}
-                    onMouseLeave={() => onHoverStationId?.(null)}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => handleStationCheck(station._id)}
-                    />
-                    <div className="batch-station-info-block">
-                      <span className="batch-station-name-text">
-                        {station.name || "Unnamed Station"}
-                      </span>
-                      {lat != null && lng != null && (
-                        <span className="batch-station-coords-subtext">
-                          {lat}°&thinsp;N &nbsp;{lng}°&thinsp;E
-                        </span>
-                      )}
-                    </div>
-                    {isChecked && <span className="batch-station-check-tick">✓</span>}
-                    
-                    <button
-                      type="button"
-                      className="batch-station-details-btn"
-                      title="View station details"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onSelectStation?.(station);
-                      }}
-                    >
-                      ⓘ
-                    </button>
-                  </label>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        <div className="batch-form-section">
-          <label className="batch-section-label">Date Range</label>
-          <div className="batch-grid-row">
-            <div>
-              <span className="batch-input-sublabel">From</span>
-              <input
-                type="date"
-                required
-                value={startDate}
-                max={todayIso}
-                onChange={handleStartDateChange}
-                className={`batch-input-field ${dateError ? "batch-input-field--error" : ""}`}
-              />
-            </div>
-            <div>
-              <span className="batch-input-sublabel">To</span>
-              <input
-                type="date"
-                required
-                value={endDate}
-                max={todayIso}
-                onChange={handleEndDateChange}
-                className={`batch-input-field ${dateError ? "batch-input-field--error" : ""}`}
-              />
-            </div>
-          </div>
-          {dateError && (
-            <p className="batch-field-error">{dateError}</p>
-          )}
-        </div>
-
-        <div className="batch-form-section">
-          <label className="batch-section-label">Hour Window</label>
-          <div className="batch-grid-row">
-            <div>
-              <span className="batch-input-sublabel">Start</span>
-              <select
-                value={startHour}
-                onChange={handleStartHourChange}
-                className={`batch-input-field ${hourError ? "batch-input-field--error" : ""}`}
-              >
-                {Array.from({ length: 24 }).map((_, h) => (
-                  <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <span className="batch-input-sublabel">End</span>
-              <select
-                value={endHour}
-                onChange={handleEndHourChange}
-                className={`batch-input-field ${hourError ? "batch-input-field--error" : ""}`}
-              >
-                {Array.from({ length: 24 }).map((_, h) => (
-                  <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {hourError && (
-            <p className="batch-field-error">{hourError}</p>
-          )}
-        </div>
-
-        <div className="batch-form-section">
-          <label className="batch-section-label">RINEX Version</label>
-          <select
-            value={rinexVersion}
-            onChange={(e) => setRinexVersion(e.target.value)}
-            className="batch-input-field"
-          >
-            <option value="2.11">v2.11 — Legacy Navigation</option>
-            <option value="3.05">v3.05 — Multi-GNSS Standard</option>
-            <option value="4.01">v4.01 — High-Rate Phase</option>
-          </select>
-        </div>
-
-        <div className="batch-action-center-wrapper">
-          <button
-            type="submit"
-            disabled={isProcessing || !!hourError || !!dateError}
-            className={`batch-giant-circle-btn ${isProcessing ? "batch-giant-circle-btn--loading" : ""}`}
-          >
-            {isProcessing ? (
-              <div className="batch-btn-spinner" />
-            ) : (
-              <svg
-                className="batch-btn-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-              </svg>
-            )}
-          </button>
-          <span className="batch-action-label-text">
-            {isProcessing
-              ? `Compiling RINEX v${rinexVersion}…`
-              : "Download Files"}
-          </span>
-        </div>
+        <BatchStationList
+          filteredStations={filteredStations}
+          selectedStationIds={selectedStationIds}
+          visibleStations={visibleStations}
+          allFilteredSelected={allFilteredSelected}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onStationCheck={handleStationCheck}
+          onSelectAllFiltered={handleSelectAllFiltered}
+          onClearAll={handleClearAll}
+          onHoverStationId={onHoverStationId}
+          onSelectStation={onSelectStation}
+        />
+        <BatchDownloadForm
+          startDate={startDate}
+          endDate={endDate}
+          startHour={startHour}
+          endHour={endHour}
+          rinexVersion={rinexVersion}
+          dateError={dateError}
+          hourError={hourError}
+          todayIso={todayIso}
+          isProcessing={isProcessing}
+          onStartDateChange={handleStartDateChange}
+          onEndDateChange={handleEndDateChange}
+          onStartHourChange={handleStartHourChange}
+          onEndHourChange={handleEndHourChange}
+          onRinexVersionChange={(e) => setRinexVersion(e.target.value)}
+        />
       </form>
     </aside>
   );

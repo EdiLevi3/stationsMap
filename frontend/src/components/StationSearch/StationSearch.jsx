@@ -1,7 +1,3 @@
-// Search bar overlay on the map. Supports:
-// - Fuzzy station name search (via backend API)
-// - Keyboard navigation (arrows, enter, escape)
-
 import { useState, useRef, useEffect, useCallback } from "react";
 import "./StationSearch.css";
 import { useMap } from "react-leaflet";
@@ -10,7 +6,7 @@ import { highlightMatch } from "../../utils/highlightMatch";
 import useGeoSearch from "../../hooks/useGeoSearch";
 import useSearchMarker from "../../controllers/useSearchMarker";
 
-const StationSearch = ({ markerRefs, onSelect }) => {
+const StationSearch = () => {
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);

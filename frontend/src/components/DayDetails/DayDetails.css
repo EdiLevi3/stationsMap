@@ -1,19 +1,15 @@
-/* New content subsection row layout */
 .dd-content-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.85rem;
 }
-
 .dd-section-title {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
   color: #1a1a2e;
 }
-
-/* Beautiful new location badge style for telemetry status */
 .dd-hours-badge {
   font-size: 0.82rem;
   font-weight: 600;
@@ -24,19 +20,12 @@
   border-radius: 6px;
 }
 
-/* Base custom badge styling inside header - Deprecated in favor of station-page__meta-item--highlight */
-.dd-date-highlight {
-  display: none;
-}
-
-/* ── STAT CARDS ── */
 .dd-stats-row {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
-
 .dd-stat-card {
   background: #fff;
   border: 1px solid #e2e6ea;
@@ -47,9 +36,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
-
 .dd-stat-label {
   font-size: 0.72rem;
   font-weight: 600;
@@ -57,19 +45,16 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
-
 .dd-stat-value {
   font-size: 1.25rem;
   font-weight: 700;
 }
 
-/* ── TABS ── */
 .dd-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 1rem;
 }
-
 .dd-tab {
   padding: 6px 14px;
   border: 1px solid #d0d7de;
@@ -81,27 +66,26 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-
-.dd-tab:hover {
-  background: #f6f8fa;
-}
-
+.dd-tab:hover { background: #f6f8fa; }
 .dd-tab--active {
   background: #1a1a2e;
   color: #fff;
   border-color: #1a1a2e;
 }
 
-/* ── TREND GRAPH ── */
 .dd-trend-graph {
   background: #fff;
-  border: 1px solid #e2e6ea;
-  border-radius: 10px;
-  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem 1rem 1.75rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
+.dd-trend-graph svg { overflow: visible; display: block; }
+.dd-trend-graph path { transition: d 0.3s ease-in-out, fill 0.3s ease-in-out; }
+.dd-trend-graph circle { transition: cx 0.3s ease-in-out, cy 0.3s ease-in-out, fill 0.3s ease-in-out; }
+.dd-trend-graph text { user-select: none; pointer-events: none; }
 
-/* ── HOUR GRID ── */
 .dd-hour-grid {
   background: #fff;
   border: 1px solid #e2e6ea;
@@ -110,7 +94,6 @@
   display: flex;
   flex-direction: column;
 }
-
 .dd-hour-cell {
   display: flex;
   align-items: center;
@@ -118,14 +101,8 @@
   border-bottom: 1px solid #e2e6ea;
   gap: 16px;
 }
-
-.dd-hour-cell:last-child {
-  border-bottom: none;
-}
-
-.dd-hour-cell--active:hover {
-  background: #f8fafc;
-}
+.dd-hour-cell:last-child { border-bottom: none; }
+.dd-hour-cell--active:hover { background: #f8fafc; }
 
 .dd-hour-time {
   font-size: 0.85rem;
@@ -134,22 +111,18 @@
   width: 50px;
   flex-shrink: 0;
 }
-
 .dd-hour-track {
   flex: 1;
   height: 8px;
   background: #f1f5f9;
   border-radius: 4px;
   overflow: hidden;
-  position: relative;
 }
-
 .dd-hour-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
 }
-
 .dd-hour-val {
   font-size: 0.85rem;
   font-weight: 700;
@@ -165,127 +138,4 @@
   border: 1px solid #e2e6ea;
   border-radius: 10px;
   color: #666;
-}
-/* ── TREND GRAPH LAYOUT ENHANCEMENTS ── */
-.dd-trend-graph {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  /* CHANGED: Increased the left padding (last value) to 1.75rem to protect the Y-axis numbers */
-  padding: 1.5rem 1.25rem 1rem 1.75rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.dd-trend-graph svg {
-  overflow: visible; 
-  display: block;
-}
-
-/* Smooth transitions when switching metrics */
-.dd-trend-graph path {
-  transition: d 0.3s ease-in-out, fill 0.3s ease-in-out;
-}
-
-.dd-trend-graph circle {
-  transition: cx 0.3s ease-in-out, cy 0.3s ease-in-out, fill 0.3s ease-in-out;
-}
-
-/* Text cleanups */
-.dd-trend-graph text {
-  user-select: none;
-  pointer-events: none;
-}
-
-/* ── HEADER META ENHANCEMENTS ── */
-.station-page__meta-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-top: 6px;
-}
-
-.station-page__meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.85rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.station-page__meta-icon {
-  display: none;
-}
-
-.station-page__meta-item strong {
-  color: #475569;
-  font-weight: 600;
-  margin-right: 2px;
-}
-
-/* ── Temporal Info (Date/Time on the right) ── */
-.station-page__temporal-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: right;
-}
-
-.station-page__temporal-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-}
-
-.station-page__temporal-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 0.02em;
-}
-
-.station-page__temporal-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #0f172a;
-  background: #f1f5f9;
-  padding: 1px 8px;
-  border-radius: 4px;
-}
-
-/* Make header a flex row so the ✕ button can sit on the far right */
-.station-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-/* ✕ Close-station button in page headers */
-.station-page__close-btn {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid #cbd5e1;
-  background: #f8fafc;
-  color: #374151;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  transition: background 0.15s, transform 0.15s;
-}
-.station-page__close-btn:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-  transform: scale(1.1);
 }

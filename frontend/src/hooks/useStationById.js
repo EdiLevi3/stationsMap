@@ -1,6 +1,3 @@
-// Fetches a single station's full details (including records) by ID.
-// Uses AbortController to cancel the request on unmount or ID change.
-
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../config";
 
@@ -19,10 +16,8 @@ export const useStationById = (stationId) => {
         const res = await fetch(`${API_BASE_URL}/api/stations/${stationId}`, {
           signal: abortController.signal,
         });
-        console.log(res)
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const stationData = await res.json();
-        console.log("ststion data",stationData)
         setStation(stationData);
       } catch (err) {
         if (err.name === "AbortError") return;

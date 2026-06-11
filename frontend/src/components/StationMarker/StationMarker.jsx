@@ -1,25 +1,12 @@
 import { memo } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import leaflet from "leaflet";
-import "./StationMarker.css"; // ── ADDED: Keeps marker styles self-contained!
+import "./StationMarker.css";
 
 const isUpdatedToday = (dateStr) => {
-  if (!dateStr) {
-    console.log("Station Marker: dateStr is missing or undefined");
-    return false;
-  }
-  
+  if (!dateStr) return false;
   const updateDate = new Date(dateStr);
   const today = new Date();
-  
-  console.log("Comparing Dates for Station:", {
-    rawDateStr: dateStr,
-    parsedUpdateDate: updateDate.toString(),
-    parsedToday: today.toString(),
-    updateYMD: [updateDate.getFullYear(), updateDate.getMonth(), updateDate.getDate()],
-    todayYMD: [today.getFullYear(), today.getMonth(), today.getDate()]
-  });
-
   return (
     updateDate.getFullYear() === today.getFullYear() &&
     updateDate.getMonth() === today.getMonth() &&
@@ -27,8 +14,7 @@ const isUpdatedToday = (dateStr) => {
   );
 };
 
-const StationMarker = memo(({ station, markerRef, onSelect, isHighlighted }) => {
-  console.log("Full station data received:", station); // ◄ ADD THIS
+const StationMarker = memo(({ station, onSelect, isHighlighted }) => {
   const { name, location, lastUpdate } = station;
   
   const position = [
@@ -59,7 +45,6 @@ const StationMarker = memo(({ station, markerRef, onSelect, isHighlighted }) => 
   return (
     <Marker
       position={position}
-      ref={markerRef}
       icon={customCircleIcon}
       eventHandlers={{ click: handleClick }}
     >
