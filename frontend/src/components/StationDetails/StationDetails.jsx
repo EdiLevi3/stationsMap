@@ -3,6 +3,7 @@ import "./StationDetails.css";
 import { useStationById } from "../../hooks/useStationById";
 import { API_BASE_URL } from "../../config";
 import DayDetails from "../DayDetails/DayDetails";
+import WeeklyView from "../WeeklyView/WeeklyView";
 
 const getColor = ({ spoof, gam } = {}) => {
   if (spoof === null && gam === null) return "#D1D5DB"; // no data
@@ -13,11 +14,9 @@ const getColor = ({ spoof, gam } = {}) => {
 
 const getDominantColor = (hourlyValues) => {
   const counts = { "#4CAF50": 0, "#FFC107": 0, "#F44336": 0, "#D1D5DB": 0 };
-  let activeDataCount = 0;
   hourlyValues.forEach((v) => {
     const color = getColor(v);
     counts[color]++;
-    if (v.spoof !== null || v.gam !== null) activeDataCount++;
   });
 
   const greenPercentage = (counts["#4CAF50"] / 24) * 100;
@@ -82,15 +81,25 @@ const StationDetails = ({ station, onClose }) => {
 
   const { station: chosenStation, loading, error } = useStationById(_id);
   const displayStation = chosenStation || station;
-  
+
   const { name, lastUpdate, location, antenna, frequency } = displayStation;
-  console.log("antenna is", antenna);
 
   const [records, setRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
+  // ── View mode: "monthly" | "weekly" ──
+  const [viewMode, setViewMode] = useState("monthly");
+
+  // ── Weekly range ──
   const todayIso = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const defaultFrom = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 29);
+    return d.toISOString().split("T")[0];
+  }, []);
+  const [weeklyFrom, setWeeklyFrom] = useState(defaultFrom);
+  const [weeklyTo,   setWeeklyTo]   = useState(todayIso);
 
   const handleDayClick = (date) => {
     if (date > todayIso) {
@@ -211,15 +220,14 @@ const StationDetails = ({ station, onClose }) => {
             <span className="station-page__icon">📍</span>
             <div style={{ minWidth: 0 }}>
               <h1 className="station-page__title">Station: {name}</h1>
-              
               <div className="station-page__meta-group" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
                 {location?.coordinates && location.coordinates.length === 2 && (
                   <span className="station-page__coordinates">
-                    <strong>Coords:</strong> {location.coordinates[1]}°, {location.coordinates[0]}°
+                    {location.coordinates[1]}°, {location.coordinates[0]}°
                   </span>
                 )}
                 <span className="station-page__antenna">
-                  <strong>Antenna: </strong> {antenna ? `${antenna} ` : "N/A"}
+                  <strong>Antenna:</strong> {antenna ? `${antenna}` : "N/A"}
                 </span>
                 <span className="station-page__frequency">
                   <strong>Frequency:</strong> {frequency ? `${frequency} MHz` : "N/A"}
@@ -247,80 +255,154 @@ const StationDetails = ({ station, onClose }) => {
       </header>
 
       <main className="station-main">
-        <div className="cal-search-container">
-          <label htmlFor="date-search" className="cal-search-label">
-            Search a Specific Date:
-          </label>
-          <input
-            type="date"
-            id="date-search"
-            className="cal-search-input"
-            max={todayIso}
-            onChange={handleDirectDateJump}
-            value=""
-          />
-        </div>
 
-        <div className="cal-month-nav">
+        {/* ── View mode toggle ── */}
+        <div className="sd-view-toggle">
           <button
-            className="cal-nav-btn"
-            onClick={() =>
-              setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
-            }
+            className={`sd-view-btn${viewMode === "monthly" ? " sd-view-btn--active" : ""}`}
+            onClick={() => setViewMode("monthly")}
           >
-            ‹
+            📅 Monthly
           </button>
-          <span className="cal-month-label">
-            {currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}
-          </span>
           <button
-            className="cal-nav-btn"
-            onClick={() =>
-              setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
-            }
+            className={`sd-view-btn${viewMode === "weekly" ? " sd-view-btn--active" : ""}`}
+            onClick={() => setViewMode("weekly")}
           >
-            ›
+            📊 Weekly avg
           </button>
         </div>
 
-        <div className="cal-legend">
-          <span className="legend-dot green" /> Good (no spoof , gam &lt; 40%)
-          <span className="legend-dot yellow" /> Fair (gam 40–80)
-          <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
-          <span className="legend-dot gray" /> No Data
-        </div>
+        {/* ══════════════════════════════
+            MONTHLY VIEW
+        ══════════════════════════════ */}
+        {viewMode === "monthly" && (
+          <>
+            <div className="cal-search-container">
+              <label htmlFor="date-search" className="cal-search-label">
+                Search a Specific Date:
+              </label>
+              <input
+                type="date"
+                id="date-search"
+                className="cal-search-input"
+                max={todayIso}
+                onChange={handleDirectDateJump}
+                value=""
+              />
+            </div>
 
-        <div className="cal-weekdays">
-          {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-            <div key={d} className="cal-weekday">{d}</div>
-          ))}
-        </div>
-
-        <div className="cal-grid">
-          {calendarGrid.map(({ date, outside }, idx) => {
-            const key = dateKey(date);
-            const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, gam: null });
-            const dominantColor = getDominantColor(hourly);
-            return (
-              <div
-                key={`${key}-${idx}`}
-                className={`cal-cell${outside ? " cal-cell--outside" : ""}`}
-                onClick={() => !outside && handleDayClick(key)}
-                title={outside ? undefined : `${key} — click for details`}
+            <div className="cal-month-nav">
+              <button
+                className="cal-nav-btn"
+                onClick={() =>
+                  setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
+                }
               >
-                <div className="cal-cell__ring">
-                  <HourlyRing hourlyValues={hourly} size={84} />
-                  <span
-                    className="cal-cell__day-num"
-                    style={{ color: outside ? "#bbb" : dominantColor }}
+                ‹
+              </button>
+              <span className="cal-month-label">
+                {currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}
+              </span>
+              <button
+                className="cal-nav-btn"
+                onClick={() =>
+                  setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
+                }
+              >
+                ›
+              </button>
+            </div>
+
+            <div className="cal-legend">
+              <span className="legend-dot green" /> Good (no spoof, gam &lt; 40%)
+              <span className="legend-dot yellow" /> Fair (gam 40–80)
+              <span className="legend-dot red" /> Poor (spoof or gam ≥ 80%)
+              <span className="legend-dot gray" /> No Data
+            </div>
+
+            <div className="cal-weekdays">
+              {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
+                <div key={d} className="cal-weekday">{d}</div>
+              ))}
+            </div>
+
+            <div className="cal-grid">
+              {calendarGrid.map(({ date, outside }, idx) => {
+                const key = dateKey(date);
+                const hourly = hourlyMap[key] || Array(24).fill({ spoof: null, gam: null });
+                const dominantColor = getDominantColor(hourly);
+                return (
+                  <div
+                    key={`${key}-${idx}`}
+                    className={`cal-cell${outside ? " cal-cell--outside" : ""}`}
+                    onClick={() => !outside && handleDayClick(key)}
+                    title={outside ? undefined : `${key} — click for details`}
                   >
-                    {date.getDate()}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    <div className="cal-cell__ring">
+                      <HourlyRing hourlyValues={hourly} size={84} />
+                      <span
+                        className="cal-cell__day-num"
+                        style={{ color: outside ? "#bbb" : dominantColor }}
+                      >
+                        {date.getDate()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ══════════════════════════════
+            WEEKLY VIEW
+        ══════════════════════════════ */}
+        {viewMode === "weekly" && (
+          <>
+            {/* Date range picker */}
+            <div className="cal-search-container sd-weekly-range">
+              <label className="cal-search-label">From</label>
+              <input
+                type="date"
+                className="cal-search-input"
+                max={todayIso}
+                value={weeklyFrom}
+                onChange={(e) => {
+                  if (e.target.value > todayIso) return;
+                  setWeeklyFrom(e.target.value);
+                }}
+              />
+              <span className="sd-range-arrow">→</span>
+              <label className="cal-search-label">To</label>
+              <input
+                type="date"
+                className="cal-search-input"
+                max={todayIso}
+                value={weeklyTo}
+                onChange={(e) => {
+                  if (e.target.value > todayIso) return;
+                  setWeeklyTo(e.target.value);
+                }}
+              />
+              {weeklyFrom && weeklyTo && weeklyFrom <= weeklyTo && (
+                <span className="sd-range-info">
+                  {Math.round((new Date(weeklyTo) - new Date(weeklyFrom)) / 86400000) + 1} days
+                </span>
+              )}
+            </div>
+
+            {weeklyFrom && weeklyTo && weeklyFrom <= weeklyTo ? (
+              <WeeklyView
+                records={records}
+                stationId={_id}
+                fromDate={weeklyFrom}
+                toDate={weeklyTo}
+              />
+            ) : (
+              <div className="cal-status">Please select a valid date range.</div>
+            )}
+          </>
+        )}
 
         {loading && <div className="cal-status">Loading…</div>}
         {error && <div className="cal-status cal-status--error">{error}</div>}

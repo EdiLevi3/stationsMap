@@ -1,0 +1,351 @@
+/* ── WeeklyView ──────────────────────────────────────────────────────────── */
+.wv-wrap {
+  position: relative;
+}
+
+/* ── Metric tabs ── */
+.wv-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.wv-tab {
+  padding: 5px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1.5px solid #d0d7de;
+  border-radius: 8px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.wv-tab:hover {
+  background: #f0f2f5;
+}
+
+.wv-tab--active {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+/* ── Overview strip ── */
+.wv-overview {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.wv-ov-card {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+  padding: 0.5rem 0.4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wv-ov-day {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wv-ov-val {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ── Board rows ── */
+.wv-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wv-day-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+/* ── Day label ── */
+.wv-day-label {
+  width: 38px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.wv-day-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.03em;
+}
+
+.wv-day-avg {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ── 24-hour bar grid ── */
+.wv-hours {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 2px;
+  align-items: end;
+}
+
+.wv-h-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+}
+
+.wv-bar-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 44px;
+}
+
+.wv-bar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.35s ease, background 0.35s ease;
+  min-height: 2px;
+}
+
+.wv-h-line {
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.wv-h-num {
+  font-size: 8px;
+  color: #aaa;
+  line-height: 1;
+  height: 10px;
+  user-select: none;
+}
+
+/* ── Legend ── */
+.wv-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #555;
+  margin-top: 1rem;
+}
+
+.wv-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+.wv-dot--green  { background: #4CAF50; }
+.wv-dot--yellow { background: #FFC107; }
+.wv-dot--red    { background: #F44336; }
+.wv-dot--gray   { background: #D1D5DB; }
+
+.wv-legend-hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* ── Tooltip ── */
+.wv-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 0.82rem;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.wv-tooltip-time {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.wv-tooltip-val {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.wv-tooltip-n {
+  font-size: 0.72rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* ── Empty state ── */
+.wv-empty {
+  text-align: center;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* ── Line chart ── */
+.wv-chart-wrap {
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 1rem 1.1rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.wv-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.wv-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1.5px solid var(--day-color);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--day-color);
+  cursor: pointer;
+  transition: all 0.15s;
+  opacity: 1;
+}
+
+.wv-chart-legend-item--off {
+  opacity: 0.35;
+  background: transparent;
+}
+
+.wv-chart-legend-item:hover {
+  opacity: 1;
+}
+
+.wv-chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--day-color);
+  flex-shrink: 0;
+}
+
+/* ── Heatmap ── */
+.wv-heatmap-wrap {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.wv-heatmap-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 600px;
+}
+
+.wv-heatmap-row {
+  display: grid;
+  grid-template-columns: 36px repeat(24, 1fr);
+  gap: 2px;
+  align-items: center;
+}
+
+.wv-heatmap-daylabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #888;
+  text-align: right;
+  padding-right: 6px;
+  letter-spacing: 0.03em;
+}
+
+.wv-heatmap-hlabel {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-align: center;
+  height: 14px;
+  line-height: 14px;
+}
+
+.wv-heatmap-cell {
+  height: 28px;
+  border-radius: 3px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: filter 0.1s;
+}
+
+.wv-heatmap-cell:hover {
+  filter: brightness(0.88);
+  z-index: 1;
+}
+
+.wv-heatmap-tip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 7px;
+  padding: 6px 11px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 20;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.5;
+}

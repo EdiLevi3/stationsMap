@@ -91,8 +91,8 @@ app.get("/health", (req, res) => {
 
 // try {
 //   await saveRecordInMongo({
-//     date: "2026-06-10",
-//     hour: 5,
+//     date: "2026-06-9",
+//     hour: 8,
 //     stationName: "Lebanon",
 //     satelliteConstellation: {'R': {'R07':100, 'R09':3000}, 'C': {'C07': 20}},
 //     recordPrecent: 100,
