@@ -217,30 +217,30 @@ const StationDetails = ({ station, onClose }) => {
       <header className="station-page__header">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", minWidth: 0 }}>
           <div className="station-page__title-group">
-            <span className="station-page__icon">📍</span>
             <div style={{ minWidth: 0 }}>
-              <h1 className="station-page__title">Station: {name}</h1>
-              <div className="station-page__meta-group" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
+              <h1 className="station-page__title">📍Station: {name}</h1>
+              <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
-                  <span className="station-page__coordinates">
-                    {location.coordinates[1]}°, {location.coordinates[0]}°
+                  <span className="station-page__meta-item">
+                    <strong>Coords:</strong> {location.coordinates[1]}°, {location.coordinates[0]}°
                   </span>
                 )}
-                <span className="station-page__antenna">
-                  <strong>Antenna:</strong> {antenna ? `${antenna}` : "N/A"}
+                <span className="station-page__meta-item">
+                  <strong>Antenna:</strong> {antenna || "N/A"}
                 </span>
-                <span className="station-page__frequency">
-                  <strong>Frequency:</strong> {frequency ? `${frequency} MHz` : "N/A"}
+                <span className="station-page__meta-item">
+                  <strong>Freq:</strong> {frequency ? `${frequency} MHz` : "N/A"}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flexShrink: 0 }}>
           {lastUpdate && (
             <div className="station-page__last-record">
-              <strong>Last record:</strong> {new Date(lastUpdate).toLocaleString()}
+              <span className="station-page__last-record-label">Last update:</span>
+              <span className="station-page__last-record-value">{new Date(lastUpdate).toLocaleString()}</span>
             </div>
           )}
           <button
@@ -262,13 +262,13 @@ const StationDetails = ({ station, onClose }) => {
             className={`sd-view-btn${viewMode === "monthly" ? " sd-view-btn--active" : ""}`}
             onClick={() => setViewMode("monthly")}
           >
-            📅 Monthly
+             Monthly
           </button>
           <button
             className={`sd-view-btn${viewMode === "weekly" ? " sd-view-btn--active" : ""}`}
             onClick={() => setViewMode("weekly")}
           >
-            📊 Weekly avg
+             Weekly avg
           </button>
         </div>
 

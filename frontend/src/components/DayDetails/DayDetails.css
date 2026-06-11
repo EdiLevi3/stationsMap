@@ -24,14 +24,9 @@
   border-radius: 6px;
 }
 
-/* Base custom badge styling inside header */
+/* Base custom badge styling inside header - Deprecated in favor of station-page__meta-item--highlight */
 .dd-date-highlight {
-  font-size: 0.85rem;
-  font-weight: 700;
-  background-color: #e0f2fe;
-  color: #0369a1;
-  padding: 2px 8px;
-  border-radius: 4px;
+  display: none;
 }
 
 /* ── STAT CARDS ── */
@@ -205,14 +200,62 @@
 /* ── HEADER META ENHANCEMENTS ── */
 .station-page__meta-group {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
-  gap: 12px;       /* Adds clean spacing between coordinates and the date badge */
-  flex-wrap: wrap; /* Prevents text breaking weirdly on small screens */
-  margin-top: 4px; /* Gives breathing room right under the Station title */
+  margin-top: 6px;
 }
 
-/* ── Add this to your shared station page CSS (DayDetails.css, HourDetails.css,
-      or a shared StationPage.css — wherever .station-page__header is defined) ── */
+.station-page__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.station-page__meta-icon {
+  display: none;
+}
+
+.station-page__meta-item strong {
+  color: #475569;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+/* ── Temporal Info (Date/Time on the right) ── */
+.station-page__temporal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.station-page__temporal-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.station-page__temporal-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.station-page__temporal-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
 
 /* Make header a flex row so the ✕ button can sit on the far right */
 .station-page__header {
@@ -220,7 +263,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  /* keep any existing padding/background you already have */
 }
 
 /* ✕ Close-station button in page headers */

@@ -31,7 +31,7 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState("");
 
-  const { name, location } = station || {};
+  const { name, location, antenna, frequency } = station || {};
 
   useEffect(() => {
     const fetchHourData = async () => {
@@ -91,38 +91,54 @@ const HourDetails = ({ station, stationId, date, hour, onBack, onClose }) => {
       )}
 
       <header className="station-page__header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1, minWidth: 0 }}>
           <button className="station-page__back-button" onClick={onBack}>
             ← Back
           </button>
           <div className="station-page__title-group">
-            <span className="station-page__icon">📍</span>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h1 className="station-page__title">Station: {name || "Unknown"}</h1>
               <div className="station-page__meta-group">
                 {location?.coordinates && location.coordinates.length === 2 && (
-                  <span className="station-page__coordinates">
-                    {location.coordinates[1]}°, {location.coordinates[0]}°
+                  <span className="station-page__meta-item">
+                    <strong>Coords:</strong> {location.coordinates[1]}°, {location.coordinates[0]}°
                   </span>
                 )}
-                <span className="hd-date-highlight">{date}</span>
-                <span className="hd-hour-tag-badge">{formattedHour}:00</span>
+                <span className="station-page__meta-item">
+                  <strong>Antenna:</strong> {antenna || "N/A"}
+                </span>
+                <span className="station-page__meta-item">
+                  <strong>Freq:</strong> {frequency ? `${frequency} MHz` : "N/A"}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ✕ Close entire station */}
-        {onClose && (
-          <button
-            className="station-page__close-btn"
-            onClick={onClose}
-            title="Close station"
-            aria-label="Close station"
-          >
-            ✕
-          </button>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flexShrink: 0 }}>
+          <div className="station-page__temporal-info">
+            <div className="station-page__temporal-row">
+              <span className="station-page__temporal-label">Date:</span>
+              <span className="station-page__temporal-value">{date}</span>
+            </div>
+            <div className="station-page__temporal-row">
+              <span className="station-page__temporal-label">Hour:</span>
+              <span className="station-page__temporal-value" style={{ backgroundColor: "#e0f2fe", color: "#0369a1" }}>
+                {formattedHour}:00
+              </span>
+            </div>
+          </div>
+          {onClose && (
+            <button
+              className="station-page__close-btn"
+              onClick={onClose}
+              title="Close station"
+              aria-label="Close station"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="station-main">

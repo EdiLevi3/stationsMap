@@ -62,7 +62,7 @@ const NearbyStations = () => {
         onClick={() => setIsExpanded(!isExpanded)}
         title="Find nearby stations by coordinates"
       >
-        <span className="nearby-stations__icon">📍</span>
+        <span className="nearby-stations__icon">➕</span>
         <span className="nearby-stations__label">Add Coordinates</span>
       </button>
 

@@ -1,27 +1,56 @@
 /* Custom internal metadata badges inside header */
 .station-page__meta-group {
   display: flex;
-  align-items: center;
-  gap: 12px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
 }
 
-.hd-date-highlight {
+.station-page__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.85rem;
-  font-weight: 700;
-  background-color: #f1f5f9;
-  color: #334155;
-  padding: 2px 8px;
-  border-radius: 4px;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.hd-hour-tag-badge {
-  font-size: 0.85rem;
+.station-page__meta-item strong {
+  color: #475569;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+/* ── Temporal Info (Date/Time on the right) ── */
+.station-page__temporal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.station-page__temporal-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.station-page__temporal-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
   font-weight: 700;
-  background-color: #e0f2fe;
-  color: #0369a1;
-  padding: 2px 8px;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.station-page__temporal-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 1px 8px;
   border-radius: 4px;
 }
 
@@ -447,4 +476,3 @@
   border-color: #fca5a5;
   transform: scale(1.1);
 }
-
