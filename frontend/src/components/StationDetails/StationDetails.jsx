@@ -82,11 +82,11 @@ const StationDetails = ({ station, onClose }) => {
           <>
             <div className="cal-search-container sd-weekly-range">
               <label className="cal-search-label">From</label>
-              <input type="date" className="cal-search-input" max={todayIso} value={weeklyFrom}
+              <input type="date" className="cal-search-input" max={weeklyTo || todayIso} value={weeklyFrom}
                 onChange={(e) => e.target.value <= todayIso && setWeeklyFrom(e.target.value)} />
               <span className="sd-range-arrow">→</span>
               <label className="cal-search-label">To</label>
-              <input type="date" className="cal-search-input" max={todayIso} value={weeklyTo}
+              <input type="date" className="cal-search-input" min={weeklyFrom} max={todayIso} value={weeklyTo}
                 onChange={(e) => e.target.value <= todayIso && setWeeklyTo(e.target.value)} />
               {weeklyFrom && weeklyTo && weeklyFrom <= weeklyTo && (
                 <span className="sd-range-info">

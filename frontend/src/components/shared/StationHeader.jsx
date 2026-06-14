@@ -17,7 +17,7 @@ const StationHeader = ({ station, onBack, onClose, children, temporalInfo }) => 
                 </span>
               )}
               <span className="station-page__meta-item"><strong>Antenna:</strong> {antenna || "N/A"}</span>
-              <span className="station-page__meta-item"><strong>Freq:</strong> {frequency ? `${frequency} MHz` : "N/A"}</span>
+              <span className="station-page__meta-item"><strong>Freq:</strong> {frequency ? `${frequency} Hz` : "N/A"}</span>
             </div>
           </div>
         </div>
